@@ -39,9 +39,9 @@ jobs:
     - name: Publish .NET Project
       run: dotnet publish ForbiddenPsalmBuilder/ForbiddenPsalmBuilder.Blazor/ForbiddenPsalmBuilder.Blazor.csproj -c Release -o release --nologo
 
-    # Change base-tag in index.html from '/' to 'forbidden-psalm' to match GitHub Pages repository subdirectory
-    - name: Change base-tag in index.html
-      run: sed -i 's/<base href="\/" \/>/<base href="\/forbidden-psalm\/" \/>/g' release/wwwroot/index.html
+    # Copy CNAME file for custom domain
+    - name: Copy CNAME file
+      run: cp CNAME release/wwwroot/CNAME
 
     # Add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project
     # (GitHub Pages uses Jekyll by default which doesn't serve files/folders starting with underscore)
