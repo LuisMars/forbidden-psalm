@@ -1,0 +1,18 @@
+{
+  "gameName": "28 Psalms",
+  "currency": {
+    "name": "credits",
+    "symbol": "C",
+    "startingBudget": 50
+  },
+  "techLevels": ["past", "future"],
+  "warbandSize": {
+    "max": 5,
+    "spellcasterLimit": 1
+  },
+  "characterCreation": {
+    "variantSpecific": {
+      "presenceUses": ["hacking (Future tech)"]
+    }
+  }
+}

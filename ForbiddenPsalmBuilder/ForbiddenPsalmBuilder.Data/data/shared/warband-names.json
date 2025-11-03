@@ -1,0 +1,81 @@
+{
+  "patterns": [
+    "[group] of [adjective] [occupation]",
+    "the [adjective] [group] of [occupation]",
+    "the [occupation]' [group]",
+    "the [adjective] [occupation]",
+    "the [adjective] [group]",
+    "the [adjective] [occupation] [location]",
+    "[occupation] [location]",
+    "the [adjective] [group] of [occupation]",
+    "the [adjective] [group] of [adjective] [occupation]",
+    "the [adjective]",
+    "the [occupation]",
+    "the [atmosphere] [group]"
+  ],
+  "group": [
+    "Union", "Band", "Choir", "Gang", "Corps", "Bunch", "Council", "Ensemble", "Orchestra", "Carneval",
+    "Guild", "Circle", "Nobility", "Club", "Elite", "Host", "Horde", "Legion", "Crew", "Family",
+    "Clan", "Nation", "Society", "Brigade", "Rabble", "Squad", "Retinue", "Pentad", "Coven", "Sons",
+    "Children", "Mob", "Order", "Pack", "Circus", "Embrace", "Alliance"
+  ],
+  "occupation": [
+    "Swineherds", "Peddlers", "Fathers", "Seekers", "Beggars", "Barbers", "Babies", "Ones", "Bakers", "Whisperers",
+    "Murderers", "Hobos", "Gongfarmers", "Sailors", "Poets", "Fools", "Nobles", "Pilgrims", "Singers", "Collectors",
+    "Wanderers", "Merchants", "Children", "Corpses", "Thinkers", "Knights", "Devils", "Blokes", "Wizards", "Doctors",
+    "Servants", "Lovers", "Defenders", "Men", "Apostles", "Goons", "Zealots", "Women", "Butchers", "Idiots",
+    "Scavengers", "Witches", "Pirates", "Sons", "Hunters", "Hats", "Eyes", "Hands", "Gazers", "Giants",
+    "Husks", "Guardians", "Watchers", "Clerks", "Scribes", "Journeymen", "Acolytes"
+  ],
+  "adjective": [
+    "Merry", "Smelly", "Naked", "Unclean", "Musty", "Tattered", "Desperate", "Blinded", "Bloodthirsty", "Enraged",
+    "Fleshy", "Unlikely", "Sweaty", "Howling", "Worried", "Hollow", "Aroused", "Forgotten", "Humble", "Excentric",
+    "Deadly", "Misguided", "Bloddied", "Aimless", "Bloody", "Illuminated", "Drunk", "Hairy", "Lost", "Soft",
+    "Lucky", "Tentacled", "Black", "Festering", "Rotting", "Shunned", "Amorphous", "Irritated", "Pestilent", "Bloated",
+    "Naughty", "Flayed", "Wild", "Iron", "Hateful", "Horny", "Spiteful", "Friendly", "Godless", "Holy",
+    "Festering", "Moist", "Wasted", "Hungry", "Thrustworthy", "Tongueless", "Withered", "Noble", "Pointy", "Polychromatic",
+    "Verdant", "Silver", "Toxic", "Acid", "Endless", "Screeching", "Screaming", "Howling", "Smoking", "Silent",
+    "Flickering", "Shimmering", "Fragrant", "Whispering"
+  ],
+  "location": [
+    "of the Woods", "of the Hills", "of the Vale", "of the Swamp", "of the Path", "of Madness",
+    "of Love", "of the Void", "of the Abyss", "of the Light", "of the Starless Sea", "of the Goat",
+    "of the End", "of the Worm"
+  ],
+  "locationTemplates": [
+    "of the [atmosphere] Swamp",
+    "of the [atmosphere] Path",
+    "of the [atmosphere] Peak",
+    "of the [atmosphere] Lake",
+    "of the [adjective] Fire",
+    "of the [adjective] Citadel",
+    "of the [color] [animal]",
+    "of the [adjective] God",
+    "of the [adjective] Godess",
+    "of the [adjective] [shape]"
+  ],
+  "shape": [
+    "Dodecahedron", "Cube", "Sphere", "Trapezoid", "Pyramid", "Cloud", "Crystal", "Helix"
+  ],
+  "atmosphere": [
+    "Verdant", "Silver", "Toxic", "Acid", "Endless", "Screeching", "Screaming", "Howling", "Smoking", "Silent",
+    "Flickering", "Shimmering", "Fragrant", "Whispering"
+  ],
+  "color": [
+    "Crimson", "Scarlet", "Vermilion", "Rusted", "Ember", "Amber", "Golden", "Citrine", "Ochre", "Sepia",
+    "Umber", "Saffron", "Ivory", "Bone", "Pallid", "Chalk", "Alabaster", "Pearl", "Silver", "Steel",
+    "Iron", "Lead", "Azure", "Cobalt", "Sapphire", "Cerulean", "Indigo", "Violet", "Magenta", "Fuchsia",
+    "Orchid", "Lilac", "Moss", "Verdant", "Viridian", "Emerald", "Jade", "Olive", "Chartreuse", "Teal",
+    "Turquoise", "Cyan", "Slate", "Ashen", "Charcoal", "Obsidian", "Night", "Void", "Rust", "Blood",
+    "Wine", "Maroon", "Burgundy", "Soot", "Dust", "Marble", "Shadowed", "Dusk", "Dawn"
+  ],
+  "animal": [
+    "Raven", "Crow", "Vulture", "Owl", "Heron", "Crane", "Stag", "Elk", "Hart", "Goat",
+    "Ram", "Boar", "Sow", "Wolf", "Hound", "Fox", "Jackal", "Hyena", "Bear", "Leopard",
+    "Panther", "Lion", "Tiger", "Lynx", "Cat", "Rat", "Mouse", "Mole", "Bat", "Moth",
+    "Butterfly", "Beetle", "Locust", "Spider", "Scorpion", "Serpent", "Cobra", "Viper", "Hydra", "Drake",
+    "Wyrm", "Lizard", "Toad", "Frog", "Kraken", "Squid", "Eel", "Shark", "Dolphin", "Whale",
+    "Seal", "Walrus", "Barnacle", "Crab", "Lobster", "Jellyfish", "Worm", "Centipede", "Snail", "Slug",
+    "Horse", "Mule", "Camel", "Ox", "Bison", "Buffalo", "Beast", "Chimera", "Gargoyle", "Golem", "Djinn"
+  ]
+}

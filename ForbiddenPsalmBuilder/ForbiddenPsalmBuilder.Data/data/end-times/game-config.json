@@ -1,0 +1,40 @@
+{
+  "gameName": "Forbidden Psalm: End Times",
+  "currency": {
+    "name": "Gold",
+    "symbol": "G",
+    "startingBudget": 50
+  },
+  "warbandSize": {
+    "max": 5,
+    "spellcasterLimit": 1,
+    "petLimit": 1
+  },
+  "armorRules": {
+    "equipmentRestrictions": {
+      "onlyOne": ["armor", "shield"],
+      "description": "Only one piece of Armor and one Shield can be used at a time"
+    }
+  },
+  "characterCreation": {
+    "optionalHires": {
+      "spellcaster": {
+        "cost": 5,
+        "abilities": ["Can use scrolls", "Access to magic system"],
+        "startingMagicItems": {
+          "amount": 2,
+          "type": "selected",
+          "categories": ["clean", "unclean"],
+          "requirement": "one_from_each_category"
+        }
+      },
+      "pets": {
+        "availableFromStart": true,
+        "reference": "pets-system.json"
+      }
+    },
+    "variantSpecific": {
+      "currency": "Gold"
+    }
+  }
+}

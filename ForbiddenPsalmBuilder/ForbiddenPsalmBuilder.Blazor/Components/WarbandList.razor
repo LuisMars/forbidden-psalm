@@ -1,0 +1,368 @@
+@using ForbiddenPsalmBuilder.Core.Services.State
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.DTOs
+@using ForbiddenPsalmBuilder.Core.Validation
+@using Microsoft.AspNetCore.Components.Forms
+@inject IGameStateService StateService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<section class="mb-4">
+    <header class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h3 mb-0">Warbands</h2>
+        <button class="btn btn-primary" @onclick="CreateNewWarband">
+            <i class="ra ra-crossed-swords"></i> New Warband
+        </button>
+    </header>
+
+    @if (warbands.Any())
+    {
+        <div class="row g-3">
+            @foreach (var warband in warbands)
+            {
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 @(IsActiveWarband(warband) ? "border-primary" : "")"
+                         role="button"
+                         @onclick="() => EditWarband(warband.Id)">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h3 class="card-title h5 mb-0">@warband.Name</h3>
+                                @if (IsActiveWarband(warband))
+                                {
+                                    <span class="badge text-bg-success">
+                                        <i class="fas fa-check-circle"></i> Active
+                                    </span>
+                                }
+                            </div>
+                            <p class="text-body-secondary mb-2">
+                                <span class="badge text-bg-info me-1">@GetGameVariantDisplayName(warband.GameVariant)</span>
+                                <span class="badge text-bg-secondary me-1">@warband.Members.Count / 5 members</span>
+                                <span class="badge text-bg-success">@warband.Gold @GetCurrencySymbol(warband.GameVariant)</span>
+                            </p>
+                            <small class="text-body-secondary d-block">
+                                Created: @warband.Created.ToString("MMM dd, yyyy")
+                                @if (warband.LastModified != warband.Created)
+                                {
+                                    <br />
+                                    <text>Modified: @warband.LastModified.ToString("MMM dd, yyyy")</text>
+                                }
+                            </small>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="btn-group w-100" role="group">
+                                <button class="btn btn-sm btn-primary"
+                                        @onclick="() => EditWarband(warband.Id)"
+                                        @onclick:stopPropagation="true"
+                                        title="Manage warband">
+                                    <i class="fas fa-folder-open"></i> Manage
+                                </button>
+                                <button class="btn btn-sm btn-danger"
+                                        @onclick="() => ShowDeleteConfirm(warband)"
+                                        @onclick:stopPropagation="true"
+                                        title="Delete warband">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <section class="text-center py-5 border rounded">
+            <i class="ra ra-crossed-swords fa-3x text-primary mb-3 d-block"></i>
+            <p class="lead mb-2">No warbands created yet.</p>
+            <p class="text-body-secondary mb-3">Create your first warband to get started!</p>
+            <button class="btn btn-primary btn-lg" @onclick="CreateNewWarband">
+                <i class="ra ra-crossed-swords"></i> Create Your First Warband
+            </button>
+        </section>
+    }
+</section>
+
+<Modal IsVisible="showCreateModal" Title="Create New Warband" OnClose="CancelCreate">
+    <EditForm Model="createWarbandDto" OnValidSubmit="ConfirmCreate">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="warbandName" class="form-label">Warband Name</label>
+            <div class="input-group">
+                <InputText id="warbandName"
+                          class="form-control"
+                          @bind-Value="createWarbandDto.Name"
+                          placeholder="Enter warband name..." />
+                <button type="button" class="btn btn-secondary" @onclick="GenerateNewName" title="Generate new random name">
+                    <i class="fas fa-dice"></i>
+                </button>
+            </div>
+            <ValidationMessage For="@(() => createWarbandDto.Name)" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="gameVariant" class="form-label">Game Variant</label>
+            <select id="gameVariant" class="form-select" @bind="createWarbandDto.GameVariant" @oninput="OnGameVariantChanged">
+                <option value="">Select a game variant...</option>
+                <option value="28-psalms">28 Psalms</option>
+                <option value="end-times">Forbidden Psalm: End Times</option>
+                <option value="last-war">The Last War</option>
+            </select>
+            <ValidationMessage For="@(() => createWarbandDto.GameVariant)" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="startingGold" class="form-label">
+                Starting @GetCurrencyName(createWarbandDto.GameVariant) (@GetCurrencySymbol(createWarbandDto.GameVariant))
+            </label>
+            <InputNumber id="startingGold"
+                        class="form-control"
+                        @bind-Value="createWarbandDto.StartingGold" />
+            <ValidationMessage For="@(() => createWarbandDto.StartingGold)" class="text-danger" />
+            <small class="form-text text-body-secondary">Default starting budget varies by game variant</small>
+        </div>
+
+        @if (validationErrors.Any())
+        {
+            <aside class="alert alert-danger" role="alert">
+                <strong>Validation Errors:</strong>
+                <ul class="mb-0">
+                    @foreach (var error in validationErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </aside>
+        }
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-secondary" @onclick="CancelCreate">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" disabled="@(!IsValidCreateForm())">
+                <i class="ra ra-crossed-swords"></i> Create Warband
+            </button>
+        </div>
+    </EditForm>
+</Modal>
+
+<ConfirmDialog
+    IsVisible="@showDeleteWarbandConfirm"
+    Title="Delete Warband"
+    Message="@($"Are you sure you want to delete the warband '{warbandToDelete?.Name}'? This will delete all characters and cannot be undone.")"
+    ConfirmText="Delete Warband"
+    OnConfirm="HandleDeleteWarbandConfirm"
+    OnCancel="CancelDeleteWarband" />
+
+@code {
+    private List<Warband> warbands = new();
+    private bool showCreateModal = false;
+    private CreateWarbandDto createWarbandDto = new();
+    private List<string> validationErrors = new();
+    private bool showDeleteWarbandConfirm = false;
+    private Warband? warbandToDelete = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        StateService.StateChanged += OnStateChanged;
+        StateService.WarbandChanged += OnWarbandChanged;
+
+        await RefreshWarbands();
+    }
+
+    private async Task RefreshWarbands()
+    {
+        warbands = await StateService.GetWarbandsAsync();
+        StateHasChanged();
+    }
+
+    private void OnStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnWarbandChanged(string warbandId)
+    {
+        InvokeAsync(RefreshWarbands);
+    }
+
+
+    private bool IsActiveWarband(Warband warband)
+    {
+        return StateService.State.ActiveWarbandId == warband.Id;
+    }
+
+    private async Task SetActiveWarband(string warbandId)
+    {
+        try
+        {
+            await StateService.SetActiveWarbandAsync(warbandId);
+        }
+        catch (Exception ex)
+        {
+            await StateService.SetErrorAsync($"Failed to set active warband: {ex.Message}");
+        }
+    }
+
+    private async Task CreateNewWarband()
+    {
+        var generatedName = await StateService.GenerateWarbandNameAsync();
+        createWarbandDto = new CreateWarbandDto
+        {
+            Name = generatedName,
+            GameVariant = "",
+            StartingGold = 50 // Default value
+        };
+        validationErrors.Clear();
+        showCreateModal = true;
+    }
+
+    private async Task GenerateNewName()
+    {
+        createWarbandDto.Name = await StateService.GenerateWarbandNameAsync();
+        StateHasChanged();
+    }
+
+    private void CancelCreate()
+    {
+        showCreateModal = false;
+        createWarbandDto = new();
+        validationErrors.Clear();
+    }
+
+    private async Task ConfirmCreate()
+    {
+        // Validate using our custom validator
+        var validation = WarbandValidator.ValidateCreateWarband(createWarbandDto);
+        if (!validation.IsValid)
+        {
+            validationErrors = validation.Errors;
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            // Create warband with proper DTO data
+            var warbandId = await StateService.CreateWarbandAsync(createWarbandDto.Name.Trim(), createWarbandDto.GameVariant);
+
+            // If starting gold is different from default, update the warband
+            if (createWarbandDto.StartingGold != GetDefaultStartingGold(createWarbandDto.GameVariant))
+            {
+                var warband = await StateService.GetWarbandAsync(warbandId);
+                if (warband != null)
+                {
+                    warband.Gold = createWarbandDto.StartingGold;
+                    await StateService.UpdateWarbandAsync(warband);
+                }
+            }
+
+            showCreateModal = false;
+            createWarbandDto = new();
+            validationErrors.Clear();
+        }
+        catch (Exception ex)
+        {
+            await StateService.SetErrorAsync($"Failed to create warband: {ex.Message}");
+        }
+    }
+
+    private void EditWarband(string warbandId)
+    {
+        Navigation.NavigateTo($"/warband/{warbandId}");
+    }
+
+    private void ShowDeleteConfirm(Warband warband)
+    {
+        warbandToDelete = warband;
+        showDeleteWarbandConfirm = true;
+    }
+
+    private async Task HandleDeleteWarbandConfirm()
+    {
+        if (warbandToDelete == null) return;
+
+        try
+        {
+            await StateService.DeleteWarbandAsync(warbandToDelete.Id);
+            showDeleteWarbandConfirm = false;
+            warbandToDelete = null;
+        }
+        catch (Exception ex)
+        {
+            await StateService.SetErrorAsync($"Failed to delete warband: {ex.Message}");
+        }
+    }
+
+    private void CancelDeleteWarband()
+    {
+        showDeleteWarbandConfirm = false;
+        warbandToDelete = null;
+    }
+
+    private string GetCurrencySymbol(string gameVariant)
+    {
+        return gameVariant switch
+        {
+            "28-psalms" => "C",
+            "end-times" => "G",
+            "last-war" => "R",
+            _ => "G"
+        };
+    }
+
+    private string GetGameVariantDisplayName(string variant)
+    {
+        return variant switch
+        {
+            "28-psalms" => "28 Psalms",
+            "end-times" => "End Times",
+            "last-war" => "Last War",
+            _ => variant
+        };
+    }
+
+    private string GetCurrencyName(string gameVariant)
+    {
+        return gameVariant switch
+        {
+            "28-psalms" => "Credits",
+            "end-times" => "Gold",
+            "last-war" => "Resources",
+            _ => "Currency"
+        };
+    }
+
+    private void OnGameVariantChanged(ChangeEventArgs e)
+    {
+        var selectedVariant = e.Value?.ToString() ?? "";
+        createWarbandDto.GameVariant = selectedVariant;
+        createWarbandDto.StartingGold = GetDefaultStartingGold(selectedVariant);
+        StateHasChanged();
+    }
+
+    private int GetDefaultStartingGold(string gameVariant)
+    {
+        return gameVariant switch
+        {
+            "28-psalms" => 50,
+            "end-times" => 50,
+            "last-war" => 50,
+            _ => 50
+        };
+    }
+
+    private bool IsValidCreateForm()
+    {
+        if (createWarbandDto == null) return false;
+
+        var validation = WarbandValidator.ValidateCreateWarband(createWarbandDto);
+        return validation.IsValid;
+    }
+
+    public void Dispose()
+    {
+        StateService.StateChanged -= OnStateChanged;
+        StateService.WarbandChanged -= OnWarbandChanged;
+    }
+}

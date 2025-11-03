@@ -1,0 +1,62 @@
+@* NumberInput.razor - A numeric input with +/- buttons *@
+<div class="input-group">
+    <button
+        type="button"
+        class="btn btn-secondary"
+        @onclick="Decrement"
+        disabled="@(Value <= Min)">
+        <i class="fas fa-minus"></i>
+    </button>
+    <input
+        type="number"
+        class="form-control text-center"
+        value="@Value"
+        min="@Min"
+        max="@Max"
+        @onchange="OnInputChange"
+        style="max-width: 100px;" />
+    <button
+        type="button"
+        class="btn btn-secondary"
+        @onclick="Increment"
+        disabled="@(Value >= Max)">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+
+@code {
+    [Parameter] public int Value { get; set; }
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+    [Parameter] public int Min { get; set; } = 0;
+    [Parameter] public int Max { get; set; } = 9999;
+    [Parameter] public int Step { get; set; } = 1;
+
+    private async Task Increment()
+    {
+        if (Value < Max)
+        {
+            Value += Step;
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private async Task Decrement()
+    {
+        if (Value > Min)
+        {
+            Value -= Step;
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private async Task OnInputChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var newValue))
+        {
+            // Clamp to min/max
+            newValue = Math.Max(Min, Math.Min(Max, newValue));
+            Value = newValue;
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+}

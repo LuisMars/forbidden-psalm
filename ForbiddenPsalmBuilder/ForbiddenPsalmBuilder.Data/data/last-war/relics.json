@@ -1,0 +1,137 @@
+[
+  {
+    "id": "flare-gun-of-illumination",
+    "name": "Flare Gun of Illumination",
+    "effect": "As Flare Gun but requires no Ammo.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "whistle-of-mallt-y-nos",
+    "name": "Whistle of Mallt-y-Nos",
+    "effect": "As an action can be used to call forth one Hound of Annwn. Place it within 12 inches and it makes a single attack against a model within 1 inch of it when it appears. Each round the Whistle can be reused to repeat this attack. If the Whistle is not used as an action the Hound begins to leave the battlefield.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "sword-of-gwydion",
+    "name": "Sword of Gwydion",
+    "effect": "As Sabre. Bearer can as an action call on any Hostile creature or opposition crew member to duel them. The challenged model makes a Presence test and on failure can only attack bearer of the Sword. If not in range to attack, must use movement to move towards bearer.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "silver-bullet",
+    "name": "Silver Bullet",
+    "effect": "Can be shot from any Ranged weapon. If it hits a Hostile creature with less than 20HP it will auto kill them if they fail a Toughness test. Can be found multiple times.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": false
+  },
+  {
+    "id": "gas-mask-of-clear-air",
+    "name": "Gas Mask of Clear Air",
+    "effect": "Can never be taken off (binds with wearer's flesh). As Gas Mask without -3 to Ranged attacks.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "axe-of-perun",
+    "name": "Axe of Perun",
+    "effect": "As Woodaxe but can also make a Ranged attack [D6][Ranged 6 inches][Presence].",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true,
+    "damage": "D6",
+    "range": "6 inches",
+    "stat": "Presence"
+  },
+  {
+    "id": "white-poppy",
+    "name": "White Poppy",
+    "effect": "Bearer is ignored by all Hostile creatures. If bearer makes an attack against a Hostile, the poppy shrivels and dies.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "assassins-pistol",
+    "name": "Assassins Pistol",
+    "effect": "As Pistol but always deals max damage.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "the-kings-armor",
+    "name": "The Kings Armor",
+    "effect": "As Plated Armor but no Strength requirement.",
+    "cost": 100,
+    "slots": 2,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "cat-nip",
+    "name": "Cat Nip",
+    "effect": "If Service Animal ever dies, crew may replace the animal for free with a new Trench Cat.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "lady-of-deaths-rifle",
+    "name": "Lady of Deaths Rifle",
+    "effect": "If an enemy is dropped to 0HP by this rifle, they are killed outright instead of being Downed.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  },
+  {
+    "id": "blessed-coin-of-nurse-nightshade",
+    "name": "Blessed Coin of Nurse Nightshade",
+    "effect": "Bearer of this coin if Downed is removed from the table automatically. They pass their Death Save automatically and do not roll for an injury.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "last-war",
+    "category": "standard",
+    "unique": true
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "witch",
+    "name": "Witch",
+    "displayName": "Witch",
+    "description": "A spellcaster who can use Manuscripts to cast powerful spells",
+    "cost": 5,
+    "iconClass": "ra ra-crystal-ball",
+    "gameVariant": "28-psalms",
+    "isSpellcaster": true,
+    "startingEquipment": [],
+    "statBonuses": {},
+    "abilities": [
+      "Can use Manuscripts to cast spells",
+      "Starts with 2 random Sanctified scrolls"
+    ],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1,
+      "startingMagicItems": {
+        "amount": 2,
+        "type": "random",
+        "categories": ["sanctified"]
+      }
+    }
+  }
+]

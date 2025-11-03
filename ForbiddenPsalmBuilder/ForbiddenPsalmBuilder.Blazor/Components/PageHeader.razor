@@ -1,0 +1,57 @@
+@namespace ForbiddenPsalmBuilder.Components
+<header class="mb-4">
+    @if (ShowBreadcrumb && BreadcrumbItems.Any())
+    {
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                @for (int i = 0; i < BreadcrumbItems.Count; i++)
+                {
+                    var item = BreadcrumbItems[i];
+                    var isLast = i == BreadcrumbItems.Count - 1;
+                    @if (!isLast)
+                    {
+                        <li class="breadcrumb-item">
+                            <a href="@item.Href">@item.Text</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">@item.Text</li>
+                    }
+                }
+            </ol>
+        </nav>
+    }
+    <div class="d-flex justify-content-between align-items-center">
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <div>
+                <h1 class="display-5 mb-1">@Title</h1>
+                @if (!string.IsNullOrEmpty(Subtitle))
+                {
+                    <p class="text-body-secondary mb-0">@Subtitle</p>
+                }
+            </div>
+        }
+        @if (Actions != null)
+        {
+            <div class="d-flex gap-2">
+                @Actions
+            </div>
+        }
+    </div>
+</header>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public bool ShowBreadcrumb { get; set; } = true;
+    [Parameter] public List<BreadcrumbItem> BreadcrumbItems { get; set; } = new();
+    [Parameter] public RenderFragment? Actions { get; set; }
+
+    public class BreadcrumbItem
+    {
+        public string Text { get; set; } = string.Empty;
+        public string? Href { get; set; }
+    }
+}

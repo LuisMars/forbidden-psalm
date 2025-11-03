@@ -1,0 +1,46 @@
+{
+  "dice": {
+    "type": "D20",
+    "outcomes": {
+      "critical": {
+        "value": 20,
+        "effect": "exceptional_success"
+      },
+      "fumble": {
+        "value": 1,
+        "effect": "critical_failure"
+      }
+    }
+  },
+  "equipmentSlots": {
+    "calculation": {
+      "method": "base_plus_modifier",
+      "base": 5,
+      "modifierStat": "strength"
+    },
+    "formula": "5 + strength_modifier"
+  },
+  "defaultWeapon": {
+    "name": "Fists",
+    "damage": {
+      "type": "flat",
+      "amount": 1
+    },
+    "properties": [],
+    "stat": "strength",
+    "cost": 0,
+    "slots": 0,
+    "fumbleEffect": {
+      "type": "self_damage",
+      "amount": 1,
+      "description": "On Fumble take 1 Damage"
+    }
+  },
+  "restrictions": {
+    "spellcasting": {
+      "maxArmorValue": 2,
+      "canUseShield": false,
+      "description": "Cannot cast spells with AV 3+ armor or shields"
+    }
+  }
+}

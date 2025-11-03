@@ -1,0 +1,44 @@
+{
+  "spells": [
+    {
+      "name": "Smote",
+      "effect": "Target one model within 12\". That model takes 1D6 HP damage. On failure to cast, Caster takes damage instead"
+    },
+    {
+      "name": "Transfusion",
+      "effect": "Target one model within 12\". That model heals 1D6 HP and caster takes 1 HP damage"
+    },
+    {
+      "name": "Warp",
+      "effect": "Target one model within 12\". On success, model moves 1D6\" in direction caster chooses, suffering falling penalties"
+    },
+    {
+      "name": "Toxins",
+      "effect": "Target one model within 12\". On success, target becomes Poisoned"
+    },
+    {
+      "name": "Blind",
+      "effect": "Target one model within 12\". On success, target becomes Blinded for remainder of Scenario"
+    },
+    {
+      "name": "Fear",
+      "effect": "Target one model within 12\". On success, target must make morale test or flee"
+    },
+    {
+      "name": "Shield",
+      "effect": "Caster gains +1 Armor Value for remainder of Scenario"
+    },
+    {
+      "name": "Haste",
+      "effect": "Target friendly model within 12\". That model gains +2 Agility for remainder of Scenario"
+    },
+    {
+      "name": "Heal",
+      "effect": "Target friendly model within 12\". That model heals 1D6 HP"
+    },
+    {
+      "name": "Fireball",
+      "effect": "All models within 3\" of target point take 1D6 damage"
+    }
+  ]
+}

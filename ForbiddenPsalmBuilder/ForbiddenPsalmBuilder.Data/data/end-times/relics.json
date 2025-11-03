@@ -1,0 +1,314 @@
+[
+  {
+    "id": "boots-of-unkindness",
+    "name": "Boots of Unkindness",
+    "effect": "+1 damage.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true,
+    "effects": [
+      {
+        "type": "damage_modifier",
+        "modifier": 1
+      }
+    ]
+  },
+  {
+    "id": "scroll-of-forbidden-knowledge",
+    "name": "Scroll of Forbidden Knowledge",
+    "effect": "+1 Presence, consumed on use.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true,
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "presence",
+        "modifier": 1
+      }
+    ]
+  },
+  {
+    "id": "vampiric-tongue-shortsword",
+    "name": "Vampiric Tongue Shortsword",
+    "effect": "D6 damage. Wielder heals D6 damage when it wounds. If wielder ever dies, spawn a Blood Rage Vampire (pg. 54) and follow normal Monster rules.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true,
+    "damage": "D6"
+  },
+  {
+    "id": "goggles-of-the-unseen",
+    "name": "Goggles of the Unseen",
+    "effect": "Wearer can see in the dark.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true
+  },
+  {
+    "id": "clawed-gauntlets",
+    "name": "Clawed Gauntlets",
+    "effect": "Wearer cannot be disarmed.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true
+  },
+  {
+    "id": "gem-of-the-anti-mage",
+    "name": "Gem of the Anti-Mage",
+    "effect": "Wearer cannot cast spells or be targeted by spells.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true
+  },
+  {
+    "id": "helm-of-greed",
+    "name": "Helm of Greed",
+    "effect": "Wearer auto-passes all Treasure Rolls, but must keep any Items for themselves.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true
+  },
+  {
+    "id": "ring-of-the-mighty",
+    "name": "Ring of the Mighty",
+    "effect": "+2 Strength, but can never wear Armor.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true,
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "strength",
+        "modifier": 2
+      }
+    ],
+    "restrictions": [
+      {
+        "type": "equipment_restriction",
+        "excludedTypes": [
+          "armor"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pet-rock-of-the-wizard-melthraone",
+    "name": "Pet Rock of the Wizard Melthraone",
+    "effect": "It's a rock that you can throw for [D4][Ranged][Strength]. It returns to the thrower's hand.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true,
+    "damage": "D4",
+    "range": "Ranged",
+    "stat": "Strength"
+  },
+  {
+    "id": "crown-of-the-bloodied-thorns",
+    "name": "Crown of the Bloodied Thorns",
+    "effect": "Attacks dealt by the wearer cause Bleeding (pg. 22).",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true
+  },
+  {
+    "id": "wooden-duck",
+    "name": "Wooden Duck",
+    "effect": "Model must always keep the Wooden Duck with them. If a model dies while holding the Duck, all other models on the board will try to pick it up.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true
+  },
+  {
+    "id": "pillars-of-the-pandemic",
+    "name": "Pillars of the Pandemic",
+    "effect": "Takes up no Equipment slot and is instead deployed by the controlling player at the start of the Scenario, anywhere on the map. Once placed it cannot be moved or picked up. The Pillar emits a sickness aura in a 6 inch bubble. Any model within 6 inches must make a Toughness test when they enter the aura and on failure become Diseased (pg. 22).",
+    "cost": 100,
+    "slots": 0,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter1",
+    "unique": true
+  },
+  {
+    "id": "timepiece-of-regret",
+    "name": "Timepiece of Regret",
+    "effect": "Bearer gets one reroll per Scenario.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true
+  },
+  {
+    "id": "llaethfaen-stone",
+    "name": "Llaethfaen Stone",
+    "effect": "Bearer is immune to Diseased (pg. 22).",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true
+  },
+  {
+    "id": "witch-bottle",
+    "name": "Witch Bottle",
+    "effect": "Bearer is only targeted by Monsters if they are the only viable target.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true
+  },
+  {
+    "id": "mugwort-sprig",
+    "name": "Mugwort Sprig",
+    "effect": "Bearer cannot be targeted by spells.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true
+  },
+  {
+    "id": "carnwennan-dagger",
+    "name": "Carnwennan Dagger",
+    "effect": "[D6][Agility]. Bearer is immune to Morale, Criticals always make enemies flee.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true,
+    "damage": "D6",
+    "stat": "Agility",
+    "effects": [
+      {
+        "type": "immunity",
+        "immunities": [
+          "morale"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bow-of-lies",
+    "name": "Bow of Lies",
+    "effect": "[4][Ranged] Always hits target without needing to roll.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true,
+    "damage": "4",
+    "range": "Ranged"
+  },
+  {
+    "id": "sword-of-the-generous-idiot",
+    "name": "The Sword of the Generous Idiot",
+    "effect": "[D8][Ignores all Armor][Strength]. Sword with a glowing blade. If another model within 1 inch uses an action to request the sword you must hand it over.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true,
+    "damage": "D8",
+    "stat": "Strength",
+    "properties": ["Ignores all Armor"]
+  },
+  {
+    "id": "tankard-of-questionable-contents",
+    "name": "The Tankard of Questionable Contents",
+    "effect": "Each Scenario roll a D3. 1 Whisky. 2 Potion. 3 Tincture.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true
+  },
+  {
+    "id": "whetstone-of-tudwal",
+    "name": "The Whetstone of Tudwal",
+    "effect": "Instead of Downing enemies, the bearer's targets are instead Dead outright when brought to 0 HP.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true
+  },
+  {
+    "id": "mantle-of-the-false-king",
+    "name": "Mantle of The False King",
+    "effect": "Once per Scenario the wearer may, as an action, make themselves invisible, rendering them immune to all attacks. This effect ends if they perform any action other than move.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true
+  },
+  {
+    "id": "circlet-of-dawnblight",
+    "name": "Circlet of Dawnblight",
+    "effect": "Wearer is considered royalty in the city. May make a Presence test to command one Monster per Scenario to perform a single move and action.",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true
+  },
+  {
+    "id": "wand-of-change",
+    "name": "Wand of Change",
+    "effect": "Ranged attack that auto-hits, 1 use per Scenario. Target must make a Presence test. Failure turns them into a Chaos Beast Pet (pg. 30) for the rest of the Scenario. Target drops all Equipment and remains part of the warband (Monsters turned this way remain hostile).",
+    "cost": 100,
+    "slots": 1,
+    "type": "relic",
+    "gameVariant": "end-times",
+    "category": "chapter2",
+    "unique": true,
+    "range": "Ranged"
+  }
+]

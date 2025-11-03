@@ -1,0 +1,298 @@
+{
+  "flaws": [
+    {
+      "roll": 1,
+      "rollRange": null,
+      "name": "Xeno",
+      "effect": "No other warband member will heal them for any reason",
+      "type": "permanent",
+      "category": "restriction",
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "general"
+        }
+      ]
+    },
+    {
+      "roll": 2,
+      "name": "Too Many Teeth",
+      "effect": "Warband member suffers -2 to Presence",
+      "type": "permanent",
+      "category": "stat_reduction",
+      "stat": "presence",
+      "modifier": -2,
+      "effects": [
+        {
+          "type": "stat_modifier",
+          "stat": "presence",
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "roll": 3,
+      "name": "Dead Man Walking",
+      "effect": "Death Saves are always at least DR10",
+      "type": "permanent",
+      "category": "death_save_modifier",
+      "deathSaveModifier": "DR10_minimum",
+      "effects": [
+        {
+          "type": "death_save_modifier",
+          "effect": "DR10_minimum"
+        }
+      ]
+    },
+    {
+      "roll": 4,
+      "name": "Ratman",
+      "effect": "Must bring cheese with them everywhere",
+      "type": "permanent",
+      "category": "equipment_requirement",
+      "requiredEquipment": [
+        "cheese"
+      ],
+      "effects": [
+        {
+          "type": "equipment_requirement",
+          "items": [
+            "cheese"
+          ]
+        }
+      ]
+    },
+    {
+      "roll": 5,
+      "name": "Crazed",
+      "effect": "If warband member fails a morale test, they attack nearest model (friend or foe)",
+      "type": "permanent",
+      "category": "conditional",
+      "trigger": "failed_morale_test",
+      "consequence": "attack_nearest_model"
+    },
+    {
+      "roll": 6,
+      "name": "Broken",
+      "effect": "Warband member suffers -1 to all tests",
+      "type": "permanent",
+      "category": "general_penalty",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "test_modifier",
+          "scope": "all_tests",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "roll": 7,
+      "name": "Chicken",
+      "effect": "Auto-fails all morale tests",
+      "type": "permanent",
+      "category": "morale_modifier",
+      "moraleEffect": "auto_fail"
+    },
+    {
+      "roll": 8,
+      "name": "Late",
+      "effect": "Do not set up warband member at start of Scenario. They turn up at start of Round 2",
+      "type": "permanent",
+      "category": "deployment_modifier",
+      "deploymentRound": 2
+    },
+    {
+      "roll": 9,
+      "name": "Purge",
+      "effect": "Warband member will only use weapons with Burn keyword",
+      "type": "permanent",
+      "category": "weapon_restriction",
+      "allowedWeaponTypes": [
+        "burn_weapons_only"
+      ],
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "weapon",
+          "allowed_types": [
+            "burn_weapons_only"
+          ]
+        }
+      ]
+    },
+    {
+      "roll": 10,
+      "name": "Weak Bones",
+      "effect": "Warband member can only use Armor of value 1 or less",
+      "type": "permanent",
+      "category": "armor_restriction",
+      "maxArmorValue": 1,
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "armor",
+          "max_value": 1
+        }
+      ]
+    }
+  ],
+  "feats": [
+    {
+      "roll": 1,
+      "name": "Marine",
+      "effect": "If using weapon with Reload keyword, they reload for free",
+      "type": "permanent",
+      "category": "weapon_ability",
+      "weaponTypes": [
+        "reload_weapons"
+      ]
+    },
+    {
+      "roll": 2,
+      "name": "Zealous",
+      "effect": "Never fails morale checks, ignores rolls for morale",
+      "type": "permanent",
+      "category": "morale_modifier",
+      "moraleEffect": "never_fails"
+    },
+    {
+      "roll": 3,
+      "name": "Unpainted",
+      "effect": "Looks like statue. Monsters ignore them until they attack the monster",
+      "type": "permanent",
+      "category": "stealth",
+      "stealthCondition": "ignored_by_monsters_until_attack"
+    },
+    {
+      "roll": 4,
+      "name": "Rogue",
+      "effect": "Deals 1D4 additional damage if either attacking or defending model is in shadow of terrain",
+      "type": "permanent",
+      "category": "conditional_damage",
+      "trigger": "in_shadow",
+      "damageBonus": "1D4"
+    },
+    {
+      "roll": 5,
+      "name": "TNT",
+      "effect": "Starts every Scenario with Black Powder Bomb or Space Grenade",
+      "type": "permanent",
+      "category": "starting_equipment",
+      "freeEquipment": [
+        "black_powder_bomb",
+        "space_grenade"
+      ],
+      "techLevelDependent": true,
+      "effects": [
+        {
+          "type": "starting_equipment",
+          "items": [
+            "black_powder_bomb",
+            "space_grenade"
+          ],
+          "tech_level_dependent": true
+        }
+      ]
+    },
+    {
+      "roll": 6,
+      "name": "Gambler",
+      "effect": "Can reroll dice but if they fail on second roll, result is considered Fumble",
+      "type": "permanent",
+      "category": "reroll_ability",
+      "rerollType": "any_dice",
+      "consequence": "fumble_on_second_failure"
+    },
+    {
+      "roll": 7,
+      "name": "Mother of Crows",
+      "effect": "As action, summon crows to attack another model. Target takes 2 HP damage if they fail Agility test",
+      "type": "permanent",
+      "category": "special_action",
+      "actionType": "summon_crows",
+      "damage": 2,
+      "targetTest": "agility"
+    },
+    {
+      "roll": 8,
+      "name": "Skulls",
+      "effect": "Carries skull at all times. Takes no Equipment slots, can be used as Makeshift Weapon",
+      "type": "permanent",
+      "category": "free_equipment",
+      "freeEquipment": [
+        "skull"
+      ],
+      "equipmentSlots": 0,
+      "weaponType": "makeshift",
+      "effects": [
+        {
+          "type": "free_equipment",
+          "items": [
+            "skull"
+          ],
+          "slots": 0
+        }
+      ]
+    },
+    {
+      "roll": 9,
+      "name": "BiblioTech",
+      "effect": "Player can pick any Feat from any Forbidden Psalm game they own. [Reroll if don't own any]",
+      "type": "permanent",
+      "category": "meta_ability"
+    },
+    {
+      "roll": 10,
+      "name": "Undead",
+      "effect": "Cannot be healed by potions, but immune to Disease, Bleeding, and Poison. Auto-passes Death Saves",
+      "type": "permanent",
+      "category": "immunity_vulnerability",
+      "immunities": [
+        "Disease",
+        "Bleeding",
+        "Poison"
+      ],
+      "deathSaveEffect": "auto_pass",
+      "effects": [
+        {
+          "type": "immunity",
+          "to": [
+            "Disease",
+            "Bleeding",
+            "Poison"
+          ]
+        },
+        {
+          "type": "death_save_modifier",
+          "effect": "auto_pass"
+        }
+      ]
+    }
+  ],
+  "specialInteractions": {
+    "flaws": [
+      "Ratman + Cheese: Must always carry cheese (automatic equipment)",
+      "Purge + Weapon Selection: Limits weapon choices to Burn weapons only",
+      "Late + Deployment: Changes setup timing for affected model"
+    ],
+    "feats": [
+      "Marine + Reload Weapons: Eliminates reload movement penalty",
+      "TNT + Equipment: Free explosive each Scenario (if slots available)",
+      "BiblioTech + Other Games: Allows cross-game feat selection",
+      "Undead + Healing: Changes healing mechanics significantly"
+    ]
+  },
+  "techLevelSynergies": {
+    "pastTech": [
+      "TNT: Gets Black Powder Bomb",
+      "Marine: Works with Crossbow reloading",
+      "Rogue: Benefits from medieval terrain (castle shadows, etc.)"
+    ],
+    "futureTech": [
+      "TNT: Gets Space Grenade",
+      "Marine: Excellent with Pulse Rifle, Plas-mar",
+      "BiblioTech: Can access cyberpunk/sci-fi feats from other games"
+    ]
+  }
+}

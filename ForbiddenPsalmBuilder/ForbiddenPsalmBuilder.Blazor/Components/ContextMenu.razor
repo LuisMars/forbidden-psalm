@@ -1,0 +1,73 @@
+@namespace ForbiddenPsalmBuilder.Components
+
+<div class="dropdown" @onclick:stopPropagation="true">
+    <button class="btn btn-sm btn-secondary context-menu-button" type="button" id="@MenuId" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end context-menu-custom" aria-labelledby="@MenuId">
+        @ChildContent
+    </ul>
+</div>
+
+<style>
+    .context-menu-button::after {
+        display: none !important;
+    }
+
+    .context-menu-custom {
+        background-color: var(--bs-magenta-500) !important;
+        border: none !important;
+        min-width: 10rem;
+    }
+
+    .context-menu-custom .dropdown-item {
+        color: var(--bs-obsidian-900) !important;
+        font-family: var(--bs-font-condensed);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.5rem 1rem;
+    }
+
+    .context-menu-custom .dropdown-item:hover,
+    .context-menu-custom .dropdown-item:focus {
+        background-color: var(--bs-yellow-500) !important;
+        color: var(--bs-obsidian-900) !important;
+    }
+
+    .context-menu-custom .dropdown-item:active {
+        background-color: var(--bs-yellow-500) !important;
+        color: var(--bs-obsidian-900) !important;
+    }
+
+    .context-menu-custom .dropdown-item.disabled,
+    .context-menu-custom .dropdown-item:disabled {
+        background-color: transparent !important;
+        color: var(--bs-obsidian-600) !important;
+        opacity: 0.5;
+    }
+
+    .context-menu-custom .dropdown-item.text-danger {
+        color: var(--bs-obsidian-900) !important;
+    }
+
+    .context-menu-custom .dropdown-item.text-danger:hover,
+    .context-menu-custom .dropdown-item.text-danger:focus {
+        background-color: var(--bs-danger) !important;
+        color: var(--bs-obsidian-900) !important;
+    }
+
+    .context-menu-custom .dropdown-divider {
+        border-top: 2px solid var(--bs-obsidian-900);
+        opacity: 1;
+        margin: 0.25rem 0;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired]
+    public string MenuId { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

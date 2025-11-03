@@ -1,0 +1,36 @@
+﻿<header>
+    <div>
+        <a href="">Forbidden Psalm Builder</a>
+        <button title="Navigation menu" @onclick="ToggleNavMenu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</header>
+
+<nav class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul>
+        <li>
+            <NavLink href="" Match="NavLinkMatch.All">Home</NavLink>
+        </li>
+        <li>
+            <NavLink href="warbands">My Warbands</NavLink>
+        </li>
+        <li>
+            <NavLink href="characters">Character Builder</NavLink>
+        </li>
+        <li>
+            <NavLink href="rules">Game Rules</NavLink>
+        </li>
+    </ul>
+</nav>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

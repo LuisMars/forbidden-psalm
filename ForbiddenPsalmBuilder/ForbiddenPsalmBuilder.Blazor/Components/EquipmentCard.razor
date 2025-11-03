@@ -1,0 +1,544 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+
+<div class="card @(IsSelected ? "border-primary" : "") @(IsDisabled ? "opacity-50" : "") @(OnClick.HasDelegate && !IsDisabled ? "cursor-pointer" : "")"
+     @onclick="HandleClick"
+     role="@(OnClick.HasDelegate ? "button" : "")">
+    <div class="card-body d-flex align-items-start gap-2 p-2">
+    <div class="flex-shrink-0 text-primary fs-4">
+        @if (!string.IsNullOrEmpty(Equipment.IconClass))
+        {
+            <i class="@Equipment.IconClass"></i>
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(Equipment.Damage))
+            {
+                <i class="ra ra-crossed-swords"></i>
+            }
+            else if (Equipment.IsArmor)
+            {
+                <i class="ra ra-shield"></i>
+            }
+            else
+            {
+                <i class="fas fa-box"></i>
+            }
+        }
+    </div>
+
+    <div class="flex-grow-1">
+        <div class="fw-bold">
+            @Equipment.Name
+            @if (Equipment.Type == "ammo")
+            {
+                <span class="badge text-bg-info ms-2"><i class="ra ra-bullets"></i> AMMO (@Equipment.CurrentShots shots)</span>
+            }
+            @if (Equipment.RequiresAmmo && Equipment.MaxShots > 0)
+            {
+                // For templates in the store (CurrentShots = 0), show as fully loaded
+                var displayShots = Equipment.CurrentShots == 0 ? Equipment.MaxShots : Equipment.CurrentShots;
+
+                // Calculate effective max based on how many magazines are loaded
+                // Example: 9 shots with MaxShots=5 → 2 magazines → effectiveMax=10
+                var magazinesLoaded = (int)Math.Ceiling((double)displayShots / Equipment.MaxShots);
+                var effectiveMax = magazinesLoaded * Equipment.MaxShots;
+
+                var ammoPercentage = effectiveMax > 0 ? (double)displayShots / effectiveMax : 0;
+                var badgeClass = ammoPercentage < 0.5 ? "text-bg-danger" : (ammoPercentage < 1.0 ? "text-bg-warning" : "text-bg-success");
+                <span class="badge @badgeClass ms-2">
+                    <i class="ra ra-bullets"></i> @displayShots/@effectiveMax
+                </span>
+            }
+            @if (Equipment.IsConsumable)
+            {
+                <span class="badge text-bg-success ms-2">
+                    <i class="fas fa-pills"></i> CONSUMABLE
+                </span>
+            }
+            @if (Equipment.Unique)
+            {
+                <span class="badge text-bg-warning ms-2"><i class="fas fa-crown"></i> UNIQUE</span>
+            }
+        </div>
+
+        @if (!CompactMode)
+        {
+            <div class="d-flex flex-wrap gap-2 mt-1 mb-2">
+                @if (!string.IsNullOrEmpty(Equipment.Damage))
+                {
+                    <span class="badge text-bg-danger">
+                        <i class="ra ra-crossed-swords"></i> @Equipment.Damage
+                    </span>
+                }
+
+                @if (Equipment.ArmorValue > 0)
+                {
+                    <span class="badge text-bg-secondary">
+                        <i class="ra ra-shield"></i> @Equipment.ArmorValue
+                    </span>
+                }
+
+                @if (!string.IsNullOrEmpty(Equipment.ArmorType))
+                {
+                    <span class="badge text-bg-secondary">
+                        @Equipment.ArmorType
+                    </span>
+                }
+
+                @if (!string.IsNullOrEmpty(Equipment.Stat))
+                {
+                    <span class="badge text-bg-primary">
+                        @Equipment.Stat
+                    </span>
+                }
+
+                @if (Equipment.Slots > 1)
+                {
+                    <span class="badge text-bg-dark">
+                        <i class="fas fa-box"></i> @Equipment.Slots
+                    </span>
+                }
+
+                @if (!string.IsNullOrEmpty(Equipment.AmmoType))
+                {
+                    <span class="badge text-bg-warning">
+                        <i class="ra ra-bullets"></i> Requires: @Equipment.AmmoType
+                    </span>
+                }
+
+                @if (!string.IsNullOrEmpty(Equipment.Range))
+                {
+                    <span class="badge text-bg-info">
+                        <i class="fas fa-bullseye"></i> @Equipment.Range
+                    </span>
+                }
+            </div>
+
+            @if (Equipment.Properties?.Any() == true)
+            {
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                    @foreach (var property in Equipment.Properties)
+                    {
+                        <span class="badge text-bg-light text-dark">@property</span>
+                    }
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Equipment.Special))
+            {
+                <div class="small text-info mb-1">@Equipment.Special</div>
+            }
+
+            @if (!string.IsNullOrEmpty(Equipment.Effect))
+            {
+                <div class="small text-warning mb-1">@Equipment.Effect</div>
+            }
+        }
+    </div>
+
+    <div class="flex-shrink-0 d-flex flex-column gap-2 align-items-end">
+        @if (ShowPrice && (Price.HasValue || Equipment.Cost > 0))
+        {
+            <div class="badge text-bg-success">
+                @if (Price.HasValue)
+                {
+                    @if (Price.Value > 0)
+                    {
+                        <text>@Price.Value@CurrencySymbol</text>
+                    }
+                    else
+                    {
+                        <text>FREE</text>
+                    }
+                }
+                else if (Equipment.Cost > 0)
+                {
+                    <text>@Equipment.Cost G</text>
+                }
+            </div>
+        }
+
+        @if (ShowActions)
+        {
+            <ContextMenu MenuId="@($"equipment-{Equipment.Id}")">
+                @if (OnBuy.HasDelegate)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item @(IsDisabled ? "disabled" : "")" @onclick="HandleBuy" disabled="@IsDisabled">
+                            <i class="fas fa-shopping-cart"></i> Buy
+                        </button>
+                    </li>
+                }
+
+                @if (OnSellToTrader.HasDelegate && Traders != null && Traders.Any() && Equipment.Type != "spell" && Equipment.Type != "relic")
+                {
+                    @foreach (var trader in Traders)
+                    {
+                        var sellPrice = trader.CalculateSellPrice(Equipment.Cost);
+                        @if (sellPrice > 0)
+                        {
+                            var sellText = $"Sell to {trader.Name} for {sellPrice}{CurrencySymbol}";
+                            <li>
+                                <button type="button" class="dropdown-item" @onclick="() => HandleSellToTrader(trader)">
+                                    <i class="fas fa-coins"></i> @sellText
+                                </button>
+                            </li>
+                        }
+                    }
+                }
+                else if (OnSell.HasDelegate && Equipment.Type != "spell" && Equipment.Type != "relic" && SellPrice.GetValueOrDefault() > 0)
+                {
+                    var sellText = "Sell";
+                    if (!string.IsNullOrEmpty(TraderName) && SellPrice.HasValue)
+                    {
+                        sellText = $"Sell to {TraderName} for {SellPrice.Value}{CurrencySymbol}";
+                    }
+                    else if (SellPrice.HasValue)
+                    {
+                        sellText = $"Sell for {SellPrice.Value}{CurrencySymbol}";
+                    }
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleSell">
+                            <i class="fas fa-coins"></i> @sellText
+                        </button>
+                    </li>
+                }
+
+                @if (OnAssign.HasDelegate)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleAssign">
+                            <i class="fas fa-user"></i> Assign
+                        </button>
+                    </li>
+                }
+
+                @if (OnMoveToStash.HasDelegate)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleMoveToStash">
+                            <i class="fas fa-box-open"></i> Move to Stash
+                        </button>
+                    </li>
+                }
+
+                @if (OnEquip.HasDelegate)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleEquip">
+                            <i class="fas fa-arrow-up"></i> Equip
+                        </button>
+                    </li>
+                }
+
+                @if (OnUnequip.HasDelegate)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleUnequip">
+                            <i class="fas fa-arrow-down"></i> Unequip
+                        </button>
+                    </li>
+                }
+
+                @if (OnReload.HasDelegate && Equipment.RequiresAmmo)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleReload">
+                            <i class="fas fa-sync-alt"></i> Reload
+                        </button>
+                    </li>
+                }
+
+                @if (OnUnload.HasDelegate && Equipment.RequiresAmmo && Equipment.CurrentShots > 0)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleUnload">
+                            <i class="fas fa-box-open"></i> Unload
+                        </button>
+                    </li>
+                }
+
+                @if (OnConsumeAmmo.HasDelegate && Equipment.RequiresAmmo && Equipment.CurrentShots > 0)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleConsumeAmmo">
+                            <i class="fas fa-crosshairs"></i> Fire Shot
+                        </button>
+                    </li>
+                }
+
+                @if (OnUseConsumable.HasDelegate && Equipment.IsConsumable)
+                {
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleUseConsumable">
+                            <i class="fas fa-pills"></i> Use
+                        </button>
+                    </li>
+                }
+
+                @if (Equipment.IsRelic && Equipment.Unique)
+                {
+                    @if (!IsAcquired && OnMarkAcquired.HasDelegate)
+                    {
+                        <li>
+                            <button type="button" class="dropdown-item" @onclick="HandleMarkAcquired">
+                                <i class="fas fa-check"></i> Mark as Acquired
+                            </button>
+                        </li>
+                    }
+                    @if (IsAcquired && OnMarkAvailable.HasDelegate)
+                    {
+                        <li>
+                            <button type="button" class="dropdown-item" @onclick="HandleMarkAvailable">
+                                <i class="fas fa-undo"></i> Mark as Available
+                            </button>
+                        </li>
+                    }
+                }
+
+                @if (OnRemove.HasDelegate)
+                {
+                    @if (OnBuy.HasDelegate || OnSell.HasDelegate || OnAssign.HasDelegate || OnMoveToStash.HasDelegate)
+                    {
+                        <li><hr class="dropdown-divider"></li>
+                    }
+                    <li>
+                        <button type="button" class="dropdown-item" @onclick="HandleRemove">
+                            <i class="fas fa-times"></i> Remove
+                        </button>
+                    </li>
+                }
+            </ContextMenu>
+        }
+
+        @if (IsSelected)
+        {
+            <i class="fas fa-check-circle text-primary fs-4"></i>
+        }
+    </div>
+    </div>
+</div>
+
+@using Microsoft.Extensions.Logging
+
+@code {
+    [Parameter, EditorRequired]
+    public Equipment Equipment { get; set; } = null!;
+
+    [Parameter]
+    public bool ShowPrice { get; set; } = false;
+
+    [Inject]
+    public ILogger<EquipmentCard> Logger { get; set; } = null!;
+
+    [Parameter]
+    public int? Price { get; set; }
+
+    [Parameter]
+    public int? SellPrice { get; set; }
+
+    [Parameter]
+    public string? TraderName { get; set; }
+
+    [Parameter]
+    public List<Trader>? Traders { get; set; }
+
+    [Parameter]
+    public string CurrencySymbol { get; set; } = "G";
+
+    [Parameter]
+    public bool ShowActions { get; set; } = false;
+
+    [Parameter]
+    public bool IsSelected { get; set; } = false;
+
+    [Parameter]
+    public bool CompactMode { get; set; } = false;
+
+    [Parameter]
+    public bool IsDisabled { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnBuy { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnSell { get; set; }
+
+    [Parameter]
+    public EventCallback<(Equipment Equipment, Trader Trader)> OnSellToTrader { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnRemove { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnAssign { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnMoveToStash { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnMarkAcquired { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnMarkAvailable { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnEquip { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnUnequip { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnReload { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnUnload { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnConsumeAmmo { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnUseConsumable { get; set; }
+
+    [Parameter]
+    public bool IsAcquired { get; set; } = false;
+
+    private async Task HandleClick()
+    {
+        if (!IsDisabled && OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync();
+        }
+    }
+
+    private async Task HandleBuy()
+    {
+        Logger.LogInformation("HandleBuy clicked for {EquipmentName}, IsDisabled: {IsDisabled}, HasDelegate: {HasDelegate}", Equipment?.Name, IsDisabled, OnBuy.HasDelegate);
+        if (!IsDisabled && OnBuy.HasDelegate)
+        {
+            await OnBuy.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleSell()
+    {
+        Logger.LogInformation("HandleSell clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnSell.HasDelegate);
+        if (OnSell.HasDelegate)
+        {
+            await OnSell.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleSellToTrader(Trader trader)
+    {
+        Logger.LogInformation("HandleSellToTrader clicked for {EquipmentName} to {TraderName}, HasDelegate: {HasDelegate}", Equipment?.Name, trader?.Name, OnSellToTrader.HasDelegate);
+        if (OnSellToTrader.HasDelegate && trader != null)
+        {
+            await OnSellToTrader.InvokeAsync((Equipment, trader));
+        }
+    }
+
+    private async Task HandleRemove()
+    {
+        Logger.LogInformation("HandleRemove clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnRemove.HasDelegate);
+        if (OnRemove.HasDelegate)
+        {
+            await OnRemove.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleAssign()
+    {
+        Logger.LogInformation("HandleAssign clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnAssign.HasDelegate);
+        if (OnAssign.HasDelegate)
+        {
+            await OnAssign.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleMoveToStash()
+    {
+        Logger.LogInformation("HandleMoveToStash clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnMoveToStash.HasDelegate);
+        if (OnMoveToStash.HasDelegate)
+        {
+            await OnMoveToStash.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleMarkAcquired()
+    {
+        Logger.LogInformation("HandleMarkAcquired clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnMarkAcquired.HasDelegate);
+        if (OnMarkAcquired.HasDelegate)
+        {
+            await OnMarkAcquired.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleMarkAvailable()
+    {
+        Logger.LogInformation("HandleMarkAvailable clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnMarkAvailable.HasDelegate);
+        if (OnMarkAvailable.HasDelegate)
+        {
+            await OnMarkAvailable.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleEquip()
+    {
+        Logger.LogInformation("HandleEquip clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnEquip.HasDelegate);
+        if (OnEquip.HasDelegate)
+        {
+            await OnEquip.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleUnequip()
+    {
+        Logger.LogInformation("HandleUnequip clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnUnequip.HasDelegate);
+        if (OnUnequip.HasDelegate)
+        {
+            await OnUnequip.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleReload()
+    {
+        Logger.LogInformation("HandleReload clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnReload.HasDelegate);
+        if (OnReload.HasDelegate)
+        {
+            await OnReload.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleUnload()
+    {
+        Logger.LogInformation("HandleUnload clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnUnload.HasDelegate);
+        if (OnUnload.HasDelegate)
+        {
+            await OnUnload.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleConsumeAmmo()
+    {
+        Logger.LogInformation("HandleConsumeAmmo clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnConsumeAmmo.HasDelegate);
+        if (OnConsumeAmmo.HasDelegate)
+        {
+            await OnConsumeAmmo.InvokeAsync(Equipment);
+        }
+    }
+
+    private async Task HandleUseConsumable()
+    {
+        Logger.LogInformation("HandleUseConsumable clicked for {EquipmentName}, HasDelegate: {HasDelegate}", Equipment?.Name, OnUseConsumable.HasDelegate);
+        if (OnUseConsumable.HasDelegate)
+        {
+            await OnUseConsumable.InvokeAsync(Equipment);
+        }
+    }
+}

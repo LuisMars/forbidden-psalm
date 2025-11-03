@@ -1,0 +1,297 @@
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@namespace ForbiddenPsalmBuilder.Components
+
+<div class="row">
+    <div class="@(selectedSpell != null ? "col-md-7" : "col-12")">
+        @* Category Tabs (only show if categories exist) *@
+        @if (GetCategories().Any())
+        {
+            <div class="btn-group mb-3 w-100" role="group">
+                <button type="button"
+                        class="btn @(activeTab == "all" ? "btn-primary" : "btn-secondary")"
+                        @onclick='() => SetActiveTab("all")'>
+                    <i class="fas fa-magic"></i> All (@GetAllSpells().Count())
+                </button>
+                @foreach (var category in GetCategories())
+                {
+                    var count = GetSpellsByCategory(category).Count();
+                    var icon = GetCategoryIcon(category);
+                    <button type="button"
+                            class="btn @(activeTab == category ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => SetActiveTab(category)'>
+                        <i class="@icon"></i> @FormatCategory(category) (@count)
+                    </button>
+                }
+            </div>
+        }
+
+        <div class="d-flex gap-2 mb-3">
+            <input type="search"
+                   class="form-control"
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   placeholder="Search spells..." />
+            @if (activeTab != "all" && OnRollRandomSpell.HasDelegate)
+            {
+                <button type="button"
+                        class="btn btn-primary"
+                        @onclick="() => OnRollRandomSpell.InvokeAsync(activeTab)">
+                    <i class="fas fa-dice-d20"></i> Roll Random
+                </button>
+            }
+        </div>
+
+        <div style="max-height: 500px; overflow-y: auto;">
+            @* Current Spells Section *@
+            @if (GetCurrentSpells().Any())
+            {
+                <div class="mb-3">
+                    <h4 class="h6 text-info text-uppercase mb-2">Current Spells</h4>
+                    <div class="d-flex flex-column gap-1">
+                        @foreach (var spell in GetCurrentSpells())
+                        {
+                            var isSelected = selectedSpell?.Name == spell.Name;
+                            <div class="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer @(isSelected ? "border-primary bg-primary bg-opacity-10" : "")"
+                                 role="button"
+                                 @onclick="() => SelectItem(spell)">
+                                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                    <i class="@GetCategoryIcon(spell.SpellCategory) flex-shrink-0"></i>
+                                    <span class="fw-semibold">@spell.Name</span>
+                                    @if (!string.IsNullOrEmpty(spell.SpellCategory))
+                                    {
+                                        <span class="badge text-bg-secondary">@FormatCategory(spell.SpellCategory)</span>
+                                    }
+                                </div>
+                                @if (OnRemoveSpell.HasDelegate || OnDeleteSpell.HasDelegate)
+                                {
+                                    <ContextMenu MenuId="@($"spell-{spell.Name.Replace(" ", "-")}")">
+                                        @if (OnRemoveSpell.HasDelegate)
+                                        {
+                                            <li>
+                                                <button type="button" class="dropdown-item" @onclick="() => OnRemoveSpell.InvokeAsync(spell.Name)">
+                                                    <i class="fas fa-box-open"></i> Move to Stash
+                                                </button>
+                                            </li>
+                                        }
+                                        @if (OnRemoveSpell.HasDelegate && OnDeleteSpell.HasDelegate)
+                                        {
+                                            <li><hr class="dropdown-divider"></li>
+                                        }
+                                        @if (OnDeleteSpell.HasDelegate)
+                                        {
+                                            <li>
+                                                <button type="button" class="dropdown-item" @onclick="() => OnDeleteSpell.InvokeAsync(spell.Name)">
+                                                    <i class="fas fa-times"></i> Delete
+                                                </button>
+                                            </li>
+                                        }
+                                    </ContextMenu>
+                                }
+                                @if (isSelected)
+                                {
+                                    <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* Available Spells Section *@
+            @if (GetAvailableSpells().Any())
+            {
+                <div class="mb-3">
+                    <h4 class="h6 text-info text-uppercase mb-2">Available Spells</h4>
+                    <div class="d-flex flex-column gap-1">
+                        @foreach (var spell in GetAvailableSpells())
+                        {
+                            var isSelected = selectedSpell?.Name == spell.Name;
+                            <div class="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer @(isSelected ? "border-primary bg-primary bg-opacity-10" : "")"
+                                 role="button"
+                                 @onclick="() => SelectItem(spell)">
+                                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                    <i class="@GetCategoryIcon(spell.SpellCategory) flex-shrink-0"></i>
+                                    <span class="fw-semibold">@spell.Name</span>
+                                    @if (!string.IsNullOrEmpty(spell.SpellCategory))
+                                    {
+                                        <span class="badge text-bg-secondary">@FormatCategory(spell.SpellCategory)</span>
+                                    }
+                                </div>
+                                @if (isSelected)
+                                {
+                                    <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!GetFilteredSpells().Any())
+            {
+                <div class="text-center py-5 text-body-secondary">
+                    <i class="fas fa-search fa-3x mb-3 d-block"></i>
+                    <p class="mb-0">No spells found</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (selectedSpell != null)
+    {
+        <div class="col-md-5">
+            <div class="card position-sticky" style="top: 1rem;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="h5 mb-0"><i class="fas fa-magic text-info"></i> @selectedSpell.Name</h3>
+                    <button type="button" class="btn btn-sm btn-secondary" @onclick="CloseSidePanel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(selectedSpell.SpellCategory))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">Category:</span>
+                            <span class="badge text-bg-@GetCategoryBadgeClass(selectedSpell.SpellCategory)">@FormatCategory(selectedSpell.SpellCategory)</span>
+                        </div>
+                    }
+
+                    <div class="mb-2">
+                        <span class="text-body-secondary d-block mb-1">Effect:</span>
+                        <span>@selectedSpell.Effect</span>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <button type="button"
+                            class="btn btn-primary w-100"
+                            @onclick="() => OnSelectSpell.InvokeAsync(selectedSpell.Name)"
+                            disabled="@(CurrentSpellNames.Contains(selectedSpell.Name) || !OnSelectSpell.HasDelegate)">
+                        <i class="fas fa-plus"></i> Add Spell
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<SpellOption> AvailableSpells { get; set; } = new();
+
+    [Parameter]
+    public List<string> CurrentSpellNames { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<string> OnSelectSpell { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnRemoveSpell { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnDeleteSpell { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnRollRandomSpell { get; set; }
+
+    private SpellOption? selectedSpell;
+    private string searchTerm = "";
+    private string activeTab = "all";
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        searchTerm = "";
+        selectedSpell = null;
+    }
+
+    private void SelectItem(SpellOption spell)
+    {
+        selectedSpell = spell;
+    }
+
+    private void CloseSidePanel()
+    {
+        selectedSpell = null;
+    }
+
+    private IEnumerable<string> GetCategories()
+    {
+        return AvailableSpells
+            .Where(s => !string.IsNullOrEmpty(s.SpellCategory))
+            .Select(s => s.SpellCategory)
+            .Distinct()
+            .OrderBy(c => c);
+    }
+
+    private IEnumerable<SpellOption> GetAllSpells()
+    {
+        return AvailableSpells;
+    }
+
+    private IEnumerable<SpellOption> GetSpellsByCategory(string category)
+    {
+        return AvailableSpells.Where(s => s.SpellCategory == category);
+    }
+
+    private IEnumerable<SpellOption> GetFilteredSpells()
+    {
+        var spells = activeTab == "all"
+            ? AvailableSpells
+            : AvailableSpells.Where(s => s.SpellCategory == activeTab);
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return spells;
+
+        return spells.Where(s =>
+            s.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            s.Effect.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IEnumerable<SpellOption> GetCurrentSpells()
+    {
+        return GetFilteredSpells().Where(s => CurrentSpellNames.Contains(s.Name));
+    }
+
+    private IEnumerable<SpellOption> GetAvailableSpells()
+    {
+        return GetFilteredSpells().Where(s => !CurrentSpellNames.Contains(s.Name));
+    }
+
+    private string FormatCategory(string category)
+    {
+        return category switch
+        {
+            "clean" => "Clean",
+            "unclean" => "Unclean",
+            "sanctified" => "Sanctified",
+            "heathen" => "Heathen",
+            _ => category
+        };
+    }
+
+    private string GetCategoryIcon(string category)
+    {
+        return category switch
+        {
+            "clean" => "fas fa-dove text-success",
+            "unclean" => "fas fa-skull text-danger",
+            "sanctified" => "fas fa-cross text-warning",
+            "heathen" => "fas fa-fire text-danger",
+            _ => "fas fa-magic text-info"
+        };
+    }
+
+    private string GetCategoryBadgeClass(string category)
+    {
+        return category switch
+        {
+            "clean" => "success",
+            "unclean" => "danger",
+            "sanctified" => "warning",
+            "heathen" => "danger",
+            _ => "secondary"
+        };
+    }
+}

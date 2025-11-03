@@ -1,0 +1,10 @@
+{
+    "livePreview.defaultPreviewPath": "/index.html",
+    "editor.formatOnSave": false,
+    "[razor]": {
+        "editor.formatOnSave": false
+    },
+    "[html]": {
+        "editor.formatOnSave": false
+    }
+}

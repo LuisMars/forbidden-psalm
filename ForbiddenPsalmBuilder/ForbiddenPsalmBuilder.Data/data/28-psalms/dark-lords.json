@@ -1,0 +1,90 @@
+{
+  "darkLords": [
+    {
+      "name": "Lords of the Soil",
+      "goal": "Control agricultural resources",
+      "benefit": "Warband members are -1 to hit with ranged weapons (fly swarms obscure them)",
+      "effects": [
+        {
+          "type": "defense_modifier",
+          "attack_type": "ranged",
+          "modifier": -1,
+          "description": "fly_swarms_obscure"
+        }
+      ]
+    },
+    {
+      "name": "Lords of the Gods of Pandemonium",
+      "goal": "End reality and replace with their own",
+      "benefit": "All warband members once per game can take D4 damage to reroll any dice result"
+    },
+    {
+      "name": "Lords of Avarice",
+      "goal": "Acquire wealth to exert power",
+      "benefit": "Warband gains 50 credits at end of each Scenario",
+      "effects": [
+        {
+          "type": "resource_gain",
+          "resource": "credits",
+          "amount": 50,
+          "timing": "end_of_scenario"
+        }
+      ]
+    },
+    {
+      "name": "Lords of the True Death",
+      "goal": "Allow souls to die as they please",
+      "benefit": "Warband members gain free Molotov at start of each Scenario (if slots available)"
+    },
+    {
+      "name": "Lords of Pasteurisation",
+      "goal": "Gather milk from foul beasts to make prized cheese",
+      "benefit": "Warband members gain free Cheese at start of each Scenario (if slots available)"
+    }
+  ],
+  "campaign": {
+    "victoryCondition": "Help your Lord reach 15 Power",
+    "powerGain": [
+      {
+        "action": "Win a Scenario",
+        "power": 1
+      },
+      {
+        "action": "Kill an Effigy of 28",
+        "power": 1
+      },
+      {
+        "action": "Kill 10 enemies in single Scenario",
+        "power": 1
+      },
+      {
+        "action": "Warband member kills themselves as sacrifice to Dark Lord",
+        "power": 1
+      },
+      {
+        "action": "Warband totally wiped out",
+        "power": -1
+      }
+    ]
+  },
+  "technologyLevels": {
+    "pastTech": {
+      "aesthetic": "Medieval/fantasy",
+      "weapons": "Traditional weapons and armor",
+      "scrolls": "Ancient manuscripts",
+      "lords": "Feudal dark powers"
+    },
+    "futureTech": {
+      "aesthetic": "Sci-fi/cyberpunk",
+      "weapons": "Advanced weapons and cyber-tech",
+      "scrolls": "Data-files or psionic powers",
+      "lords": "Corporate/alien overlords"
+    },
+    "mixed": {
+      "aesthetic": "Post-apocalyptic",
+      "weapons": "Scavenged equipment from multiple eras",
+      "scrolls": "Technology varies by scenario",
+      "lords": "Some warbands Past Tech, others Future Tech"
+    }
+  }
+}

@@ -1,0 +1,256 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Character
+
+<Modal IsVisible="true" OnClose="Cancel" Title="Create Custom Item">
+    <div>
+        @if (validationErrors.Any())
+        {
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach (var error in validationErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <div class="mb-3">
+            <label for="itemName" class="form-label fw-semibold">Item Name <span class="text-danger">*</span></label>
+            <input type="text"
+                   class="form-control"
+                   id="itemName"
+                   @bind="itemName"
+                   placeholder="Enter item name..."
+                   maxlength="50" />
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-6">
+                <label for="itemCost" class="form-label fw-semibold">Cost (Gold)</label>
+                <NumberInput @bind-Value="itemCost" Min="0" Max="999" Step="1" />
+            </div>
+            <div class="col-6">
+                <label for="itemSlots" class="form-label fw-semibold">Slots</label>
+                <NumberInput @bind-Value="itemSlots" Min="0" Max="10" Step="1" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="itemEffect" class="form-label fw-semibold">Effect / Description</label>
+            <textarea class="form-control"
+                      id="itemEffect"
+                      @bind="itemEffect"
+                      rows="3"
+                      placeholder="Describe what this item does..."
+                      maxlength="200"></textarea>
+            <small class="text-body-secondary">Optional - Describe the item's effect or use</small>
+        </div>
+
+        <div class="mb-3">
+            <label for="itemIcon" class="form-label fw-semibold">Icon (Optional)</label>
+            <select class="form-select" id="itemIcon" @bind="itemIconClass">
+                <option value="">-- No icon --</option>
+                <option value="fas fa-flask">Flask (fas fa-flask)</option>
+                <option value="fas fa-box">Box (fas fa-box)</option>
+                <option value="fas fa-gem">Gem (fas fa-gem)</option>
+                <option value="fas fa-book">Book (fas fa-book)</option>
+                <option value="fas fa-scroll">Scroll (fas fa-scroll)</option>
+                <option value="fas fa-ring">Ring (fas fa-ring)</option>
+                <option value="fas fa-key">Key (fas fa-key)</option>
+                <option value="fas fa-compass">Compass (fas fa-compass)</option>
+                <option value="fas fa-map">Map (fas fa-map)</option>
+                <option value="fas fa-briefcase">Briefcase (fas fa-briefcase)</option>
+                <option value="fas fa-toolbox">Toolbox (fas fa-toolbox)</option>
+                <option value="fas fa-magic">Magic (fas fa-magic)</option>
+                <option value="fas fa-star">Star (fas fa-star)</option>
+                <option value="fas fa-gift">Gift (fas fa-gift)</option>
+                <option value="ra ra-potion">Potion (ra ra-potion)</option>
+                <option value="ra ra-scroll-unfurled">Scroll Unfurled (ra ra-scroll-unfurled)</option>
+                <option value="ra ra-crystal-wand">Crystal Wand (ra ra-crystal-wand)</option>
+                <option value="ra ra-gem-pendant">Gem Pendant (ra ra-gem-pendant)</option>
+                <option value="ra ra-wooden-sign">Wooden Sign (ra ra-wooden-sign)</option>
+                <option value="ra ra-apple">Apple (ra ra-apple)</option>
+            </select>
+        </div>
+
+        @if (!string.IsNullOrEmpty(itemName))
+        {
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">Preview:</h6>
+                    <div class="d-flex align-items-start gap-3 p-2 border rounded">
+                        <div class="flex-shrink-0 text-primary fs-4">
+                            @if (!string.IsNullOrEmpty(itemIconClass))
+                            {
+                                <i class="@itemIconClass"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-cube"></i>
+                            }
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">@itemName</div>
+                            @if (!string.IsNullOrEmpty(itemEffect))
+                            {
+                                <div class="small text-body-secondary">@itemEffect</div>
+                            }
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                <span class="badge text-bg-warning">@itemCost@CurrencySymbol</span>
+                                <span class="badge text-bg-dark">@itemSlots @(itemSlots == 1 ? "slot" : "slots")</span>
+                                <span class="badge text-bg-info">Custom</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @onclick="Cancel" disabled="@isLoading">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" class="btn btn-primary" @onclick="SaveAndClose" disabled="@isLoading">
+            @if (isLoading)
+            {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            else
+            {
+                <i class="fas fa-save"></i>
+            }
+            Save to Warband
+        </button>
+        @if (OnSaveAndEquip.HasDelegate)
+        {
+            <button type="button" class="btn btn-success" @onclick="SaveAndEquipToCharacter" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                else
+                {
+                    <i class="fas fa-check"></i>
+                }
+                Save and Equip
+            </button>
+        }
+    </div>
+</Modal>
+
+@code {
+    [Parameter]
+    public string CurrencySymbol { get; set; } = "G";
+
+    [Parameter]
+    public EventCallback<Equipment> OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnSaveAndEquip { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private string itemName = string.Empty;
+    private int itemCost = 0;
+    private int itemSlots = 1;
+    private string itemEffect = string.Empty;
+    private string itemIconClass = string.Empty;
+    private bool isLoading = false;
+    private List<string> validationErrors = new();
+
+    private bool ValidateInput()
+    {
+        validationErrors.Clear();
+
+        if (string.IsNullOrWhiteSpace(itemName))
+        {
+            validationErrors.Add("Item name is required");
+        }
+        else if (itemName.Length > 50)
+        {
+            validationErrors.Add("Item name must be 50 characters or less");
+        }
+
+        if (itemCost < 0 || itemCost > 999)
+        {
+            validationErrors.Add("Cost must be between 0 and 999");
+        }
+
+        if (itemSlots < 0 || itemSlots > 10)
+        {
+            validationErrors.Add("Slots must be between 0 and 10");
+        }
+
+        if (itemEffect.Length > 200)
+        {
+            validationErrors.Add("Effect description must be 200 characters or less");
+        }
+
+        return !validationErrors.Any();
+    }
+
+    private Equipment CreateEquipment()
+    {
+        return new Equipment
+        {
+            Name = itemName.Trim(),
+            Type = "item",
+            Cost = itemCost,
+            Slots = itemSlots,
+            Effect = string.IsNullOrWhiteSpace(itemEffect) ? null : itemEffect.Trim(),
+            IconClass = string.IsNullOrWhiteSpace(itemIconClass) ? "fas fa-cube" : itemIconClass,
+            IsCustom = true
+        };
+    }
+
+    private async Task SaveAndClose()
+    {
+        if (!ValidateInput())
+        {
+            StateHasChanged();
+            return;
+        }
+
+        if (OnSave.HasDelegate)
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            var equipment = CreateEquipment();
+            await OnSave.InvokeAsync(equipment);
+
+            isLoading = false;
+        }
+    }
+
+    private async Task SaveAndEquipToCharacter()
+    {
+        if (!ValidateInput())
+        {
+            StateHasChanged();
+            return;
+        }
+
+        if (OnSaveAndEquip.HasDelegate)
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            var equipment = CreateEquipment();
+            await OnSaveAndEquip.InvokeAsync(equipment);
+
+            isLoading = false;
+        }
+    }
+
+    private async Task Cancel()
+    {
+        if (OnCancel.HasDelegate && !isLoading)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+}

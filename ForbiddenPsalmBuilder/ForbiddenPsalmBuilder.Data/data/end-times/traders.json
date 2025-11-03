@@ -1,0 +1,48 @@
+[
+  {
+    "id": "mad-wizard",
+    "name": "Vriprix the Mad Wizard",
+    "gameVariant": "end-times",
+    "description": "Vriprix the Mad Wizard bids the desperate, brave, and foolish to venture into the ruins. Sells Items at full price, buys Items at half price (rounded down).",
+    "buyMultiplier": 0.5,
+    "sellMultiplier": 1.0,
+    "hasLimitedInventory": false,
+    "sellsRelics": true,
+    "iconClass": "ra ra-sword"
+  },
+  {
+    "id": "hogs-head-inn",
+    "name": "Hogs Head Inn",
+    "gameVariant": "end-times",
+    "description": "Trading post with upgradeable facilities. Available from Chapter 2 onwards. Buys items at half price.",
+    "buyMultiplier": 0.5,
+    "sellMultiplier": 1.0,
+    "minimumChapter": 2,
+    "isUpgradeShop": true,
+    "hasLimitedInventory": false,
+    "iconClass": "ra ra-tower"
+  },
+  {
+    "id": "merchant",
+    "name": "The Merchant",
+    "gameVariant": "end-times",
+    "description": "A shadowy figure who approaches you on your way back to Vriprix's castle. Buys for 1 Gold more than Vriprix, sells for 1 Gold less (minimum 1 Gold). Has random limited inventory. RISK: D20 roll each visit, on 1 you're caught!",
+    "buyMultiplier": 0.5,
+    "buyModifier": 1,
+    "sellMultiplier": 1.0,
+    "sellModifier": -1,
+    "minimumSellPrice": 1,
+    "hasLimitedInventory": true,
+    "maxWeapons": 3,
+    "maxArmor": 1,
+    "maxEquipment": 1,
+    "sellsRelics": true,
+    "relicPrice": 100,
+    "hasRisk": true,
+    "riskDieSize": 20,
+    "riskFailValue": 1,
+    "riskPenalty": "One of your models gains the Lost Limb Injury",
+    "secondRiskPenalty": "Vriprix refuses to deal with you until a member of your warband is sent away! Replace that member with a new one. The Merchant then stops dealing with you.",
+    "iconClass": "ra ra-hood"
+  }
+]

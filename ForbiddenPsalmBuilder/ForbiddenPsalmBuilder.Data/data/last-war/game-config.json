@@ -1,0 +1,89 @@
+{
+  "gameName": "The Last War",
+  "currency": {
+    "name": "Resources",
+    "symbol": "R",
+    "startingBudget": 50
+  },
+  "warbandSize": {
+    "max": 5,
+    "specialTrooperLimit": 1
+  },
+  "weaponRules": {
+    "startingCondition": "fully_loaded",
+    "description": "Weapons come fully loaded"
+  },
+  "services": {
+    "nurseNightshade": {
+      "deathSaveBypass": {
+        "cost": 15,
+        "currency": "Resources"
+      },
+      "injuryRemoval": {
+        "cost": 15,
+        "currency": "Resources",
+        "repeatable": true
+      }
+    }
+  },
+  "characterCreation": {
+    "specialTroopers": {
+      "cost": 5,
+      "limit": 1,
+      "freeStartingEquipment": true,
+      "replacementCost": 0,
+      "types": [
+        {
+          "name": "Witch",
+          "startingMagicItems": {
+            "amount": 2,
+            "type": "random",
+            "categories": ["sanctified"]
+          },
+          "abilities": ["can use Manuscripts to cast spells"]
+        },
+        {
+          "name": "Sniper",
+          "startingEquipment": [
+            {
+              "item": "sniper rifle",
+              "source": "weapons"
+            },
+            {
+              "item": "Ammo",
+              "amount": 5,
+              "source": "equipment"
+            }
+          ],
+          "statBonus": {
+            "stat": "presence",
+            "modifier": 1
+          }
+        },
+        {
+          "name": "Anti-Tank Gunner",
+          "startingEquipment": [
+            {
+              "item": "anti-tank rifle",
+              "source": "weapons"
+            },
+            {
+              "item": "Ammo",
+              "amount": 5,
+              "source": "equipment"
+            },
+            {
+              "item": "makeshift explosive",
+              "amount": 1,
+              "source": "equipment"
+            }
+          ]
+        }
+      ]
+    },
+    "variantSpecific": {
+      "presenceUses": ["reading Manuscripts"],
+      "currency": "Resources"
+    }
+  }
+}

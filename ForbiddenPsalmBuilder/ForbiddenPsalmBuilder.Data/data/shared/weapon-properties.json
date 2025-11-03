@@ -1,0 +1,72 @@
+{
+  "AP": {
+    "name": "Armor Piercing",
+    "description": "Ignores all armor"
+  },
+  "AF2": {
+    "name": "Auto Fire 2",
+    "description": "Roll 2 dice, take best result (but still only roll damage once)"
+  },
+  "AF3": {
+    "name": "Auto Fire 3",
+    "description": "Roll 3 dice, take best result (but still only roll damage once)"
+  },
+  "Bulky": {
+    "name": "Bulky",
+    "description": "Need +3 Strength or -6 to rolls"
+  },
+  "Burn": {
+    "name": "Burn",
+    "description": "Target makes Toughness test or takes 1 damage per activation until put out"
+  },
+  "Called Shot": {
+    "name": "Called Shot",
+    "description": "Choose number 1-20, if rolled exactly, target instantly dies"
+  },
+  "Cruel": {
+    "name": "Cruel",
+    "description": "Always deals at least 1 damage regardless of armor"
+  },
+  "Cyber": {
+    "name": "Cyber",
+    "description": "Can be affected by hacking"
+  },
+  "Explode": {
+    "name": "Explode",
+    "description": "On Fumble, deals max damage to user and is destroyed"
+  },
+  "Gas": {
+    "name": "Gas",
+    "description": "Toughness test or Poisoned, 2 damage if end turn in Gas"
+  },
+  "Jam": {
+    "name": "Jam",
+    "description": "On Fumble weapon jams instead of dropping"
+  },
+  "Ranged": {
+    "name": "Ranged",
+    "description": "Can attack up to 12 inches away",
+    "range": 12
+  },
+  "Reach": {
+    "name": "Reach",
+    "description": "Attack enemy 2 inches away without provoking attack back"
+  },
+  "Reload": {
+    "name": "Reload",
+    "description": "Must spend movement reloading before next use"
+  },
+  "Smoke": {
+    "name": "Smoke",
+    "description": "Obscures vision, Toughness test or 1 damage"
+  },
+  "Template": {
+    "name": "Template",
+    "description": "3-inch circle, affects area"
+  },
+  "Thrown": {
+    "name": "Thrown",
+    "description": "Can be thrown up to 6 inches",
+    "range": 6
+  }
+}

@@ -1,0 +1,82 @@
+@using ForbiddenPsalmBuilder.Core.Services.State
+@inject IGameStateService StateService
+@implements IDisposable
+
+<section class="mb-4">
+    <header class="mb-3">
+        <h5 class="h6 mb-0">Game Selection</h5>
+    </header>
+
+    <div class="mb-2">
+        <label for="gameVariant" class="form-label">Choose Game Variant:</label>
+        <select id="gameVariant" class="form-select" value="@StateService.State.SelectedGameVariant"
+                @onchange="OnGameVariantChanged">
+            <option value="28-psalms">28 Psalms</option>
+            <option value="end-times">Forbidden Psalm: End Times</option>
+            <option value="last-war">The Last War</option>
+        </select>
+    </div>
+
+    <small class="text-body-secondary">Current game: <strong class="text-primary">@StateService.State.SelectedGameVariant</strong></small>
+
+    @if (StateService.State.IsLoading)
+    {
+        <div class="text-center py-2">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(StateService.State.ErrorMessage))
+    {
+        <aside class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+            @StateService.State.ErrorMessage
+            <button type="button" class="btn-close" @onclick="ClearError" aria-label="Close"></button>
+        </aside>
+    }
+</section>
+
+@code {
+    protected override void OnInitialized()
+    {
+        StateService.StateChanged += OnStateChanged;
+        StateService.GameVariantChanged += OnGameVariantChangedEvent;
+    }
+
+    private async Task OnGameVariantChanged(ChangeEventArgs e)
+    {
+        if (e.Value?.ToString() is string variant)
+        {
+            try
+            {
+                await StateService.SetGameVariantAsync(variant);
+            }
+            catch (Exception ex)
+            {
+                await StateService.SetErrorAsync($"Failed to change game variant: {ex.Message}");
+            }
+        }
+    }
+
+    private void OnStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnGameVariantChangedEvent(string variant)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ClearError()
+    {
+        await StateService.ClearErrorAsync();
+    }
+
+    public void Dispose()
+    {
+        StateService.StateChanged -= OnStateChanged;
+        StateService.GameVariantChanged -= OnGameVariantChangedEvent;
+    }
+}

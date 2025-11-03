@@ -1,0 +1,28 @@
+[
+  {
+    "id": "spellcaster",
+    "name": "Spellcaster",
+    "displayName": "Spellcaster",
+    "description": "A spellcaster who can use Scrolls to cast powerful spells",
+    "cost": 5,
+    "iconClass": "ra ra-scroll-unfurled",
+    "gameVariant": "end-times",
+    "isSpellcaster": true,
+    "startingEquipment": [],
+    "statBonuses": {},
+    "abilities": [
+      "Can use Scrolls to cast spells",
+      "Starts with 2 random Scrolls (one Clean and one Unclean)"
+    ],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1,
+      "startingMagicItems": {
+        "amount": 2,
+        "type": "random",
+        "categories": ["scroll"]
+      }
+    }
+  }
+]

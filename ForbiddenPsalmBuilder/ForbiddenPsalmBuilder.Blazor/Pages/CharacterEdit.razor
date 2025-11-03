@@ -1,0 +1,2502 @@
+@page "/warband/{WarbandId}/character/{CharacterId}"
+@page "/warband/{WarbandId}/character/new"
+@using ForbiddenPsalmBuilder.Core.Services.State
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.DTOs
+@using ForbiddenPsalmBuilder.Core.Services
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Blazor.Components
+@using Microsoft.AspNetCore.Components.Forms
+@inject IGameStateService StateService
+@inject EquipmentService EquipmentService
+@inject TraderService TraderService
+@inject FeatFlawService FeatFlawService
+@inject InjuryService InjuryService
+@inject SpellService SpellService
+@inject NavigationManager Navigation
+@inject ILogger<CharacterEdit> Logger
+@inject IJSRuntime JSRuntime
+@using Microsoft.Extensions.Logging
+@using Microsoft.JSInterop
+<PageTitle>
+    @(IsNewCharacter ? "New Character" : $"{character?.Name}") - Forbidden Psalm Builder
+</PageTitle>
+<PageHeader
+    Title="@(IsNewCharacter ? "New Character" : $"{character?.Name}")"
+    Subtitle="@(warband?.Name ?? "Unknown Warband")"
+    BreadcrumbItems="@GetBreadcrumbItems()">
+    <Actions>
+        <button
+            type="button"
+            class="btn btn-secondary"
+            @onclick="GoBack">
+            <i class="fas fa-arrow-left"></i>
+            Back to Warband
+        </button>
+        @if (!IsNewCharacter)
+        {
+            <button
+                type="button"
+                class="btn btn-primary"
+                @onclick="() => showRenameModal = true">
+                <i class="fas fa-edit"></i>
+                Rename
+            </button>
+        }
+    </Actions>
+</PageHeader>
+<main class="container py-4" style="max-width: 1400px;">
+    @if (isLoading)
+    {
+        <section class="text-center py-5">
+            <div
+                role="status"
+                class="spinner-border text-primary mb-3"
+                aria-hidden="true"></div>
+            <p class="text-body-secondary">
+                @(IsNewCharacter ? "Preparing character creation..." : "Loading character...")
+            </p>
+        </section>
+    }
+    else if (warband == null)
+    {
+        <section class="text-center py-5 alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+            <h3 class="h4">Warband Not Found</h3>
+            <p class="mb-3">The warband you're looking for doesn't exist or has been deleted.</p>
+            <button class="btn btn-primary" @onclick="GoHome">
+                <i class="fas fa-home"></i>
+                Go Home
+            </button>
+        </section>
+    }
+    else
+    {
+        <EditForm Model="editCharacterDto" OnInvalidSubmit="HandleInvalidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="alert alert-danger" role="alert" />
+            <div class="row g-4">
+                <!-- Special Classes -->
+                <section class="col-12 col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <h2 class="mb-0">Class & Background</h2>
+                                @if (!IsNewCharacter && warband != null)
+                                {
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-primary"
+                                        @onclick="OpenLevelUpModal"
+                                        disabled="@(!CanLevelUp())">
+                                        <i class="fas fa-level-up-alt"></i>
+                                        Level Up (@characterXpCost XP)
+                                    </button>
+                                }
+                            </div>
+                            <InfoSelector
+                                Items="@availableSpecialClasses"
+                                @bind-SelectedId="editCharacterDto.SpecialClassId"
+                                @bind-SelectedId:after="AutoSave"
+                                Label="Special Class"
+                                ModalLabel="Select Special Class"
+                                Category="special-class"
+                                AllowNone="true"
+                                Searchable="true"
+                                ShowCost="true"
+                                ShowIcons="true"
+                                CurrencySymbol="@GetCurrencySymbol()" />
+                            @if (character != null)
+                            {
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <label class="form-label mb-0 fw-bold">Tragedies:</label>
+                                        <NumberInput
+                                            @bind-Value="character.Tragedies"
+                                            @bind-Value:after="AutoSave"
+                                            Min="0"
+                                            Max="99"
+                                            Step="1" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </section>
+                <!-- Character Stats -->
+                <section class="col-12 col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <h2 class="mb-0">Character Stats</h2>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-primary"
+                                    @onclick="OpenStatArrayModal">
+                                    <i class="fas fa-dice-d20"></i>
+                                    Select Distribution
+                                </button>
+                            </div>
+                            @if (character != null)
+                            {
+                                <CharacterStatsDisplay
+                                    Character="@character"
+                                    FeatOptions="@GetFeatOptions(character.Feats)"
+                                    FlawOptions="@GetFlawOptions(character.Flaws)"
+                                    InjuryOptions="@GetInjuryOptions(character.Injuries)"
+                                    BaseAgility="@editCharacterDto.Agility"
+                                    BasePresence="@editCharacterDto.Presence"
+                                    BaseStrength="@editCharacterDto.Strength"
+                                    BaseToughness="@editCharacterDto.Toughness" />
+                            }
+                            else
+                            {
+                                <StatsDisplay Stats="@GetMainStats()" />
+                                <StatsDisplay Stats="@GetCalculatedStats()" />
+                            }
+                        </div>
+                    </div>
+                </section>
+                <!-- Equipment -->
+                <section class="col-12 col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h2>Equipment</h2>
+                                <SlotUsageBar UsedSlots="@GetUsedEquipmentSlots()" TotalSlots="@GetTotalEquipmentSlots()" />
+                            </div>
+
+                            <!-- Equipped Items Section -->
+                            <div class="mb-4">
+                                <h3 class="h5 mb-2 text-primary"><i class="fas fa-shield-alt"></i> Equipped</h3>
+                                @if (character != null && character.Equipment.Any(e => e.IsEquipped))
+                                {
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach (var equipment in character.Equipment.Where(e => e.IsEquipped))
+                                        {
+                                            <EquipmentCard
+                                                Equipment="equipment"
+                                                ShowActions="true"
+                                                Traders="@availableTraders"
+                                                OnMoveToStash="() => RemoveEquipment(equipment.Id)"
+                                                OnSellToTrader="@(tuple => SellEquipmentToTrader(tuple.Equipment, tuple.Trader))"
+                                                OnUnequip="@(e => UnequipItem(e.Id))"
+                                                OnReload="@(e => HandleReload(e))"
+                                                OnUnload="@(e => HandleUnload(e))"
+                                                OnConsumeAmmo="@(e => HandleConsumeAmmo(e))"
+                                                OnUseConsumable="@(e => HandleUseConsumable(e))" />
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="card">
+                                        <div class="card-body text-center text-muted">
+                                            <small>No items equipped</small>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Inventory Section -->
+                            <div class="mb-3">
+                                <h3 class="h5 mb-2 text-secondary"><i class="fas fa-backpack"></i> Inventory</h3>
+                                <small class="text-muted d-block mb-2">Items in inventory count toward slot limits but provide no benefits</small>
+                                @if (character != null && character.Equipment.Any(e => !e.IsEquipped))
+                                {
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach (var equipment in character.Equipment.Where(e => !e.IsEquipped))
+                                        {
+                                            <EquipmentCard
+                                                Equipment="equipment"
+                                                ShowActions="true"
+                                                Traders="@availableTraders"
+                                                OnMoveToStash="() => RemoveEquipment(equipment.Id)"
+                                                OnSellToTrader="@(tuple => SellEquipmentToTrader(tuple.Equipment, tuple.Trader))"
+                                                OnEquip="@(e => EquipItem(e.Id))"
+                                                OnReload="@(e => HandleReload(e))"
+                                                OnUnload="@(e => HandleUnload(e))"
+                                                OnConsumeAmmo="@(e => HandleConsumeAmmo(e))"
+                                                OnUseConsumable="@(e => HandleUseConsumable(e))" />
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="card">
+                                        <div class="card-body text-center text-muted">
+                                            <small>Inventory is empty</small>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    @onclick="OpenAddFromStashModal"
+                                    disabled="@(!HasStashEquipment())">
+                                    <i class="fas fa-box-open"></i>
+                                    Add from Stash
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    @onclick="OpenAddEquipmentModal">
+                                    <i class="fas fa-gift"></i>
+                                    Add New Equipment
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    @onclick="OpenSpellModal">
+                                    <i class="fas fa-magic"></i>
+                                    Manage Spells
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Feats & Flaws -->
+                <section class="col-12 col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <h2 class="mb-0">Feats & Flaws</h2>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-primary"
+                                    @onclick="OpenFeatFlawModal">
+                                    <i class="fas fa-dice-d20"></i>
+                                    Manage
+                                </button>
+                            </div>
+                            @if (character != null)
+                            {
+                                <FeatFlawList
+                                    Feats="@GetFeatOptions(character.Feats)"
+                                    Flaws="@GetFlawOptions(character.Flaws)"
+                                    ShowRemove="true"
+                                    ShowDetails="true"
+                                    OnRemoveFeat="@RemoveFeat"
+                                    OnRemoveFlaw="@RemoveFlaw" />
+                            }
+                        </div>
+                    </div>
+                </section>
+                <!-- Injuries -->
+                <section class="col-12 col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <h2 class="mb-0">Injuries</h2>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-primary"
+                                    @onclick="OpenInjuryModal">
+                                    <i class="fas fa-heart-broken"></i>
+                                    Manage
+                                </button>
+                            </div>
+                            @if (character != null)
+                            {
+                                <InjuryList
+                                    Injuries="@GetInjuryOptions(character.Injuries)"
+                                    ShowDetails="true"
+                                    ShowRemove="true"
+                                    OnRemoveInjury="@RemoveInjury" />
+                            }
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <ValidationErrors Errors="@validationErrors" />
+        </EditForm>
+    }
+    <!-- Stat Array Selection Modal -->
+    @if (showStatArrayModal)
+    {
+        <Modal IsVisible="true" OnClose="CloseStatArrayModal" ModalDialogClass="modal-fullscreen">
+            <StatArraySelector
+                StatArrays="@availableStatArrays"
+                InitialAgility="@editCharacterDto.Agility"
+                InitialPresence="@editCharacterDto.Presence"
+                InitialStrength="@editCharacterDto.Strength"
+                InitialToughness="@editCharacterDto.Toughness"
+                OnStatsChanged="OnStatArrayStatsChanged"
+                OnArraySelectionChanged="OnStatArraySelectionChanged"
+                OnClose="CloseStatArrayModal" />
+        </Modal>
+    }
+    <!-- Add Equipment from Stash Modal -->
+    @if (showAddFromStashModal && character != null)
+    {
+        <Modal IsVisible="true" OnClose="CloseAddFromStashModal" ModalDialogClass="modal-fullscreen">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Add Equipment from Stash</h2>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary"
+                    @onclick="CloseAddFromStashModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <EquipmentSelector
+                Equipment="@availableStashEquipment"
+                ShowTabs="true"
+                ShowSearch="true"
+                ShowActions="true"
+                OnEquipmentSelected="AddEquipmentFromStash" />
+        </Modal>
+    }
+    <!-- Add New Equipment Modal -->
+    @if (showAddEquipmentModal && warband != null)
+    {
+        <Modal IsVisible="true" OnClose="CloseAddEquipmentModal" ModalDialogClass="modal-fullscreen">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Add Equipment to Character</h2>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary"
+                    @onclick="CloseAddEquipmentModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Toggle between Browse and Create Custom -->
+            <div class="btn-group mb-3" role="group">
+                <button type="button"
+                        class="btn @(showingCustomItemForm ? "btn-outline-primary" : "btn-primary")"
+                        @onclick="@(() => showingCustomItemForm = false)">
+                    <i class="fas fa-store"></i> Browse Equipment
+                </button>
+                <button type="button"
+                        class="btn @(showingCustomItemForm ? "btn-primary" : "btn-outline-primary")"
+                        @onclick="@(() => showingCustomItemForm = true)">
+                    <i class="fas fa-plus-circle"></i> Create Custom Item
+                </button>
+            </div>
+
+            <ValidationErrors Errors="@validationErrors" />
+
+            @if (!showingCustomItemForm)
+            {
+                <TraderSelector
+                    Traders="@availableTraders"
+                    SelectedTraderId="@selectedTraderId"
+                    SelectedTraderIdChanged="@OnTraderChanged"
+                    Label="Select Trader"
+                    AllowNone="true"
+                    ShowPricingInfo="true" />
+                @if (selectedTrader?.HasLimitedInventory == true)
+                {
+                    <div>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            @onclick="RollMerchantInventory">
+                            <i class="fas fa-dice"></i>
+                            Roll Merchant Inventory
+                        </button>
+                        @if (merchantInventoryIds.Any())
+                        {
+                            <span>
+                                (@merchantInventoryIds.Count items available)
+                            </span>
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                @onclick="ClearMerchantInventory">
+                                <i class="fas fa-times"></i>
+                                Clear
+                            </button>
+                        }
+                    </div>
+                }
+                <EquipmentSelector
+                    Equipment="@GetFilteredEquipment()"
+                    ShowTabs="true"
+                    ShowSearch="true"
+                    ShowPrice="@(!string.IsNullOrEmpty(selectedTraderId))"
+                    ShowActions="true"
+                    UseCompactMode="true"
+                    CurrencySymbol="G"
+                    WarbandMoney="@warband?.Gold"
+                    PriceCalculator="@CalculateBuyPrice"
+                    DisabledEquipmentIds="@GetUnaffordableEquipmentIds()"
+                    DisableBuyButton="@(string.IsNullOrEmpty(selectedTraderId) || (selectedTrader?.HasLimitedInventory == true && !merchantInventoryIds.Any()))"
+                    AcquiredRelicIds="@(warband?.AcquiredRelicIds ?? new())"
+                    OnBuy="@_handleBuyEquipment"
+                    OnBuyAndEquip="@_handleBuyEquipmentAndEquip"
+                    OnAssign="@AddNewEquipment"
+                    OnAssignAndEquip="@_handleAssignAndEquip"
+                    OnMarkAcquired="@HandleMarkRelicAcquired"
+                    OnMarkAvailable="@HandleMarkRelicAvailable"
+                    OnRollRandomRelic="@RollRandomRelic" />
+            }
+            else
+            {
+                <!-- Custom Item Form (embedded, not a separate modal) -->
+                <div class="custom-item-form-container">
+                    @if (validationErrors.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach (var error in validationErrors)
+                                {
+                                    <li>@error</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label for="customItemName" class="form-label fw-semibold">Item Name <span class="text-danger">*</span></label>
+                        <input type="text"
+                               class="form-control"
+                               id="customItemName"
+                               @bind="customItemName"
+                               placeholder="Enter item name..."
+                               maxlength="50" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label for="customItemCost" class="form-label fw-semibold">Cost (@GetCurrencySymbol())</label>
+                            <NumberInput @bind-Value="customItemCost" Min="0" Max="999" Step="1" />
+                        </div>
+                        <div class="col-6">
+                            <label for="customItemSlots" class="form-label fw-semibold">Slots</label>
+                            <NumberInput @bind-Value="customItemSlots" Min="0" Max="10" Step="1" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="customItemEffect" class="form-label fw-semibold">Effect / Description</label>
+                        <textarea class="form-control"
+                                  id="customItemEffect"
+                                  @bind="customItemEffect"
+                                  rows="3"
+                                  placeholder="Describe what this item does..."
+                                  maxlength="200"></textarea>
+                        <small class="text-body-secondary">Optional - Describe the item's effect or use</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="customItemIcon" class="form-label fw-semibold">Icon (Optional)</label>
+                        <select class="form-select" id="customItemIcon" @bind="customItemIconClass">
+                            <option value="">-- No icon --</option>
+                            <option value="fas fa-flask">Flask (fas fa-flask)</option>
+                            <option value="fas fa-box">Box (fas fa-box)</option>
+                            <option value="fas fa-gem">Gem (fas fa-gem)</option>
+                            <option value="fas fa-book">Book (fas fa-book)</option>
+                            <option value="fas fa-scroll">Scroll (fas fa-scroll)</option>
+                            <option value="fas fa-ring">Ring (fas fa-ring)</option>
+                            <option value="fas fa-key">Key (fas fa-key)</option>
+                            <option value="fas fa-compass">Compass (fas fa-compass)</option>
+                            <option value="fas fa-map">Map (fas fa-map)</option>
+                            <option value="fas fa-briefcase">Briefcase (fas fa-briefcase)</option>
+                            <option value="fas fa-toolbox">Toolbox (fas fa-toolbox)</option>
+                            <option value="fas fa-magic">Magic (fas fa-magic)</option>
+                            <option value="fas fa-star">Star (fas fa-star)</option>
+                            <option value="fas fa-gift">Gift (fas fa-gift)</option>
+                            <option value="ra ra-potion">Potion (ra ra-potion)</option>
+                            <option value="ra ra-scroll-unfurled">Scroll Unfurled (ra ra-scroll-unfurled)</option>
+                            <option value="ra ra-crystal-wand">Crystal Wand (ra ra-crystal-wand)</option>
+                            <option value="ra ra-gem-pendant">Gem Pendant (ra ra-gem-pendant)</option>
+                            <option value="ra ra-wooden-sign">Wooden Sign (ra ra-wooden-sign)</option>
+                            <option value="ra ra-apple">Apple (ra ra-apple)</option>
+                        </select>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(customItemName))
+                    {
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title mb-3">Preview:</h6>
+                                <div class="d-flex align-items-start gap-3 p-2 border rounded">
+                                    <div class="flex-shrink-0 text-primary fs-4">
+                                        @if (!string.IsNullOrEmpty(customItemIconClass))
+                                        {
+                                            <i class="@customItemIconClass"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-cube"></i>
+                                        }
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">@customItemName</div>
+                                        @if (!string.IsNullOrEmpty(customItemEffect))
+                                        {
+                                            <div class="small text-body-secondary">@customItemEffect</div>
+                                        }
+                                        <div class="d-flex flex-wrap gap-2 mt-1">
+                                            <span class="badge text-bg-warning">@customItemCost@GetCurrencySymbol()</span>
+                                            <span class="badge text-bg-dark">@customItemSlots @(customItemSlots == 1 ? "slot" : "slots")</span>
+                                            <span class="badge text-bg-info">Custom</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="button" class="btn btn-primary" @onclick="SaveCustomItemInline" disabled="@customItemSaving">
+                            @if (customItemSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-save"></i>
+                            }
+                            Save to Warband
+                        </button>
+                        <button type="button" class="btn btn-success" @onclick="SaveAndEquipCustomItemInline" disabled="@customItemSaving">
+                            @if (customItemSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-check"></i>
+                            }
+                            Save and Equip
+                        </button>
+                    </div>
+                </div>
+            }
+        </Modal>
+    }
+    <!-- Feat & Flaw Management Modal -->
+    @if (showFeatFlawModal && character != null && warband != null)
+    {
+        <Modal IsVisible="true" OnClose="CloseFeatFlawModal" ModalDialogClass="modal-fullscreen">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Manage Feats & Flaws</h2>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary"
+                    @onclick="CloseFeatFlawModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <FeatFlawSelector
+                AvailableFeats="@availableFeats"
+                AvailableFlaws="@availableFlaws"
+                CurrentFeats="@character.Feats"
+                CurrentFlaws="@character.Flaws"
+                OnRollFeat="@(async () => await RollFeat())"
+                OnRollFlaw="@(async () => await RollFlaw())"
+                OnAddFeat="@AddFeat"
+                OnAddFlaw="@AddFlaw"
+                OnRemoveFeat="@RemoveFeat"
+                OnRemoveFlaw="@RemoveFlaw" />
+        </Modal>
+    }
+    <!-- Injury Management Modal -->
+    @if (showInjuryModal && character != null && warband != null)
+    {
+        <Modal IsVisible="true" OnClose="CloseInjuryModal" ModalDialogClass="modal-fullscreen">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Manage Injuries</h2>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary"
+                    @onclick="CloseInjuryModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <InjurySelector
+                AvailableInjuries="@availableInjuries"
+                CurrentInjuryNames="@character.Injuries"
+                OnRollInjury="@(async () => await RollInjury())"
+                OnSelectInjury="@AddInjury"
+                OnRemoveInjury="@RemoveInjury" />
+        </Modal>
+    }
+    <!-- Spell Management Modal -->
+    @if (showSpellModal && character != null && warband != null)
+    {
+        <Modal IsVisible="true" OnClose="CloseSpellModal" ModalDialogClass="modal-fullscreen">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Manage Spells</h2>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary"
+                    @onclick="CloseSpellModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <ValidationErrors Errors="@validationErrors" />
+            <SpellSelector
+                AvailableSpells="@availableSpells"
+                CurrentSpellNames="@character.Spells"
+                OnSelectSpell="@AddSpell"
+                OnRemoveSpell="@RemoveSpell"
+                OnDeleteSpell="@DeleteSpell"
+                OnRollRandomSpell="@RollRandomSpell" />
+        </Modal>
+    }
+    <!-- Rename Character Modal -->
+    @if (showRenameModal)
+    {
+        <Modal
+            IsVisible="true"
+            Title="Rename Character"
+            OnClose="CloseRenameModal">
+            <EditForm Model="editCharacterDto" OnValidSubmit="SaveCharacterName">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label for="characterName" class="form-label">Character Name</label>
+                    <div class="input-group">
+                        <InputText
+                            id="characterName"
+                            class="form-control"
+                            @bind-Value="editCharacterDto.Name"
+                            placeholder="Enter character name..." />
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            @onclick="GenerateNewCharacterName"
+                            title="Generate new random name">
+                            <i class="fas fa-dice"></i>
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => editCharacterDto.Name)" class="text-danger" />
+                </div>
+                @if (validationErrors.Any())
+                {
+                    <aside class="alert alert-danger" role="alert">
+                        <strong>Validation Errors:</strong>
+                        <ul class="mb-0">
+                            @foreach (var error in validationErrors)
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                    </aside>
+                }
+                <footer class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseRenameModal">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" disabled="@(!IsValidName())">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                </footer>
+            </EditForm>
+        </Modal>
+    }
+    <!-- Level-Up Modal -->
+    @if (showLevelUpModal && character != null && warband != null)
+    {
+        <Modal IsVisible="true" OnClose="CloseLevelUpModal" ModalDialogClass="modal-fullscreen">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Level Up</h2>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary"
+                    @onclick="CloseLevelUpModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <LevelUpSelector
+                WarbandId="@WarbandId"
+                CharacterId="@CharacterId"
+                Character="@character"
+                Warband="@warband"
+                OnClose="CloseLevelUpModal"
+                OnLevelUpComplete="HandleLevelUpComplete" />
+        </Modal>
+    }
+
+    <!-- Ammo Selector Modal -->
+    @if (showAmmoSelectorModal && weaponToReload != null && character != null && warband != null)
+    {
+        var compatibleAmmo = character.Equipment
+            .Where(e => e.Type == "ammo" && e.Name.Equals(weaponToReload.AmmoType, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        <AmmoSelectorModal
+            Weapon="@weaponToReload"
+            CompatibleAmmo="@compatibleAmmo"
+            Traders="@availableTraders"
+            AmmoItem="@ammoForReload"
+            CurrencySymbol="@GetCurrencySymbol()"
+            OnSelectAmmo="@ConfirmReload"
+            OnBuyAmmo="@HandleBuyAmmo"
+            OnCancel="@CloseAmmoSelectorModal" />
+    }
+
+    <!-- Unload Ammo Modal -->
+    @if (showUnloadAmmoModal && weaponToUnload != null)
+    {
+        <UnloadAmmoModal
+            Weapon="@weaponToUnload"
+            OnUnload="@ConfirmUnload"
+            OnCancel="@CloseUnloadAmmoModal" />
+    }
+</main>
+@code {
+    [Parameter] public string WarbandId { get; set; } = string.Empty;
+    [Parameter] public string? CharacterId { get; set; }
+
+    private Warband? warband;
+    private Character? character;
+    private EditCharacterDto editCharacterDto = new();
+    private List<string> validationErrors = new();
+    private bool isLoading = true;
+    private List<ISelectableItem> availableSpecialClasses = new();
+    private List<ForbiddenPsalmBuilder.Core.Models.Character.StatArray> availableStatArrays = new();
+    private bool showStatArrayModal = false;
+    private bool showRenameModal = false;
+    private bool showLevelUpModal = false;
+    private int characterXpCost = 5; // Will be updated with actual cost including Slow Learner
+
+    // Equipment management
+    private bool showAddFromStashModal = false;
+    private bool showAddEquipmentModal = false;
+    private List<Equipment> availableStashEquipment = new();
+    // Unified equipment list
+    private List<Equipment> allEquipment = new();
+
+    private List<Trader> availableTraders = new();
+    private string? selectedTraderId;
+    private Trader? selectedTrader;
+    private EventCallback<Equipment> _handleBuyEquipment;
+    private EventCallback<Equipment> _handleBuyEquipmentAndEquip;
+    private EventCallback<Equipment> _handleAssignAndEquip;
+    private List<string> merchantInventoryIds = new();
+
+    // Feat/Flaw management
+    private bool showFeatFlawModal = false;
+    private List<FeatFlawOption> availableFeats = new();
+    private List<FeatFlawOption> availableFlaws = new();
+
+    // Injury management
+    private bool showInjuryModal = false;
+    private List<InjuryOption> availableInjuries = new();
+
+    // Spell management
+    private bool showSpellModal = false;
+    private List<SpellOption> availableSpells = new();
+
+    // Ammo and consumable management
+    private bool showAmmoSelectorModal = false;
+    private Equipment? weaponToReload;
+    private Equipment? ammoForReload;
+
+    private bool showUnloadAmmoModal = false;
+    private Equipment? weaponToUnload;
+
+    // Inline custom item form state
+    private bool showingCustomItemForm = false;
+    private string customItemName = string.Empty;
+    private int customItemCost = 0;
+    private int customItemSlots = 1;
+    private string customItemEffect = string.Empty;
+    private string customItemIconClass = string.Empty;
+    private bool customItemSaving = false;
+
+    private bool IsNewCharacter => string.IsNullOrEmpty(CharacterId) || CharacterId == "new";
+
+    private void OpenStatArrayModal()
+    {
+        showStatArrayModal = true;
+    }
+
+    private void CloseStatArrayModal()
+    {
+        showStatArrayModal = false;
+    }
+
+    private void OpenLevelUpModal()
+    {
+        showLevelUpModal = true;
+    }
+
+    private void CloseLevelUpModal()
+    {
+        showLevelUpModal = false;
+    }
+
+    private bool CanLevelUp()
+    {
+        if (warband == null || character == null || IsNewCharacter)
+            return false;
+
+        // Check if warband has enough XP for this character's level-up cost
+        // (may be 6 XP if character has Slow Learner flaw)
+        return warband.Experience >= characterXpCost;
+    }
+
+    private async Task HandleLevelUpComplete()
+    {
+        // Reload data after level-up
+        await LoadData();
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _handleBuyEquipment = EventCallback.Factory.Create<Equipment>(this, BuyEquipment);
+        _handleBuyEquipmentAndEquip = EventCallback.Factory.Create<Equipment>(this, BuyEquipmentAndEquip);
+        _handleAssignAndEquip = EventCallback.Factory.Create<Equipment>(this, AddNewEquipmentAndEquip);
+        await LoadData();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(WarbandId))
+        {
+            await LoadData();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        validationErrors.Clear();
+
+        try
+        {
+            warband = await StateService.GetWarbandAsync(WarbandId);
+
+            if (warband == null)
+            {
+                return;
+            }
+
+            // Load available special classes for this game variant
+            var specialClasses = await StateService.GetSpecialClassesAsync(warband.GameVariant);
+            availableSpecialClasses = specialClasses.Cast<ISelectableItem>().ToList();
+
+            // Load available stat arrays
+            availableStatArrays = await StateService.GetStatArraysAsync();
+
+            // Load all equipment for "Add New Equipment" modal using unified service
+            allEquipment = await EquipmentService.GetEquipmentAsync(warband.GameVariant);
+            availableTraders = await TraderService.GetTradersAsync(warband.GameVariant);
+
+            // Load feats/flaws for this game variant
+            availableFeats = await FeatFlawService.GetFeatsAsync(warband.GameVariant);
+            availableFlaws = await FeatFlawService.GetFlawsAsync(warband.GameVariant);
+
+            // Load injuries for this game variant
+            availableInjuries = await InjuryService.GetInjuriesAsync(warband.GameVariant);
+
+            // Load spells for this game variant
+            availableSpells = await SpellService.GetSpellsAsync(warband.GameVariant);
+
+            if (IsNewCharacter)
+            {
+                editCharacterDto = new EditCharacterDto
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = await StateService.GenerateCharacterNameAsync(warband.GameVariant),
+                    Agility = 0,
+                    Presence = 0,
+                    Strength = 0,
+                    Toughness = 0
+                };
+            }
+            else
+            {
+                character = warband.Members.FirstOrDefault(m => m.Id == CharacterId);
+                if (character != null)
+                {
+                    editCharacterDto = new EditCharacterDto
+                    {
+                        Id = character.Id,
+                        Name = character.Name,
+                        Agility = character.Stats.Agility,
+                        Presence = character.Stats.Presence,
+                        Strength = character.Stats.Strength,
+                        Toughness = character.Stats.Toughness,
+                        SpecialClassId = character.SpecialClassId
+                    };
+
+                    // Load character's XP cost (may be higher if they have Slow Learner)
+                    try
+                    {
+                        characterXpCost = await StateService.GetCharacterXpCostAsync(WarbandId, CharacterId!);
+                    }
+                    catch
+                    {
+                        characterXpCost = 5; // Default to 5 if we can't get the cost
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load data");
+            await StateService.SetErrorAsync($"Failed to load data: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private CancellationTokenSource? _autoSaveCts;
+
+    private async Task AutoSave()
+    {
+        // Cancel any pending auto-save
+        _autoSaveCts?.Cancel();
+        _autoSaveCts = new CancellationTokenSource();
+
+        try
+        {
+            // Debounce: wait 500ms before saving
+            await Task.Delay(500, _autoSaveCts.Token);
+
+            // Validate before saving
+            if (!IsValidForm())
+            {
+                Logger.LogInformation("AutoSave skipped - form is not valid");
+                return;
+            }
+
+            await SaveCharacter(navigateAfterSave: false);
+        }
+        catch (TaskCanceledException)
+        {
+            // Auto-save was cancelled, ignore
+        }
+    }
+
+    private async Task SaveCharacter(bool navigateAfterSave = true)
+    {
+        Logger.LogInformation("SaveCharacter called - IsNewCharacter: {IsNew}, Stats: AGI={Agility}, PRE={Presence}, STR={Strength}, TGH={Toughness}",
+            IsNewCharacter, editCharacterDto.Agility, editCharacterDto.Presence, editCharacterDto.Strength, editCharacterDto.Toughness);
+
+        validationErrors.Clear();
+
+        try
+        {
+            if (IsNewCharacter)
+            {
+                Logger.LogInformation("Creating new character...");
+                var newCharacter = new Character(editCharacterDto.Name)
+                {
+                    Id = editCharacterDto.Id,
+                    Stats = new Stats(
+                        editCharacterDto.Agility,
+                        editCharacterDto.Presence,
+                        editCharacterDto.Strength,
+                        editCharacterDto.Toughness
+                    ),
+                    SpecialClassId = editCharacterDto.SpecialClassId
+                };
+                newCharacter.CurrentHP = newCharacter.Stats.HP;
+
+                await StateService.AddCharacterToWarbandAsync(WarbandId, newCharacter);
+                Logger.LogInformation("Character created successfully");
+
+                // Reload warband to get updated gold
+                warband = await StateService.GetWarbandAsync(WarbandId);
+                StateHasChanged();
+
+                // Switch to edit mode after first save
+                CharacterId = newCharacter.Id;
+                character = newCharacter;
+            }
+            else if (character != null)
+            {
+                Logger.LogInformation("Updating existing character {CharacterId}...", CharacterId);
+                character.Name = editCharacterDto.Name.Trim();
+                character.Stats = new Stats(
+                    editCharacterDto.Agility,
+                    editCharacterDto.Presence,
+                    editCharacterDto.Strength,
+                    editCharacterDto.Toughness
+                );
+                character.SpecialClassId = editCharacterDto.SpecialClassId;
+
+                // Update current HP if toughness changed
+                if (character.CurrentHP > character.Stats.HP)
+                {
+                    character.CurrentHP = character.Stats.HP;
+                }
+
+                Logger.LogInformation("Calling UpdateCharacterAsync with stats: AGI={Agility}, PRE={Presence}, STR={Strength}, TGH={Toughness}",
+                    character.Stats.Agility, character.Stats.Presence, character.Stats.Strength, character.Stats.Toughness);
+                await StateService.UpdateCharacterAsync(WarbandId, CharacterId!, character);
+                Logger.LogInformation("Character updated successfully");
+
+                // Reload warband to get updated gold
+                warband = await StateService.GetWarbandAsync(WarbandId);
+                StateHasChanged();
+            }
+
+            if (navigateAfterSave)
+            {
+                Logger.LogInformation("Navigating to /warband/{WarbandId}", WarbandId);
+                Navigation.NavigateTo($"/warband/{WarbandId}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error in SaveCharacter");
+            await StateService.SetErrorAsync($"Failed to save character: {ex.Message}");
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo($"/warband/{WarbandId}");
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private bool IsValidForm()
+    {
+        if (editCharacterDto == null) return false;
+        if (string.IsNullOrWhiteSpace(editCharacterDto.Name)) return false;
+        if (editCharacterDto.Agility
+<
+-3 || editCharacterDto.Agility > 3) return false;
+        if (editCharacterDto.Presence
+<
+-3 || editCharacterDto.Presence > 3) return false;
+        if (editCharacterDto.Strength
+<
+-3 || editCharacterDto.Strength > 3) return false;
+        if (editCharacterDto.Toughness
+<
+-3 || editCharacterDto.Toughness > 3) return false;
+        return true;
+    }
+
+    private List
+<
+ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem> GetBreadcrumbItems()
+    {
+        return new List
+<
+ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem>
+        {
+            new ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem
+            {
+                Text = "Home",
+                Href = "/"
+            },
+            new ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem
+            {
+                Text = warband?.Name ?? "Warband",
+                Href = $"/warband/{WarbandId}"
+            },
+            new ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem
+            {
+                Text = IsNewCharacter ? "New Character" : character?.Name ?? "Character",
+                Href = null
+            }
+        };
+    }
+
+    private List<ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem> GetMainStats()
+    {
+        // Calculate effective stats with feat/flaw modifiers if character exists
+        Stats effectiveStats;
+        if (character != null)
+        {
+            var feats = GetFeatOptions(character.Feats);
+            var flaws = GetFlawOptions(character.Flaws);
+            var injuries = GetInjuryOptions(character.Injuries);
+            effectiveStats = character.GetEffectiveStats(feats, flaws, injuries);
+        }
+        else
+        {
+            effectiveStats = new Stats(
+                editCharacterDto.Agility,
+                editCharacterDto.Presence,
+                editCharacterDto.Strength,
+                editCharacterDto.Toughness
+            );
+        }
+
+        // Helper to create stat item with tooltip for modified stats
+        ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem CreateStatItem(int effective, int baseValue, string label)
+        {
+            bool isModified = effective != baseValue;
+            return new ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem
+            {
+                Value = effective.ToString(),
+                Label = label,
+                IsModified = isModified,
+                Title = isModified ? $"Base: {baseValue}, Modified: {effective}" : null
+            };
+        }
+
+        return new List
+<
+ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem>
+        {
+            CreateStatItem(effectiveStats.Agility, editCharacterDto.Agility, "AGI"),
+            CreateStatItem(effectiveStats.Presence, editCharacterDto.Presence, "PRE"),
+            CreateStatItem(effectiveStats.Strength, editCharacterDto.Strength, "STR"),
+            CreateStatItem(effectiveStats.Toughness, editCharacterDto.Toughness, "TGH")
+        };
+    }
+
+    private List
+<
+ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem> GetCalculatedStats()
+    {
+        var totalArmor = character?.Equipment.Where(e => e.IsArmor).Sum(e => e.ArmorValue) ?? 0;
+
+        // Calculate effective stats with feat/flaw modifiers if character exists
+        Stats effectiveStats;
+        if (character != null)
+        {
+            var feats = GetFeatOptions(character.Feats);
+            var flaws = GetFlawOptions(character.Flaws);
+            var injuries = GetInjuryOptions(character.Injuries);
+            effectiveStats = character.GetEffectiveStats(feats, flaws, injuries);
+        }
+        else
+        {
+            effectiveStats = new Stats(
+                editCharacterDto.Agility,
+                editCharacterDto.Presence,
+                editCharacterDto.Strength,
+                editCharacterDto.Toughness
+            );
+        }
+
+        return new List<ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem>
+        {
+            new ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem
+            {
+                Value = effectiveStats.HP.ToString(),
+                Label = "HP"
+            },
+            new ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem
+            {
+                Value = totalArmor.ToString(),
+                Label = "AV"
+            },
+            new ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem
+            {
+                Value = effectiveStats.Movement.ToString(),
+                Label = "MOV"
+            }
+        };
+    }
+
+    private async Task OnStatArrayStatsChanged((int Agility, int Presence, int Strength, int Toughness) stats)
+    {
+        Logger.LogInformation("OnStatArrayStatsChanged called: AGI={Agility}, PRE={Presence}, STR={Strength}, TGH={Toughness}",
+            stats.Agility, stats.Presence, stats.Strength, stats.Toughness);
+        editCharacterDto.Agility = stats.Agility;
+        editCharacterDto.Presence = stats.Presence;
+        editCharacterDto.Strength = stats.Strength;
+        editCharacterDto.Toughness = stats.Toughness;
+        Logger.LogInformation("Updated editCharacterDto: AGI={Agility}, PRE={Presence}, STR={Strength}, TGH={Toughness}",
+            editCharacterDto.Agility, editCharacterDto.Presence, editCharacterDto.Strength, editCharacterDto.Toughness);
+        await AutoSave();
+        StateHasChanged();
+    }
+
+    private void OnStatArraySelectionChanged(string arrayId)
+    {
+        // This method can be simplified or removed if no longer needed
+        StateHasChanged();
+    }
+
+    private async Task GenerateNewCharacterName()
+    {
+        if (warband == null) return;
+        editCharacterDto.Name = await StateService.GenerateCharacterNameAsync(warband.GameVariant);
+        StateHasChanged();
+    }
+
+    private void CloseRenameModal()
+    {
+        showRenameModal = false;
+    }
+
+    private async Task SaveCharacterName()
+    {
+        if (!IsValidName())
+        {
+            Logger.LogWarning("Cannot save character name - validation failed");
+            return;
+        }
+
+        try
+        {
+            await AutoSave();
+            showRenameModal = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to save character name");
+            validationErrors.Add($"Failed to save character name: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private bool IsValidName()
+    {
+        return !string.IsNullOrWhiteSpace(editCharacterDto.Name);
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        Logger.LogWarning("Form is INVALID - submission blocked by DataAnnotationsValidator");
+    }
+
+    private string GetCurrencySymbol()
+    {
+        if (warband == null) return "";
+
+        var gameConfig = StateService.State.GameConfigs.GetValueOrDefault(warband.GameVariant);
+        return gameConfig?.Currency?.Symbol ?? "";
+    }
+
+    // Equipment Management Methods
+    private int GetUsedEquipmentSlots()
+    {
+        return character?.Equipment.Sum(e => e.CalculateRequiredSlots()) ?? 0;
+    }
+
+    private int GetTotalEquipmentSlots()
+    {
+        if (character != null)
+        {
+            return character.GetEffectiveEquipmentSlots();
+        }
+        return 10;
+    }
+
+    private bool HasStashEquipment()
+    {
+        return warband?.Stash.Any() ?? false;
+    }
+
+    private async Task OpenAddFromStashModal()
+    {
+        if (character == null || warband == null) return;
+
+        // Load available equipment from stash that this character can equip
+        availableStashEquipment = await StateService.GetAvailableEquipmentForCharacterAsync(WarbandId, character.Id);
+        Logger.LogInformation("Warband stash count: {StashCount}, Available for character: {AvailableCount}",
+            warband.Stash.Count, availableStashEquipment.Count);
+        foreach (var eq in availableStashEquipment)
+        {
+            Logger.LogInformation("Available stash item: {Name} (ID: {Id})", eq.Name, eq.Id);
+        }
+        showAddFromStashModal = true;
+    }
+
+    private void CloseAddFromStashModal()
+    {
+        showAddFromStashModal = false;
+    }
+
+    private async Task AddEquipmentFromStash(Equipment equipment)
+    {
+        if (character == null) return;
+
+        try
+        {
+            await StateService.TransferEquipmentToCharacterAsync(WarbandId, character.Id, equipment.Id);
+
+            // Refresh data
+            await LoadData();
+            CloseAddFromStashModal();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to add new equipment");
+            validationErrors.Add($"Failed to add equipment: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private void OpenAddEquipmentModal()
+    {
+        showAddEquipmentModal = true;
+    }
+
+    private void CloseAddEquipmentModal()
+    {
+        showAddEquipmentModal = false;
+    }
+
+    private async Task BuyEquipment(Equipment equipment)
+    {
+        await BuyEquipmentInternal(equipment, equipImmediately: false);
+    }
+
+    private async Task BuyEquipmentAndEquip(Equipment equipment)
+    {
+        await BuyEquipmentInternal(equipment, equipImmediately: true);
+    }
+
+    private async Task BuyEquipmentInternal(Equipment equipment, bool equipImmediately)
+    {
+        if (character == null || warband == null || string.IsNullOrEmpty(selectedTraderId)) return;
+
+        try
+        {
+            Logger.LogInformation("Buying equipment {EquipmentName} (template ID: {TemplateId}) with trader {TraderId}, equipImmediately: {EquipImmediately}",
+                equipment.Name, equipment.Id, selectedTraderId, equipImmediately);
+
+            // Get stash count before buying
+            var stashCountBefore = warband.Stash.Count;
+
+            // Buy equipment (deducts gold, adds to warband stash)
+            await StateService.BuyEquipmentAsync(warband.Id, equipment.Id, equipment.Type, selectedTraderId);
+
+            // Reload warband to get updated stash
+            var updatedWarband = await StateService.GetWarbandAsync(warband.Id);
+            if (updatedWarband == null)
+            {
+                Logger.LogError("Failed to reload warband after buy");
+                validationErrors.Add("Failed to reload warband");
+                return;
+            }
+
+            Logger.LogInformation("Stash count before: {Before}, after: {After}", stashCountBefore, updatedWarband.Stash.Count);
+
+            // Find the newly added equipment (the primary item, not ammo)
+            // When buying ranged weapons, both weapon and ammo are added to stash
+            // We want to transfer the weapon, not the ammo
+            if (updatedWarband.Stash.Count > stashCountBefore)
+            {
+                // Get all new items added since purchase
+                var newItems = updatedWarband.Stash.Skip(stashCountBefore).ToList();
+                Logger.LogInformation("Found {Count} new items in stash", newItems.Count);
+
+                // Find the primary equipment (not ammo)
+                var primaryEquipment = newItems.FirstOrDefault(e => e.Type != "ammo") ?? newItems.First();
+                Logger.LogInformation("Transferring primary equipment to character: {EquipmentName} (Type: {Type}), Instance ID: {InstanceId}",
+                    primaryEquipment.Name, primaryEquipment.Type, primaryEquipment.Id);
+
+                await StateService.TransferEquipmentToCharacterAsync(warband.Id, character.Id, primaryEquipment.Id, equipImmediately);
+                Logger.LogInformation("Transferred equipment to character, equipped: {EquipImmediately}", equipImmediately);
+
+                // Note: Starting ammo remains in stash for manual assignment
+            }
+            else
+            {
+                Logger.LogWarning("Equipment not found in stash after purchase");
+            }
+
+            // Refresh data and close modal
+            await LoadData();
+            CloseAddEquipmentModal();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to buy equipment");
+            validationErrors.Add($"Failed to buy equipment: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddNewEquipment(Equipment equipment)
+    {
+        await AddNewEquipmentInternal(equipment, equipImmediately: false);
+    }
+
+    private async Task AddNewEquipmentAndEquip(Equipment equipment)
+    {
+        await AddNewEquipmentInternal(equipment, equipImmediately: true);
+    }
+
+    private async Task AddNewEquipmentInternal(Equipment equipment, bool equipImmediately)
+    {
+        if (character == null) return;
+
+        try
+        {
+            // Determine equipment type
+            string equipmentType = equipment.Type.ToLower();
+
+            // Add equipment directly (bypasses payment - for scenario rewards)
+            await StateService.AddEquipmentToCharacterAsync(WarbandId, character.Id, equipment.Id, equipmentType, equipImmediately);
+
+            // Refresh data
+            await LoadData();
+            CloseAddEquipmentModal();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to add equipment");
+            validationErrors.Add($"Failed to add equipment: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnTraderChanged(string? traderId)
+    {
+        selectedTraderId = traderId;
+        selectedTrader = !string.IsNullOrEmpty(traderId) && warband != null
+            ? await TraderService.GetTraderByIdAsync(traderId, warband.GameVariant)
+            : null;
+
+        // Don't clear merchant inventory - it persists until manually cleared or rerolled
+    }
+
+    private void RollMerchantInventory()
+    {
+        if (selectedTrader == null || !selectedTrader.HasLimitedInventory) return;
+
+        merchantInventoryIds.Clear();
+        var random = new Random();
+
+        // Roll weapons (max according to trader)
+        var weaponCount = selectedTrader.MaxWeapons ?? 0;
+        if (weaponCount > 0)
+        {
+            var weapons = allEquipment.Where(e => e.IsWeapon).ToList();
+            if (weapons.Any())
+            {
+                var selectedWeapons = weapons.OrderBy(x => random.Next()).Take(weaponCount);
+                merchantInventoryIds.AddRange(selectedWeapons.Select(w => w.Id));
+            }
+        }
+
+        // Roll armor (max according to trader)
+        var armorCount = selectedTrader.MaxArmor ?? 0;
+        if (armorCount > 0)
+        {
+            var armors = allEquipment.Where(e => e.IsArmor).ToList();
+            if (armors.Any())
+            {
+                var selectedArmors = armors.OrderBy(x => random.Next()).Take(armorCount);
+                merchantInventoryIds.AddRange(selectedArmors.Select(a => a.Id));
+            }
+        }
+
+        // Roll items (max according to trader)
+        var itemCount = selectedTrader.MaxEquipment ?? 0;
+        if (itemCount > 0)
+        {
+            var items = allEquipment.Where(e => e.IsItem).ToList();
+            if (items.Any())
+            {
+                var selectedItems = items.OrderBy(x => random.Next()).Take(itemCount);
+                merchantInventoryIds.AddRange(selectedItems.Select(i => i.Id));
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private void ClearMerchantInventory()
+    {
+        merchantInventoryIds.Clear();
+        StateHasChanged();
+    }
+
+    private async Task RollRandomRelic()
+    {
+        if (character == null || warband == null) return;
+
+        var relics = allEquipment.Where(e => e.IsRelic).ToList();
+        if (!relics.Any()) return;
+
+        try
+        {
+            // Filter out already acquired unique relics
+            var availableRelics = relics
+                .Where(r => !r.Unique || !warband.AcquiredRelicIds.Contains(r.Id))
+                .ToList();
+
+            if (!availableRelics.Any())
+            {
+                validationErrors.Add("No relics available! All unique relics have been acquired.");
+                StateHasChanged();
+                return;
+            }
+
+            // Randomly select a relic
+            var random = new Random();
+            var selectedRelic = availableRelics[random.Next(availableRelics.Count)];
+
+            // Assign to character (this will auto-mark unique relics as acquired)
+            await StateService.AddEquipmentToCharacterAsync(warband.Id, character.Id, selectedRelic.Id, "relic");
+
+            // Refresh data
+            await LoadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to roll random relic");
+            validationErrors.Add($"Failed to roll relic: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private List<Equipment> GetFilteredEquipment()
+    {
+        if (selectedTrader == null)
+        {
+            // No trader selected - show all equipment for assignment
+            return allEquipment;
+        }
+
+        // Trader selected - filter based on what they sell
+        var filtered = new List<Equipment>();
+
+        // Filter relics
+        if (selectedTrader.SellsRelics)
+        {
+            filtered.AddRange(allEquipment.Where(e => e.IsRelic));
+        }
+
+        // Filter weapons, armor, items based on merchant inventory
+        if (selectedTrader.HasLimitedInventory)
+        {
+            // Only show items in merchant's inventory
+            filtered.AddRange(allEquipment.Where(e =>
+                !e.IsRelic && merchantInventoryIds.Contains(e.Id)));
+        }
+        else
+        {
+            // Show all non-relic equipment
+            filtered.AddRange(allEquipment.Where(e => !e.IsRelic));
+        }
+
+        return filtered;
+    }
+
+    private async Task HandleMarkRelicAcquired(Equipment relic)
+    {
+        if (warband == null || relic == null || string.IsNullOrEmpty(relic.Id))
+            return;
+
+        try
+        {
+            await StateService.MarkRelicAsAcquiredAsync(warband.Id, relic.Id);
+            // Warband will be reloaded via state change notification
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error marking relic as acquired: {RelicId}", relic.Id);
+        }
+    }
+
+    private async Task HandleMarkRelicAvailable(Equipment relic)
+    {
+        if (warband == null || relic == null || string.IsNullOrEmpty(relic.Id))
+            return;
+
+        try
+        {
+            await StateService.MarkRelicAsAvailableAsync(warband.Id, relic.Id);
+            // Warband will be reloaded via state change notification
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error marking relic as available: {RelicId}", relic.Id);
+        }
+    }
+
+    private int? CalculateBuyPrice(Equipment equipment)
+    {
+        if (selectedTrader == null) return equipment.Cost;
+        return selectedTrader.CalculateBuyPrice(equipment.Cost);
+    }
+
+    private List<string> GetUnaffordableEquipmentIds()
+    {
+        if (warband == null) return new();
+
+        var disabled = new List<string>();
+
+        // If no trader selected, disable only buy button (equipment still selectable via Assign)
+        if (selectedTrader == null)
+        {
+            return disabled;
+        }
+
+        // Trader selected - disable buy for equipment the warband can't afford
+        foreach (var equipment in allEquipment)
+        {
+            if (equipment.IsRelic)
+            {
+                // Grey out if unique and already acquired
+                if (equipment.Unique && warband.AcquiredRelicIds.Contains(equipment.Id))
+                {
+                    disabled.Add(equipment.Id);
+                }
+                // Also check affordability (relics have flat 100G price)
+                else if (!warband.CanAfford(100))
+                {
+                    disabled.Add(equipment.Id);
+                }
+            }
+            else
+            {
+                // For weapons, armor, items - check trader pricing
+                if (equipment.Cost > 0)
+                {
+                    var price = selectedTrader.CalculateBuyPrice(equipment.Cost);
+                    if (!warband.CanAfford(price))
+                    {
+                        disabled.Add(equipment.Id);
+                    }
+                }
+            }
+        }
+
+        return disabled;
+    }
+
+    private async Task RemoveEquipment(string equipmentId)
+    {
+        if (character == null) return;
+
+        var equipment = character.Equipment.FirstOrDefault(e => e.Id == equipmentId);
+        if (equipment == null) return;
+
+        try
+        {
+            await StateService.RemoveEquipmentFromCharacterAsync(WarbandId, character.Id, equipmentId);
+
+            // Refresh data
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to remove equipment");
+            validationErrors.Add($"Failed to remove equipment: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task EquipItem(string equipmentId)
+    {
+        if (character == null) return;
+
+        try
+        {
+            await StateService.EquipItemAsync(WarbandId, character.Id, equipmentId);
+
+            // Refresh data
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to equip item");
+            validationErrors.Add($"Failed to equip item: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task UnequipItem(string equipmentId)
+    {
+        if (character == null) return;
+
+        try
+        {
+            await StateService.UnequipItemAsync(WarbandId, character.Id, equipmentId);
+
+            // Refresh data
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to unequip item");
+            validationErrors.Add($"Failed to unequip item: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleReload(Equipment weapon)
+    {
+        if (character == null || warband == null) return;
+
+        weaponToReload = weapon;
+
+        // Load ammo item for pricing display
+        var ammoEquipment = await EquipmentService.GetEquipmentAsync(warband.GameVariant, "item");
+        ammoForReload = ammoEquipment.FirstOrDefault(e =>
+            e.Type == "ammo" && e.Name.Equals(weapon.AmmoType, StringComparison.OrdinalIgnoreCase));
+
+        showAmmoSelectorModal = true;
+    }
+
+    private async Task ConfirmReload(string ammoId)
+    {
+        if (character == null || warband == null || weaponToReload == null) return;
+
+        try
+        {
+            await StateService.ReloadWeaponAsync(warband.Id, character.Id, weaponToReload.Id, ammoId);
+            await LoadData();
+            CloseAmmoSelectorModal();
+            validationErrors.Clear();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to reload weapon");
+            validationErrors.Add($"Failed to reload weapon: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleBuyAmmo(string traderId)
+    {
+        Logger.LogInformation("HandleBuyAmmo called with traderId: {TraderId}", traderId);
+        Logger.LogInformation("Character: {HasChar}, Warband: {HasWarband}, Weapon: {HasWeapon}, AmmoItem: {HasAmmo}",
+            character != null, warband != null, weaponToReload != null, ammoForReload != null);
+        Logger.LogInformation("Available traders count: {Count}", availableTraders.Count);
+
+        if (character == null || warband == null || weaponToReload == null || ammoForReload == null)
+        {
+            Logger.LogWarning("Null check failed - returning early");
+            return;
+        }
+
+        try
+        {
+            // Get trader for price calculation
+            var trader = availableTraders.FirstOrDefault(t => t.Id == traderId);
+            if (trader == null)
+            {
+                Logger.LogError("Trader not found: {TraderId}", traderId);
+                validationErrors.Add($"Trader not found: {traderId}");
+                StateHasChanged();
+                return;
+            }
+
+            var price = trader.CalculateBuyPrice(ammoForReload.Cost);
+            Logger.LogInformation("Buying ammo for {Price}G from {TraderName}", price, trader.Name);
+
+            // Call backend to buy and add ammo to character
+            await StateService.BuyAmmoForWeaponAsync(warband.Id, character.Id, weaponToReload.Id, traderId);
+            Logger.LogInformation("Successfully bought ammo");
+
+            // Refresh data
+            await LoadData();
+            CloseAmmoSelectorModal();
+            validationErrors.Clear();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to buy ammo");
+            validationErrors.Add($"Failed to buy ammo: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private void CloseAmmoSelectorModal()
+    {
+        showAmmoSelectorModal = false;
+        weaponToReload = null;
+    }
+
+    private void HandleUnload(Equipment weapon)
+    {
+        if (character == null || warband == null) return;
+
+        if (!weapon.RequiresAmmo || weapon.CurrentShots <= 0)
+        {
+            validationErrors.Add($"{weapon.Name} has no ammo to unload");
+            StateHasChanged();
+            return;
+        }
+
+        weaponToUnload = weapon;
+        showUnloadAmmoModal = true;
+    }
+
+    private async Task ConfirmUnload(int shotsToUnload)
+    {
+        if (character == null || warband == null || weaponToUnload == null) return;
+
+        try
+        {
+            await StateService.UnloadAmmoFromWeaponAsync(warband.Id, character.Id, weaponToUnload.Id, shotsToUnload);
+            await LoadData();
+            CloseUnloadAmmoModal();
+            validationErrors.Clear();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to unload ammo");
+            validationErrors.Add($"Failed to unload ammo: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private void CloseUnloadAmmoModal()
+    {
+        showUnloadAmmoModal = false;
+        weaponToUnload = null;
+    }
+
+    private async Task SaveCustomItemInline()
+    {
+        if (warband == null) return;
+
+        validationErrors.Clear();
+
+        // Validate inputs
+        if (string.IsNullOrWhiteSpace(customItemName))
+        {
+            validationErrors.Add("Item name is required");
+            StateHasChanged();
+            return;
+        }
+
+        if (customItemName.Length > 50)
+        {
+            validationErrors.Add("Item name must be 50 characters or less");
+            StateHasChanged();
+            return;
+        }
+
+        if (customItemCost < 0 || customItemCost > 999)
+        {
+            validationErrors.Add("Cost must be between 0 and 999");
+            StateHasChanged();
+            return;
+        }
+
+        if (customItemSlots < 0 || customItemSlots > 10)
+        {
+            validationErrors.Add("Slots must be between 0 and 10");
+            StateHasChanged();
+            return;
+        }
+
+        if (customItemEffect.Length > 200)
+        {
+            validationErrors.Add("Effect description must be 200 characters or less");
+            StateHasChanged();
+            return;
+        }
+
+        customItemSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            var customItem = new Equipment
+            {
+                Name = customItemName.Trim(),
+                Type = "item",
+                Cost = customItemCost,
+                Slots = customItemSlots,
+                Effect = string.IsNullOrWhiteSpace(customItemEffect) ? null : customItemEffect.Trim(),
+                IconClass = string.IsNullOrWhiteSpace(customItemIconClass) ? "fas fa-cube" : customItemIconClass,
+                IsCustom = true
+            };
+
+            await StateService.CreateCustomItemAsync(warband.Id, customItem);
+            await LoadData();
+
+            // Reset form
+            customItemName = string.Empty;
+            customItemCost = 0;
+            customItemSlots = 1;
+            customItemEffect = string.Empty;
+            customItemIconClass = string.Empty;
+            showingCustomItemForm = false;
+
+            validationErrors.Clear();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to create custom item");
+            validationErrors.Add($"Failed to create custom item: {ex.Message}");
+        }
+        finally
+        {
+            customItemSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveAndEquipCustomItemInline()
+    {
+        if (warband == null || character == null) return;
+
+        validationErrors.Clear();
+
+        // Validate inputs
+        if (string.IsNullOrWhiteSpace(customItemName))
+        {
+            validationErrors.Add("Item name is required");
+            StateHasChanged();
+            return;
+        }
+
+        if (customItemName.Length > 50)
+        {
+            validationErrors.Add("Item name must be 50 characters or less");
+            StateHasChanged();
+            return;
+        }
+
+        if (customItemCost < 0 || customItemCost > 999)
+        {
+            validationErrors.Add("Cost must be between 0 and 999");
+            StateHasChanged();
+            return;
+        }
+
+        if (customItemSlots < 0 || customItemSlots > 10)
+        {
+            validationErrors.Add("Slots must be between 0 and 10");
+            StateHasChanged();
+            return;
+        }
+
+        if (customItemEffect.Length > 200)
+        {
+            validationErrors.Add("Effect description must be 200 characters or less");
+            StateHasChanged();
+            return;
+        }
+
+        customItemSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            var customItem = new Equipment
+            {
+                Name = customItemName.Trim(),
+                Type = "item",
+                Cost = customItemCost,
+                Slots = customItemSlots,
+                Effect = string.IsNullOrWhiteSpace(customItemEffect) ? null : customItemEffect.Trim(),
+                IconClass = string.IsNullOrWhiteSpace(customItemIconClass) ? "fas fa-cube" : customItemIconClass,
+                IsCustom = true
+            };
+
+            // First create the custom item in the warband
+            await StateService.CreateCustomItemAsync(warband.Id, customItem);
+
+            // Reload to get the item with its ID
+            await LoadData();
+
+            // Find the newly created item
+            var createdItem = warband.CustomItems.FirstOrDefault(i => i.Name == customItem.Name);
+            if (createdItem != null)
+            {
+                // Create a copy to add to character
+                var itemCopy = new Equipment
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = createdItem.Name,
+                    Type = createdItem.Type,
+                    Cost = createdItem.Cost,
+                    Slots = createdItem.Slots,
+                    Effect = createdItem.Effect,
+                    IconClass = createdItem.IconClass,
+                    IsCustom = true
+                };
+
+                await StateService.AddEquipmentToCharacterAsync(warband.Id, character.Id, itemCopy);
+                await LoadData();
+            }
+
+            // Reset form
+            customItemName = string.Empty;
+            customItemCost = 0;
+            customItemSlots = 1;
+            customItemEffect = string.Empty;
+            customItemIconClass = string.Empty;
+            showingCustomItemForm = false;
+            CloseAddEquipmentModal();
+
+            validationErrors.Clear();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to create and equip custom item");
+            validationErrors.Add($"Failed to create and equip custom item: {ex.Message}");
+        }
+        finally
+        {
+            customItemSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleConsumeAmmo(Equipment weapon)
+    {
+        if (character == null || warband == null) return;
+
+        if (!weapon.RequiresAmmo || weapon.CurrentShots <= 0)
+        {
+            validationErrors.Add($"{weapon.Name} has no ammo to fire");
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            // Confirm before consuming ammo shot
+            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
+                new object[] { $"Fire a shot from {weapon.Name}? ({weapon.CurrentShots - 1}/{weapon.MaxShots} remaining)" });
+            if (!confirmed) return;
+
+            await StateService.ConsumeAmmoShotAsync(warband.Id, character.Id, weapon.Id);
+            await LoadData();
+            validationErrors.Clear();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to consume ammo shot");
+            validationErrors.Add($"Failed to fire shot: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleUseConsumable(Equipment consumable)
+    {
+        if (character == null || warband == null) return;
+
+        // Confirm before using
+        var effectDescription = GetConsumableEffectDescription(consumable.ConsumableEffect);
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Use {consumable.Name}? ({effectDescription})" });
+        if (!confirmed) return;
+
+        try
+        {
+            await StateService.UseConsumableAsync(warband.Id, character.Id, consumable.Id);
+            await LoadData();
+            validationErrors.Clear();
+
+            // Show success message
+            var message = $"{consumable.Name} used successfully!";
+            // Could add a toast notification here in the future
+            Logger.LogInformation("Consumable used: {ConsumableName}", consumable.Name);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to use consumable");
+            validationErrors.Add($"Failed to use consumable: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private string GetConsumableEffectDescription(string? effect)
+    {
+        return effect?.ToLowerInvariant() switch
+        {
+            "cure_bleeding" => "Cures Bleeding",
+            "cure_poisoned" => "Cures Poisoned",
+            "cure_disease" => "Cures Disease",
+            "heal_hp" => "Heals 1-6 HP",
+            "prevent_gas" => "Prevents Gas effects",
+            _ => "Unknown effect"
+        };
+    }
+
+    private async Task SellEquipment(Equipment equipment)
+    {
+        if (character == null || warband == null || equipment == null) return;
+
+        var sellPrice = equipment.Cost;
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Sell {equipment.Name} for {sellPrice} Gold?" });
+        if (!confirmed) return;
+
+        try
+        {
+            // Remove equipment from character (moves to stash)
+            await StateService.RemoveEquipmentFromCharacterAsync(WarbandId, character.Id, equipment.Id);
+
+            // Sell equipment from stash (removes from stash and adds gold)
+            await StateService.SellEquipmentAsync(WarbandId, equipment.Id);
+
+            // Refresh data
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to sell equipment");
+            validationErrors.Add($"Failed to sell equipment: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task SellEquipmentToTrader(Equipment equipment, Trader trader)
+    {
+        if (character == null || warband == null || equipment == null || trader == null) return;
+
+        var sellPrice = trader.CalculateSellPrice(equipment.Cost);
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Sell {equipment.Name} to {trader.Name} for {sellPrice} {GetCurrencySymbol()}?" });
+        if (!confirmed) return;
+
+        try
+        {
+            // Remove equipment from character (moves to stash)
+            await StateService.RemoveEquipmentFromCharacterAsync(WarbandId, character.Id, equipment.Id);
+
+            // Sell equipment from stash (removes from stash and adds gold)
+            await StateService.SellEquipmentAsync(WarbandId, equipment.Id, trader.Id);
+
+            // Refresh data
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to sell equipment");
+            validationErrors.Add($"Failed to sell equipment: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    // Feat/Flaw Management Methods
+    private void OpenFeatFlawModal()
+    {
+        showFeatFlawModal = true;
+    }
+
+    private void CloseFeatFlawModal()
+    {
+        showFeatFlawModal = false;
+    }
+
+    private async Task RollFeat()
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            var featName = await StateService.RollFeatAsync(warband.Id, character.Id);
+            await LoadData();
+            Logger.LogInformation("Rolled feat: {FeatName}", featName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to roll feat");
+            validationErrors.Add($"Failed to roll feat: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task RollFlaw()
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            var flawName = await StateService.RollFlawAsync(warband.Id, character.Id);
+            await LoadData();
+            Logger.LogInformation("Rolled flaw: {FlawName}", flawName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to roll flaw");
+            validationErrors.Add($"Failed to roll flaw: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddFeat(string featName)
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            await StateService.AddFeatAsync(warband.Id, character.Id, featName);
+            await LoadData();
+            Logger.LogInformation("Added feat: {FeatName}", featName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to add feat");
+            validationErrors.Add($"Failed to add feat: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddFlaw(string flawName)
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            await StateService.AddFlawAsync(warband.Id, character.Id, flawName);
+            await LoadData();
+            Logger.LogInformation("Added flaw: {FlawName}", flawName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to add flaw");
+            validationErrors.Add($"Failed to add flaw: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveFeat(string featName)
+    {
+        if (character == null || warband == null) return;
+
+        var confirmed = await JSRuntime.InvokeAsync
+<
+bool>("confirm", new object[] { $"Remove feat \"{featName}\"?" });
+        if (!confirmed) return;
+
+        try
+        {
+            await StateService.RemoveFeatAsync(warband.Id, character.Id, featName);
+            await LoadData();
+            Logger.LogInformation("Removed feat: {FeatName}", featName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to remove feat");
+            validationErrors.Add($"Failed to remove feat: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveFlaw(string flawName)
+    {
+        if (character == null || warband == null) return;
+
+        var confirmed = await JSRuntime.InvokeAsync
+<
+bool>("confirm", new object[] { $"Remove flaw \"{flawName}\"?" });
+        if (!confirmed) return;
+
+        try
+        {
+            await StateService.RemoveFlawAsync(warband.Id, character.Id, flawName);
+            await LoadData();
+            Logger.LogInformation("Removed flaw: {FlawName}", flawName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to remove flaw");
+            validationErrors.Add($"Failed to remove flaw: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private List<FeatFlawOption> GetFeatOptions(List<string> featNames)
+    {
+        return featNames
+            .Select(name => availableFeats.FirstOrDefault(f => f.Name == name))
+            .Where(f => f != null)
+            .Cast<FeatFlawOption>()
+            .ToList();
+    }
+
+    private List<FeatFlawOption> GetFlawOptions(List<string> flawNames)
+    {
+        return flawNames
+            .Select(name => availableFlaws.FirstOrDefault(f => f.Name == name))
+            .Where(f => f != null)
+            .Cast<FeatFlawOption>()
+            .ToList();
+    }
+
+    // Injury Management Methods
+    private void OpenInjuryModal()
+    {
+        showInjuryModal = true;
+    }
+
+    private void CloseInjuryModal()
+    {
+        showInjuryModal = false;
+    }
+
+    private async Task RollInjury()
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            var injuryName = await StateService.RollInjuryAsync(warband.Id, character.Id);
+            await LoadData();
+            Logger.LogInformation("Rolled injury: {InjuryName}", injuryName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to roll injury");
+            validationErrors.Add($"Failed to roll injury: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddInjury(string injuryName)
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            await StateService.AddInjuryAsync(warband.Id, character.Id, injuryName);
+            await LoadData();
+            Logger.LogInformation("Added injury: {InjuryName}", injuryName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to add injury");
+            validationErrors.Add($"Failed to add injury: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveInjury(string injuryName)
+    {
+        if (character == null || warband == null) return;
+
+        var confirmed = await JSRuntime.InvokeAsync
+<
+bool>("confirm", new object[] { $"Remove injury \"{injuryName}\"?" });
+        if (!confirmed) return;
+
+        try
+        {
+            await StateService.RemoveInjuryAsync(warband.Id, character.Id, injuryName);
+            await LoadData();
+            Logger.LogInformation("Removed injury: {InjuryName}", injuryName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to remove injury");
+            validationErrors.Add($"Failed to remove injury: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private List<InjuryOption> GetInjuryOptions(List<string> injuryNames)
+    {
+        return injuryNames
+            .Select(name => availableInjuries.FirstOrDefault(i => i.Name == name))
+            .Where(i => i != null)
+            .Cast<InjuryOption>()
+            .ToList();
+    }
+
+    // Spell Management Methods
+    private bool IsSpellcaster()
+    {
+        if (character == null || string.IsNullOrEmpty(character.SpecialClassId)) return false;
+        var specialClass = availableSpecialClasses
+            .OfType<SpecialClass>()
+            .FirstOrDefault(sc => sc.Id == character.SpecialClassId);
+        return specialClass?.IsSpellcaster ?? false;
+    }
+
+    private void OpenSpellModal()
+    {
+        showSpellModal = true;
+    }
+
+    private void CloseSpellModal()
+    {
+        showSpellModal = false;
+    }
+
+    private async Task AddSpell(string spellName)
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            await StateService.AddSpellAsync(warband.Id, character.Id, spellName);
+            await LoadData();
+            Logger.LogInformation("Added spell: {SpellName}", spellName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to add spell");
+            validationErrors.Add($"Failed to add spell: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveSpell(string spellName)
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            await StateService.RemoveSpellAsync(warband.Id, character.Id, spellName);
+            await LoadData();
+            Logger.LogInformation("Moved spell to stash: {SpellName}", spellName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to move spell to stash");
+            validationErrors.Add($"Failed to move spell to stash: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteSpell(string spellName)
+    {
+        if (character == null || warband == null) return;
+
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Permanently delete spell \"{spellName}\"? This cannot be undone." });
+        if (!confirmed) return;
+
+        try
+        {
+            await StateService.DeleteSpellPermanentlyAsync(warband.Id, character.Id, spellName);
+            await LoadData();
+            Logger.LogInformation("Deleted spell permanently: {SpellName}", spellName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to delete spell");
+            validationErrors.Add($"Failed to delete spell: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private async Task RollRandomSpell(string category)
+    {
+        if (character == null || warband == null) return;
+
+        try
+        {
+            var randomSpell = await SpellService.RollRandomSpellAsync(warband.GameVariant, category);
+            if (randomSpell != null)
+            {
+                await AddSpell(randomSpell.Name);
+                Logger.LogInformation("Rolled random {Category} spell: {SpellName}", category, randomSpell.Name);
+            }
+            else
+            {
+                Logger.LogWarning("No spells found in category: {Category}", category);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to roll random spell");
+            validationErrors.Add($"Failed to roll random spell: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private List<SpellOption> GetSpellOptions(List<string> spellNames)
+    {
+        return spellNames
+            .Select(name => availableSpells.FirstOrDefault(s => s.Name == name))
+            .Where(s => s != null)
+            .Cast<SpellOption>()
+            .ToList();
+    }
+}

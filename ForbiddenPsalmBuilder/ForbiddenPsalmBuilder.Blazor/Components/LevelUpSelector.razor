@@ -1,0 +1,475 @@
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.Services.State
+@using ForbiddenPsalmBuilder.Core.Services
+@using ForbiddenPsalmBuilder.Data.Services
+@inject IGameStateService StateService
+@inject ForbiddenPsalmBuilder.Core.Services.FeatFlawService FeatFlawService
+@inject ForbiddenPsalmBuilder.Core.Services.InjuryService InjuryService
+
+<div class="level-up-selector">
+    <div class="alert alert-info mb-4">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="mb-1">Level Up @Character?.Name</h4>
+                <p class="mb-0">
+                    <strong>XP Cost:</strong> @XpCost XP
+                    <span class="ms-3"><strong>Available:</strong> @(Warband?.Experience ?? 0) XP</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    @if (isProcessing)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Processing...</span>
+            </div>
+            <p>Leveling up...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            @errorMessage
+        </div>
+    }
+    else if (success)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>
+            Level up successful! @successMessage
+        </div>
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-primary" @onclick="OnClose">
+                <i class="fas fa-check"></i> Done
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @* Option 1: Improve Stat *@
+            <div class="col-12 col-md-6">
+                <div class="card h-100 @(selectedOption == "stat" ? "border-primary" : "")" role="button" @onclick='() => selectedOption = "stat"'>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-arrow-up text-success me-2"></i>
+                            Improve Stat
+                        </h5>
+                        <p class="card-text text-muted small">Increase any ability score by +1</p>
+
+                        @if (selectedOption == "stat" && Character != null)
+                        {
+                            <div class="mt-3">
+                                @{
+                                    var effectiveStats = GetCurrentEffectiveStats();
+                                }
+                                <select class="form-select" @bind="selectedStat">
+                                    <option value="">Select stat...</option>
+                                    <option value="Agility">@FormatStatOption("Agility", Character.Stats.Agility, effectiveStats.Agility)</option>
+                                    <option value="Presence">@FormatStatOption("Presence", Character.Stats.Presence, effectiveStats.Presence)</option>
+                                    <option value="Strength">@FormatStatOption("Strength", Character.Stats.Strength, effectiveStats.Strength)</option>
+                                    <option value="Toughness">@FormatStatOption("Toughness", Character.Stats.Toughness, effectiveStats.Toughness)</option>
+                                </select>
+                                <button type="button"
+                                        class="btn btn-primary w-100 mt-2"
+                                        @onclick="HandleIncrementStat"
+                                        disabled="@string.IsNullOrEmpty(selectedStat)">
+                                    <i class="fas fa-check"></i> Confirm
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @* Option 2: Reroll Flaw *@
+            <div class="col-12 col-md-6">
+                <div class="card h-100 @(selectedOption == "flaw" ? "border-primary" : "")" role="button" @onclick='() => selectedOption = "flaw"'>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-sync-alt text-warning me-2"></i>
+                            Reroll Flaw
+                        </h5>
+                        <p class="card-text text-muted small">Remove a flaw and roll a new one</p>
+
+                        @if (selectedOption == "flaw")
+                        {
+                            @if (Character?.Flaws.Any() == true)
+                            {
+                                <div class="mt-3">
+                                    <select class="form-select" @bind="selectedFlaw">
+                                        <option value="">Select flaw to reroll...</option>
+                                        @foreach (var flaw in Character.Flaws)
+                                        {
+                                            <option value="@flaw">@flaw</option>
+                                        }
+                                    </select>
+                                    <button type="button"
+                                            class="btn btn-primary w-100 mt-2"
+                                            @onclick="HandleRerollFlaw"
+                                            disabled="@string.IsNullOrEmpty(selectedFlaw)">
+                                        <i class="fas fa-check"></i> Confirm
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning mt-3 mb-0">
+                                    <small>No flaws to reroll</small>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @* Option 3: Gain Feat *@
+            <div class="col-12 col-md-6">
+                <div class="card h-100 @(selectedOption == "feat" ? "border-primary" : "")" role="button" @onclick='() => selectedOption = "feat"'>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-star text-info me-2"></i>
+                            Gain Feat
+                        </h5>
+                        <p class="card-text text-muted small">Add a new feat or roll randomly</p>
+
+                        @if (selectedOption == "feat")
+                        {
+                            <div class="mt-3">
+                                <div class="d-grid gap-2">
+                                    <button type="button"
+                                            class="btn btn-secondary"
+                                            @onclick="ToggleFeatList">
+                                        <i class="fas @(showFeatList ? "fa-chevron-up" : "fa-list")"></i>
+                                        @(showFeatList ? "Hide" : "Pick from") List
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-primary"
+                                            @onclick="HandleRollFeat">
+                                        <i class="fas fa-dice-d20"></i> Roll Random Feat
+                                    </button>
+                                </div>
+
+                                @if (showFeatList && availableFeats.Any())
+                                {
+                                    <div class="mt-2" style="max-height: 200px; overflow-y: auto;">
+                                        @foreach (var feat in availableFeats)
+                                        {
+                                            <div class="border rounded p-2 mb-1 cursor-pointer hover-bg-light"
+                                                 @onclick="() => HandleAddFeat(feat.Name)">
+                                                <strong>@feat.Name</strong>
+                                                <br/>
+                                                <small class="text-muted">@feat.Effect</small>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @* Option 4: Remove Injury *@
+            <div class="col-12 col-md-6">
+                <div class="card h-100 @(selectedOption == "injury" ? "border-primary" : "")" role="button" @onclick='() => selectedOption = "injury"'>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-medkit text-danger me-2"></i>
+                            Remove Injury
+                        </h5>
+                        <p class="card-text text-muted small">Heal an injury from this character</p>
+
+                        @if (selectedOption == "injury")
+                        {
+                            @if (Character?.Injuries.Any() == true)
+                            {
+                                <div class="mt-3">
+                                    <select class="form-select" @bind="selectedInjury">
+                                        <option value="">Select injury to remove...</option>
+                                        @foreach (var injury in Character.Injuries)
+                                        {
+                                            <option value="@injury">@injury</option>
+                                        }
+                                    </select>
+                                    <button type="button"
+                                            class="btn btn-primary w-100 mt-2"
+                                            @onclick="HandleRemoveInjury"
+                                            disabled="@string.IsNullOrEmpty(selectedInjury)">
+                                        <i class="fas fa-check"></i> Confirm
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning mt-3 mb-0">
+                                    <small>No injuries to remove</small>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-secondary" @onclick="OnClose">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    .level-up-selector .card {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .level-up-selector .card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .level-up-selector .border-primary {
+        border-width: 2px !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .hover-bg-light:hover {
+        background-color: rgba(0,0,0,0.05);
+    }
+</style>
+
+@code {
+    [Parameter] public string? WarbandId { get; set; }
+    [Parameter] public string? CharacterId { get; set; }
+    [Parameter] public Character? Character { get; set; }
+    [Parameter] public Warband? Warband { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnLevelUpComplete { get; set; }
+
+    private int XpCost = 5;
+    private string selectedOption = "";
+    private string selectedStat = "";
+    private string selectedFlaw = "";
+    private string selectedInjury = "";
+    private bool showFeatList = false;
+    private List<FeatFlawOption> availableFeats = new();
+    private List<FeatFlawOption> allFeats = new();
+    private List<FeatFlawOption> allFlaws = new();
+    private List<InjuryOption> allInjuries = new();
+
+    private bool isProcessing = false;
+    private bool success = false;
+    private string errorMessage = "";
+    private string successMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        if (string.IsNullOrEmpty(WarbandId) || string.IsNullOrEmpty(CharacterId))
+            return;
+
+        try
+        {
+            // Get XP cost for this character
+            XpCost = await StateService.GetCharacterXpCostAsync(WarbandId, CharacterId);
+
+            // Load feats, flaws, and injuries for stat modifier calculation
+            if (Warband != null)
+            {
+                allFeats = await FeatFlawService.GetFeatsAsync(Warband.GameVariant);
+                allFlaws = await FeatFlawService.GetFlawsAsync(Warband.GameVariant);
+                allInjuries = await InjuryService.GetInjuriesAsync(Warband.GameVariant);
+
+                // Filter out feats the character already has
+                availableFeats = allFeats.Where(f => !Character!.Feats.Contains(f.Name)).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load level-up data: {ex.Message}";
+        }
+    }
+
+    private void ToggleFeatList()
+    {
+        showFeatList = !showFeatList;
+    }
+
+    private Stats GetCurrentEffectiveStats()
+    {
+        if (Character == null) return new Stats(0, 0, 0, 0);
+
+        var featOptions = allFeats.Where(f => Character.Feats.Contains(f.Name)).ToList();
+        var flawOptions = allFlaws.Where(f => Character.Flaws.Contains(f.Name)).ToList();
+        var injuryOptions = allInjuries.Where(i => Character.Injuries.Contains(i.Name)).ToList();
+
+        return Character.GetEffectiveStats(featOptions, flawOptions, injuryOptions);
+    }
+
+    private string FormatStatOption(string statName, int baseStat, int effectiveStat)
+    {
+        // Calculate improved values
+        int newBase = baseStat + 1;
+        int newEffective = effectiveStat + 1;
+
+        // If base != effective, show both
+        if (baseStat != effectiveStat)
+        {
+            return $"{statName} ({baseStat} ({effectiveStat}) → {newBase} ({newEffective}))";
+        }
+        else
+        {
+            return $"{statName} ({baseStat} → {newBase})";
+        }
+    }
+
+    private async Task HandleIncrementStat()
+    {
+        if (string.IsNullOrEmpty(selectedStat)) return;
+
+        isProcessing = true;
+        errorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            await StateService.LevelUpIncrementStatAsync(WarbandId!, CharacterId!, selectedStat);
+            success = true;
+            successMessage = $"+1 {selectedStat}";
+            await OnLevelUpComplete.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleRerollFlaw()
+    {
+        if (string.IsNullOrEmpty(selectedFlaw)) return;
+
+        isProcessing = true;
+        errorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            var newFlawName = await StateService.LevelUpRerollFlawAsync(WarbandId!, CharacterId!, selectedFlaw);
+            success = true;
+            successMessage = $"Rerolled {selectedFlaw} → New: {newFlawName}";
+            await OnLevelUpComplete.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleAddFeat(string featName)
+    {
+        isProcessing = true;
+        errorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            await StateService.LevelUpGainFeatAsync(WarbandId!, CharacterId!, featName);
+            success = true;
+            successMessage = $"Gained feat: {featName}";
+            await OnLevelUpComplete.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleRollFeat()
+    {
+        isProcessing = true;
+        errorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            // Roll a random feat first
+            var featName = await StateService.RollFeatAsync(WarbandId!, CharacterId!);
+
+            // Then use LevelUpGainFeatAsync to add it and deduct XP
+            // But we need to remove it first since RollFeatAsync already added it
+            await StateService.RemoveFeatAsync(WarbandId!, CharacterId!, featName);
+            await StateService.LevelUpGainFeatAsync(WarbandId!, CharacterId!, featName);
+
+            success = true;
+            successMessage = $"Gained feat: {featName}";
+            await OnLevelUpComplete.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleRemoveInjury()
+    {
+        if (string.IsNullOrEmpty(selectedInjury)) return;
+
+        isProcessing = true;
+        errorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            await StateService.LevelUpRemoveInjuryAsync(WarbandId!, CharacterId!, selectedInjury);
+            success = true;
+            successMessage = $"Removed injury: {selectedInjury}";
+            await OnLevelUpComplete.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+}

@@ -1,0 +1,93 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+
+<div class="mb-3">
+    <label class="form-label">@Label</label>
+
+    <InfoSelectorDisplay
+        SelectedItem="@SelectedItem"
+        ShowIcon="@ShowIcons"
+        ShowCost="@ShowCost"
+        IsDisabled="@IsDisabled"
+        CurrencySymbol="@CurrencySymbol"
+        OnOpenSelector="@OpenModal" />
+</div>
+
+@if (showModal)
+{
+    <InfoSelectorModal
+        Items="@AllItems"
+        InitialSelectedId="@SelectedId"
+        Label="@ModalLabel"
+        Searchable="@Searchable"
+        ShowCost="@ShowCost"
+        ShowIcons="@ShowIcons"
+        CurrencySymbol="@CurrencySymbol"
+        OnConfirm="@HandleConfirm"
+        OnCancel="@CloseModal" />
+}
+
+@code {
+    [Parameter] public List<ISelectableItem> Items { get; set; } = new();
+    [Parameter] public string? SelectedId { get; set; }
+    [Parameter] public EventCallback<string?> SelectedIdChanged { get; set; }
+    [Parameter] public string Label { get; set; } = "Selection";
+    [Parameter] public string ModalLabel { get; set; } = "Select Item";
+    [Parameter] public string Category { get; set; } = "item";
+    [Parameter] public bool AllowNone { get; set; } = true;
+    [Parameter] public bool Searchable { get; set; } = true;
+    [Parameter] public bool ShowCost { get; set; } = true;
+    [Parameter] public bool ShowIcons { get; set; } = true;
+    [Parameter] public bool IsDisabled { get; set; }
+    [Parameter] public string CurrencySymbol { get; set; } = "";
+
+    private bool showModal = false;
+
+    private List<ISelectableItem> AllItems
+    {
+        get
+        {
+            var items = new List<ISelectableItem>();
+
+            if (AllowNone)
+            {
+                items.Add(SelectableItem.CreateNone(Category));
+            }
+
+            items.AddRange(Items);
+            return items;
+        }
+    }
+
+    private ISelectableItem? SelectedItem
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(SelectedId))
+                return AllowNone ? SelectableItem.CreateNone(Category) : null;
+
+            return AllItems.FirstOrDefault(i => i.Id == SelectedId);
+        }
+    }
+
+    private void OpenModal()
+    {
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    private async Task HandleConfirm(string? selectedId)
+    {
+        SelectedId = selectedId;
+        showModal = false;
+
+        if (SelectedIdChanged.HasDelegate)
+        {
+            await SelectedIdChanged.InvokeAsync(selectedId);
+        }
+    }
+}

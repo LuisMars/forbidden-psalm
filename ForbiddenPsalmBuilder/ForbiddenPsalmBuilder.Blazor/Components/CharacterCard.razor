@@ -1,0 +1,322 @@
+@namespace ForbiddenPsalmBuilder.Blazor.Components
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Components
+@using static ForbiddenPsalmBuilder.Components.StatsDisplay
+
+<article class="card h-100 @(PrintMode ? "print-mode" : "")">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        @if (PrintMode)
+        {
+            <h3 class="card-title h5 mb-0">
+                @if (!string.IsNullOrEmpty(SpecialClassIcon))
+                {
+                    <i class="@SpecialClassIcon me-2"></i>
+                }
+                @Character.Name
+            </h3>
+        }
+        else
+        {
+            <h3 class="card-title h5 mb-0" role="button" @onclick="OnEdit">
+                @if (!string.IsNullOrEmpty(SpecialClassIcon))
+                {
+                    <i class="@SpecialClassIcon me-2"></i>
+                }
+                @Character.Name
+            </h3>
+            <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-primary" @onclick="OnEdit" title="Edit character">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-danger" @onclick="ShowDeleteConfirm" title="Delete character">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="card-body">
+        <CharacterStatsDisplay
+            Character="@Character"
+            FeatOptions="@FeatOptions"
+            FlawOptions="@FlawOptions"
+            InjuryOptions="@InjuryOptions" />
+        <div>
+            <StatsDisplay Stats="@SlotsStats" />
+        </div>
+    </div>
+
+    @if (Character.Equipment.Any())
+    {
+        <hr class="my-3" />
+        <div class="card-body pt-0">
+            <small class="text-body-secondary d-block mb-2">Equipment (@UsedSlots/@Character.GetEffectiveEquipmentSlots() slots):</small>
+            <div class="character-equipment-grid d-flex flex-column gap-2">
+                @foreach (var equipment in Character.Equipment)
+                {
+                    <EquipmentCard
+                        Equipment="equipment"
+                        CompactMode="false"
+                        ShowActions="@(!PrintMode && (OnEquipmentRemove.HasDelegate || OnEquipmentSell.HasDelegate))"
+                        ShowPrice="false"
+                        SellPrice="@(SellPriceCalculator?.Invoke(equipment))"
+                        OnRemove="OnEquipmentRemove"
+                        OnSell="OnEquipmentSell" />
+                }
+            </div>
+        </div>
+    }
+
+    @if (Character.Injuries.Any())
+    {
+        <hr class="my-3" />
+        <div class="card-body pt-0">
+            <small class="text-body-secondary d-block mb-2">Injuries:</small>
+            <div class="character-injuries d-flex flex-column gap-2">
+                @if (InjuryOptions.Any())
+                {
+                    @foreach (var injury in InjuryOptions)
+                    {
+                        <div class="border-start border-danger border-3 ps-2">
+                            <span class="fw-bold">@injury.Name:</span>
+                            <span class="text-body-secondary">@injury.Effect</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    @foreach (var injury in Character.Injuries)
+                    {
+                        <span class="badge text-bg-danger">@injury</span>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    @if (Character.Feats.Any())
+    {
+        <hr class="my-3" />
+        <div class="card-body pt-0">
+            <small class="text-body-secondary d-block mb-2">Feats:</small>
+            <div class="d-flex flex-column gap-2">
+                @if (FeatOptions.Any())
+                {
+                    @foreach (var feat in FeatOptions)
+                    {
+                        <div class="border-start border-success border-3 ps-2">
+                            <span class="fw-bold">@feat.Name:</span>
+                            <span class="text-body-secondary">@feat.Effect</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    @foreach (var feat in Character.Feats)
+                    {
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fas fa-star text-success mt-1"></i>
+                            <div>
+                                <span>@feat</span>
+                                @if (FeatDetails.ContainsKey(feat))
+                                {
+                                    <small class="text-body-secondary d-block">@FeatDetails[feat]</small>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    @if (Character.Flaws.Any())
+    {
+        <hr class="my-3" />
+        <div class="card-body pt-0">
+            <small class="text-body-secondary d-block mb-2">Flaws:</small>
+            <div class="d-flex flex-column gap-2">
+                @if (FlawOptions.Any())
+                {
+                    @foreach (var flaw in FlawOptions)
+                    {
+                        <div class="border-start border-warning border-3 ps-2">
+                            <span class="fw-bold">@flaw.Name:</span>
+                            <span class="text-body-secondary">@flaw.Effect</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    @foreach (var flaw in Character.Flaws)
+                    {
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fas fa-minus-circle text-warning mt-1"></i>
+                            <div>
+                                <span>@flaw</span>
+                                @if (FlawDetails.ContainsKey(flaw))
+                                {
+                                    <small class="text-body-secondary d-block">@FlawDetails[flaw]</small>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    @if (Character.Spells.Any())
+    {
+        <hr class="my-3" />
+        <div class="card-body pt-0">
+            <small class="text-body-secondary d-block mb-2">Spells:</small>
+            <div class="d-flex flex-column gap-2">
+                @if (SpellOptions.Any())
+                {
+                    @foreach (var spell in SpellOptions)
+                    {
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fas fa-magic text-info mt-1"></i>
+                            <div>
+                                <span class="fw-bold">@spell.Name:</span>
+                                <span class="text-body-secondary">@spell.Effect</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    @foreach (var spell in Character.Spells)
+                    {
+                        <span class="badge text-bg-info">@spell</span>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Character.SpecialClassId))
+    {
+        <div class="card-footer text-center character-tags">
+            <span class="badge text-bg-secondary">@Character.SpecialClassId</span>
+        </div>
+    }
+
+    @if (!PrintMode)
+    {
+        <!-- Delete Character Reason Modal -->
+        <Modal IsVisible="@showDeleteConfirm" Title="Remove Character" OnClose="CancelDelete">
+            <div>
+                <p class="mb-4">How was <strong>@Character.Name</strong> removed from the warband?</p>
+
+                <div class="d-flex gap-2 mb-4">
+                    <button type="button" class="btn btn-danger flex-fill" @onclick="HandleDeleteDead">
+                        <i class="fas fa-skull me-2"></i>
+                        <span class="fw-bold">Dead</span>
+                        <br />
+                        <small>Equipment → Stash</small>
+                    </button>
+
+                    <button type="button" class="btn btn-warning flex-fill" @onclick="HandleDeleteFired">
+                        <i class="fas fa-door-open me-2"></i>
+                        <span class="fw-bold">Fired</span>
+                        <br />
+                        <small>Equipment lost</small>
+                    </button>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">
+                        <i class="fas fa-times me-1"></i>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </Modal>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public Character Character { get; set; } = null!;
+
+    [Parameter]
+    public string? SpecialClassIcon { get; set; }
+
+    [Parameter]
+    public bool PrintMode { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnEquipmentRemove { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnEquipmentSell { get; set; }
+
+    [Parameter]
+    public Func<Equipment, int?>? SellPriceCalculator { get; set; }
+
+    [Parameter]
+    public Dictionary<string, string> FeatDetails { get; set; } = new();
+
+    [Parameter]
+    public Dictionary<string, string> FlawDetails { get; set; } = new();
+
+    [Parameter]
+    public List<FeatFlawOption> FeatOptions { get; set; } = new();
+
+    [Parameter]
+    public List<FeatFlawOption> FlawOptions { get; set; } = new();
+
+    [Parameter]
+    public List<InjuryOption> InjuryOptions { get; set; } = new();
+
+    [Parameter]
+    public List<SpellOption> SpellOptions { get; set; } = new();
+
+    private bool showDeleteConfirm = false;
+
+    private int UsedSlots => Character.Equipment.Sum(e => e.CalculateRequiredSlots());
+
+    private void ShowDeleteConfirm()
+    {
+        showDeleteConfirm = true;
+    }
+
+    private async Task HandleDeleteDead()
+    {
+        showDeleteConfirm = false;
+        if (OnDelete.HasDelegate)
+        {
+            await OnDelete.InvokeAsync(true); // true = isDead
+        }
+    }
+
+    private async Task HandleDeleteFired()
+    {
+        showDeleteConfirm = false;
+        if (OnDelete.HasDelegate)
+        {
+            await OnDelete.InvokeAsync(false); // false = isFired
+        }
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteConfirm = false;
+    }
+
+    private Stats EffectiveStats => Character.GetEffectiveStats(FeatOptions ?? new(), FlawOptions ?? new(), InjuryOptions ?? new());
+
+    private List<StatItem> SlotsStats => new()
+    {
+        new StatItem { Value = $"{UsedSlots}/{Character.GetEffectiveEquipmentSlots()}", Label = "SLOTS" }
+    };
+}

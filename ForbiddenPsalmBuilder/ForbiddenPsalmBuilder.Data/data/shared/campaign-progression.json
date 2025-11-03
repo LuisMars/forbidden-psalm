@@ -1,0 +1,38 @@
+{
+  "xpCost": 5,
+  "xpSpending": [
+    {
+      "action": "improve_stat",
+      "description": "Improve warband member's ability by 1",
+      "target": "stat",
+      "amount": 1
+    },
+    {
+      "action": "remove_injury",
+      "description": "Remove warband member's injury",
+      "target": "injury"
+    },
+    {
+      "action": "reroll_flaw",
+      "description": "Reroll warband member's Flaw",
+      "target": "flaw"
+    },
+    {
+      "action": "gain_feat",
+      "description": "Gain new Feat for warband member",
+      "target": "feat"
+    },
+    {
+      "action": "resurrect",
+      "description": "Resurrect warband member with new Flaw",
+      "target": "dead_member",
+      "consequence": "gain_flaw"
+    }
+  ],
+  "recruitment": {
+    "freshBlood": {
+      "condition": "fewer than 5 members",
+      "cost": "free"
+    }
+  }
+}

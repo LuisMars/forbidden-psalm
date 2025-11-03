@@ -1,0 +1,394 @@
+{
+  "oneHandedRanged": [
+    {
+      "name": "Flare Pistol",
+      "damage": "D4",
+      "properties": [
+        "Ranged 6",
+        "Burn",
+        "Reload"
+      ],
+      "stat": "Presence",
+      "cost": 15,
+      "slots": 1,
+      "rollRange": "1-4",
+      "iconClass": "ra ra-revolver",
+      "ammoType": "Flare",
+      "special": "Can be fired into air for battlefield light (5 rounds). Roll D10, on 1: artillery mistake, all models take Agility test or 1D6 damage"
+    },
+    {
+      "name": "Pistol",
+      "damage": "D6",
+      "properties": [
+        "Ranged",
+        "Jam",
+        "Reload 6"
+      ],
+      "stat": "Presence",
+      "cost": 15,
+      "slots": 1,
+      "rollRange": "5-9",
+      "iconClass": "ra ra-revolver",
+      "ammoType": "Pistol Round"
+    },
+    {
+      "name": "Aerial Dart",
+      "damage": "D4",
+      "properties": [
+        "Ranged",
+        "Thrown"
+      ],
+      "stat": "Agility",
+      "cost": 2,
+      "slots": 1,
+      "rollRange": "10-15",
+      "iconClass": "ra ra-arrow-cluster"
+    }
+  ],
+  "twoHandedRanged": [
+    {
+      "name": "Rifle",
+      "damage": "D8",
+      "properties": [
+        "Ranged",
+        "Jam",
+        "Reload 5"
+      ],
+      "stat": "Presence",
+      "cost": 25,
+      "slots": 2,
+      "rollRange": "16-19",
+      "iconClass": "ra ra-rifle",
+      "ammoType": "Rifle Round"
+    },
+    {
+      "name": "Shotgun",
+      "damage": "D10",
+      "properties": [
+        "Ranged",
+        "Explode",
+        "Reload 2"
+      ],
+      "stat": "Presence",
+      "cost": 20,
+      "slots": 2,
+      "rollRange": "20-23",
+      "iconClass": "fas fa-gun",
+      "ammoType": "Shotgun Shells"
+    },
+    {
+      "name": "Sniper Rifle",
+      "damage": "D8",
+      "properties": [
+        "Ranged 15",
+        "Jam",
+        "Reload 5"
+      ],
+      "stat": "Presence",
+      "cost": 35,
+      "slots": 2,
+      "rollRange": "24",
+      "iconClass": "ra ra-rifle",
+      "ammoType": "Sniper Round"
+    },
+    {
+      "name": "BuzzSaw",
+      "damage": "D8",
+      "properties": [
+        "Ranged",
+        "Jam",
+        "Bulky",
+        "AF3",
+        "Reload 3"
+      ],
+      "stat": "Strength",
+      "cost": 50,
+      "slots": 2,
+      "rollRange": "25",
+      "iconClass": "ra ra-cog",
+      "ammoType": "Buzzsaw Round"
+    },
+    {
+      "name": "Automatic Rifle",
+      "damage": "D8",
+      "properties": [
+        "Ranged",
+        "AF2",
+        "Reload 5",
+        "Jam"
+      ],
+      "stat": "Presence",
+      "cost": 30,
+      "slots": 2,
+      "rollRange": "26-27",
+      "iconClass": "ra ra-rifle",
+      "ammoType": "Auto Rifle Round"
+    },
+    {
+      "name": "Anti-tank Rifle",
+      "damage": "D10",
+      "properties": [
+        "Ranged",
+        "Bulky",
+        "AP",
+        "Reload"
+      ],
+      "stat": "Strength",
+      "cost": 50,
+      "slots": 2,
+      "rollRange": "28-34",
+      "iconClass": "ra ra-rifle",
+      "ammoType": "Anti Tank Round"
+    },
+    {
+      "name": "Flamethrower",
+      "damage": "D6",
+      "properties": [
+        "Ranged 6",
+        "Explode",
+        "Burn"
+      ],
+      "stat": "Toughness",
+      "cost": 50,
+      "slots": 2,
+      "rollRange": "35",
+      "iconClass": "ra ra-fire",
+      "ammoType": "Fuel Tank",
+      "special": "Requires fuel tank (replaced after 3 uses, 1 action to replace). Can attack all models within 6 inches (consumes all fuel). If Critically hit: tank explodes for 8 damage to all within 3 inches"
+    }
+  ],
+  "oneHandedMelee": [
+    {
+      "name": "Bayonet",
+      "damage": "D4",
+      "properties": [
+        "Cruel"
+      ],
+      "stat": "Agility",
+      "cost": 2,
+      "slots": 1,
+      "rollRange": "36-38",
+      "iconClass": "ra ra-daggers",
+      "special": "Can attach to rifle (gains Reach but -3 penalty to shooting). Takes action to attach/remove"
+    },
+    {
+      "name": "Knife",
+      "damage": "D4",
+      "properties": [
+        "Thrown"
+      ],
+      "stat": "Agility",
+      "cost": 1,
+      "slots": 1,
+      "rollRange": "39-44",
+      "iconClass": "ra ra-daggers"
+    },
+    {
+      "name": "Gauntlet Dagger",
+      "damage": "D4",
+      "properties": [
+        "Can't be dropped"
+      ],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 1,
+      "rollRange": "45-46",
+      "iconClass": "ra ra-daggers"
+    },
+    {
+      "name": "Trench Club",
+      "damage": "D6",
+      "properties": [
+        "Criticals cause Dazed"
+      ],
+      "stat": "Strength",
+      "cost": 4,
+      "slots": 1,
+      "rollRange": "47-50",
+      "iconClass": "ra ra-bat-sword"
+    },
+    {
+      "name": "Fist",
+      "damage": "1",
+      "properties": [
+        "On Fumble take 1 Damage"
+      ],
+      "stat": "Strength",
+      "cost": 0,
+      "slots": 0,
+      "rollRange": "-",
+      "iconClass": "fas fa-hand-rock"
+    },
+    {
+      "name": "Dud Grenade Club",
+      "damage": "D4",
+      "properties": [
+        "Explode"
+      ],
+      "stat": "Strength",
+      "cost": 0,
+      "slots": 1,
+      "rollRange": "51-55",
+      "iconClass": "ra ra-bombs"
+    },
+    {
+      "name": "Saber",
+      "damage": "D8",
+      "properties": [],
+      "stat": "Agility or Strength",
+      "cost": 1,
+      "slots": 1,
+      "rollRange": "56-60",
+      "iconClass": "ra ra-sword"
+    },
+    {
+      "name": "Makeshift Weapon",
+      "damage": "D4",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 0,
+      "slots": 1,
+      "rollRange": "61-66",
+      "iconClass": "ra ra-bat-sword"
+    },
+    {
+      "name": "Entrenching Tool",
+      "damage": "D6",
+      "properties": [
+        "Special digging ability"
+      ],
+      "stat": "Strength",
+      "cost": 5,
+      "slots": 1,
+      "rollRange": "67-70",
+      "iconClass": "fas fa-wrench",
+      "special": "Can dig holes for cover (1 action). Roll D4: 1-2 nothing, 3 find treasure, 4 find corpse (morale test)"
+    },
+    {
+      "name": "Pick Axe",
+      "damage": "D6",
+      "properties": [
+        "Cruel"
+      ],
+      "stat": "Strength",
+      "cost": 4,
+      "slots": 1,
+      "rollRange": "71-75",
+      "iconClass": "ra ra-axe"
+    },
+    {
+      "name": "Wood Axe",
+      "damage": "D8",
+      "properties": [
+        "Thrown"
+      ],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 1,
+      "rollRange": "75-79",
+      "iconClass": "ra ra-axe"
+    }
+  ],
+  "twoHandedMelee": [
+    {
+      "name": "Rusted Rifle",
+      "damage": "D8",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 2,
+      "rollRange": "80-86",
+      "iconClass": "ra ra-rifle"
+    },
+    {
+      "name": "Makeshift Weapon",
+      "damage": "D6",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 0,
+      "slots": 2,
+      "rollRange": "87-91",
+      "iconClass": "ra ra-bat-sword"
+    },
+    {
+      "name": "Cavalry Lance",
+      "damage": "D6",
+      "properties": [
+        "Reach"
+      ],
+      "stat": "Agility",
+      "cost": 5,
+      "slots": 2,
+      "rollRange": "91-92",
+      "iconClass": "ra ra-spear-head"
+    }
+  ],
+  "throwables": [
+    {
+      "name": "Molotov",
+      "damage": "D6",
+      "properties": [
+        "Burn",
+        "Explode",
+        "Counts as Whisky"
+      ],
+      "stat": "Agility",
+      "cost": 5,
+      "slots": 1,
+      "rollRange": "93-94",
+      "iconClass": "ra ra-brandy-bottle"
+    },
+    {
+      "name": "Smoke Grenade",
+      "damage": "0",
+      "properties": [
+        "Smoke",
+        "Template"
+      ],
+      "stat": "Agility",
+      "cost": 4,
+      "slots": 1,
+      "rollRange": "95-96",
+      "iconClass": "ra ra-bombs"
+    },
+    {
+      "name": "Gas Grenade",
+      "damage": "D4",
+      "properties": [
+        "Gas",
+        "Template"
+      ],
+      "stat": "Agility",
+      "cost": 4,
+      "slots": 1,
+      "rollRange": "97",
+      "iconClass": "ra ra-bombs"
+    },
+    {
+      "name": "Makeshift Explosive",
+      "damage": "D8",
+      "properties": [
+        "Explode"
+      ],
+      "stat": "Strength",
+      "cost": 2,
+      "slots": 1,
+      "rollRange": "98-99",
+      "iconClass": "ra ra-bombs"
+    },
+    {
+      "name": "Grenade",
+      "damage": "D8",
+      "properties": [
+        "Explode",
+        "Called Shot"
+      ],
+      "stat": "Agility",
+      "cost": 4,
+      "slots": 1,
+      "rollRange": "100",
+      "iconClass": "ra ra-bombs"
+    }
+  ],
+  "notes": "Weapons come fully loaded"
+}

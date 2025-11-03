@@ -1,0 +1,104 @@
+[
+  {
+    "name": "Burn the Wicked",
+    "effect": "Target makes Toughness test or begins to Burn",
+    "category": "sanctified",
+    "roll": 1
+  },
+  {
+    "name": "Silencing the Dogs of War",
+    "effect": "Target weapon with Jam - on success weapon Jams",
+    "category": "sanctified",
+    "roll": 2
+  },
+  {
+    "name": "Flap",
+    "effect": "Target makes Presence test. On failure flees battlefield per morale rules",
+    "category": "sanctified",
+    "roll": 3
+  },
+  {
+    "name": "ZIGZAG",
+    "effect": "Target treated as -3 to hit for all Ranged Attacks (stacks with modifiers)",
+    "category": "sanctified",
+    "roll": 4
+  },
+  {
+    "name": "Command",
+    "effect": "Target gains extra activation (once per Scenario only)",
+    "category": "sanctified",
+    "roll": 5
+  },
+  {
+    "name": "Let There Be Light",
+    "effect": "Fog pushed back, all Ranged weapons become 24\" range next round",
+    "category": "sanctified",
+    "roll": 6
+  },
+  {
+    "name": "Once More Unto the Breach",
+    "effect": "All models within 3\" of caster auto-pass morale for rest of Scenario",
+    "category": "sanctified",
+    "roll": 7
+  },
+  {
+    "name": "Chin Up",
+    "effect": "Grants 2HP to target who has taken at least 2 damage",
+    "category": "sanctified",
+    "roll": 8
+  },
+  {
+    "name": "Mistaken Identity",
+    "effect": "Target dead model removed from table but considered survived Scenario",
+    "category": "sanctified",
+    "roll": 9
+  },
+  {
+    "name": "Artillery",
+    "effect": "Select point, all within 3\" make Agility test or take 1D10 damage",
+    "category": "sanctified",
+    "roll": 10
+  },
+  {
+    "name": "Booby Trap",
+    "effect": "Select terrain within 12\". Models within 1\" take 1D10 damage when triggered",
+    "category": "heathen",
+    "roll": 11
+  },
+  {
+    "name": "Death Was Written Large",
+    "effect": "All Downed models are instead killed for remainder of Scenario",
+    "category": "heathen",
+    "roll": 12
+  },
+  {
+    "name": "Blood For Blood",
+    "effect": "Caster can give their HP to another model (1:1 ratio)",
+    "category": "heathen",
+    "roll": 13
+  },
+  {
+    "name": "Detonate",
+    "effect": "Target with Explode weapon - on failure weapon explodes",
+    "category": "heathen",
+    "roll": 14
+  },
+  {
+    "name": "Die Already",
+    "effect": "Target who has taken damage makes Presence test or drops to 1HP",
+    "category": "heathen",
+    "roll": 15
+  },
+  {
+    "name": "Cries of the Wounded",
+    "effect": "Target makes Presence test or takes 1D8 damage",
+    "category": "heathen",
+    "roll": 16
+  },
+  {
+    "name": "Cursed",
+    "effect": "Target makes Presence test. On failure cursed (-2 to all rolls until end)",
+    "category": "heathen",
+    "roll": 20
+  }
+]

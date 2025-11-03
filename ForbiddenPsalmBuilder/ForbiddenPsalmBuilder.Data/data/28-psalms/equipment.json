@@ -1,0 +1,127 @@
+{
+  "items": [
+    {
+      "name": "Cheese",
+      "effect": "Can be eaten as action to heal 1 HP",
+      "cost": 3,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "fas fa-cheese",
+      "isConsumable": true,
+      "consumableEffect": "heal_hp"
+    },
+    {
+      "name": "Tincture",
+      "effect": "Removes Poison and Disease",
+      "cost": 7,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-potion",
+      "isConsumable": true,
+      "consumableEffect": "cure_poisoned"
+    },
+    {
+      "name": "Bandage",
+      "effect": "Cures Bleeding",
+      "cost": 1,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "fas fa-band-aid",
+      "isConsumable": true,
+      "consumableEffect": "cure_bleeding"
+    },
+    {
+      "name": "Potion/Stimpack",
+      "effect": "Heals 1D6 HP",
+      "cost": 6,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-potion",
+      "isConsumable": true,
+      "consumableEffect": "heal_hp"
+    },
+    {
+      "name": "Hacking Deck",
+      "effect": "Allows hacking with 2 programmes",
+      "cost": 20,
+      "slots": 1,
+      "techLevel": "future",
+      "roll": null,
+      "iconClass": "fas fa-laptop"
+    }
+  ],
+  "ammo": [
+    {
+      "type": "Arrows",
+      "shots": 5,
+      "cost": 2,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-arrow-cluster"
+    },
+    {
+      "type": "Revolver Ammo",
+      "shots": 6,
+      "cost": 4,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-bullets"
+    },
+    {
+      "type": "Pistol Ammo",
+      "shots": 6,
+      "cost": 4,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-bullets"
+    },
+    {
+      "type": "Rifle Ammo",
+      "shots": 6,
+      "cost": 4,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-bullets"
+    },
+    {
+      "type": "Shotgun Shells",
+      "shots": 6,
+      "cost": 4,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-bullets"
+    },
+    {
+      "type": "Slug Ammo",
+      "shots": 6,
+      "cost": 4,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-bullets"
+    },
+    {
+      "type": "Plasma Cell",
+      "shots": 2,
+      "cost": 10,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-lightning"
+    },
+    {
+      "type": "Flame",
+      "shots": 1,
+      "cost": 5,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-flame-symbol"
+    },
+    {
+      "type": "Laser",
+      "shots": 12,
+      "cost": 12,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-lightning"
+    }
+  ]
+}

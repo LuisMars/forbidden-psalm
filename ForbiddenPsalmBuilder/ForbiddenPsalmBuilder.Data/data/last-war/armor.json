@@ -1,0 +1,139 @@
+[
+  {
+    "name": "Hard Leather",
+    "armorValue": 1,
+    "armorType": "body",
+    "special": null,
+    "cost": 1,
+    "slots": 1,
+    "iconClass": "ra ra-vest",
+    "restrictions": []
+  },
+  {
+    "name": "Dayfield Body Shield",
+    "armorValue": 0,
+    "armorType": "accessory",
+    "special": "Immune to morale",
+    "cost": 10,
+    "slots": 1,
+    "iconClass": "ra ra-shield",
+    "effects": [
+      {
+        "type": "immunity",
+        "immunities": [
+          "morale"
+        ]
+      }
+    ],
+    "restrictions": []
+  },
+  {
+    "name": "Prototype",
+    "armorValue": 3,
+    "armorType": "body",
+    "special": "-3 to Ranged Attack tests",
+    "cost": 15,
+    "slots": 1,
+    "iconClass": "ra ra-vest",
+    "effects": [
+      {
+        "type": "attack_penalty",
+        "attackType": "ranged",
+        "modifier": -3
+      }
+    ],
+    "restrictions": []
+  },
+  {
+    "name": "Good Boots",
+    "armorValue": 0,
+    "armorType": "accessory",
+    "special": "Ignores Muddy conditions, no slot",
+    "cost": 5,
+    "slots": 0,
+    "iconClass": "fas fa-hiking",
+    "effects": [
+      {
+        "type": "immunity",
+        "immunities": [
+          "muddy_conditions"
+        ]
+      }
+    ],
+    "restrictions": []
+  },
+  {
+    "name": "Plated Armor",
+    "armorValue": 4,
+    "armorType": "body",
+    "special": "+2 Strength required or -1 Agility",
+    "cost": 50,
+    "slots": 2,
+    "iconClass": "ra ra-vest",
+    "restrictions": [
+      {
+        "type": "stat_requirement",
+        "stat": "strength",
+        "requiredValue": "+2",
+        "alternative": {
+          "type": "stat_penalty",
+          "stat": "agility",
+          "modifier": -1
+        }
+      }
+    ]
+  },
+  {
+    "name": "Improvised",
+    "armorValue": 1,
+    "armorType": "body",
+    "special": "-1 Agility",
+    "cost": 0,
+    "slots": 1,
+    "iconClass": "ra ra-vest",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "agility",
+        "modifier": -1
+      }
+    ],
+    "restrictions": []
+  },
+  {
+    "name": "Helmet",
+    "armorValue": 0,
+    "armorType": "accessory",
+    "special": "Cannot be Dazed by attacks",
+    "cost": 5,
+    "slots": 1,
+    "iconClass": "ra ra-helmet",
+    "effects": [
+      {
+        "type": "immunity",
+        "immunities": [
+          "dazed_by_attacks"
+        ]
+      }
+    ],
+    "restrictions": []
+  },
+  {
+    "name": "Waxed Cloth",
+    "armorValue": 1,
+    "armorType": "body",
+    "special": "Ignores Burn",
+    "cost": 3,
+    "slots": 1,
+    "iconClass": "ra ra-vest",
+    "effects": [
+      {
+        "type": "immunity",
+        "immunities": [
+          "burn"
+        ]
+      }
+    ],
+    "restrictions": []
+  }
+]

@@ -1,0 +1,87 @@
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+
+@if (Feats.Any() || Flaws.Any())
+{
+    <div class="d-flex flex-column gap-3">
+        @if (Feats.Any())
+        {
+            <div>
+                <h3 class="h6 text-success mb-2"><i class="fas fa-star"></i> Feats</h3>
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var feat in Feats)
+                    {
+                        <div class="card border-start border-success border-3">
+                            <div class="card-body p-2">
+                                <div class="d-flex align-items-start justify-content-between">
+                                    <div class="flex-grow-1">
+                                        <span class="fw-semibold">@feat.Name:</span>
+                                        @if (ShowDetails)
+                                        {
+                                            <span class="small ms-1">@feat.Effect</span>
+                                        }
+                                    </div>
+                                    @if (ShowRemove && OnRemoveFeat.HasDelegate)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger ms-2"
+                                                @onclick="() => OnRemoveFeat.InvokeAsync(feat.Name)"
+                                                title="Remove feat">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Flaws.Any())
+        {
+            <div>
+                <h3 class="h6 text-danger mb-2"><i class="fas fa-minus-circle"></i> Flaws</h3>
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var flaw in Flaws)
+                    {
+                        <div class="card border-start border-danger border-3">
+                            <div class="card-body p-2">
+                                <div class="d-flex align-items-start justify-content-between">
+                                    <div class="flex-grow-1">
+                                        <span class="fw-semibold">@flaw.Name:</span>
+                                        @if (ShowDetails)
+                                        {
+                                            <span class="small ms-1">@flaw.Effect</span>
+                                        }
+                                    </div>
+                                    @if (ShowRemove && OnRemoveFlaw.HasDelegate)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger ms-2"
+                                                @onclick="() => OnRemoveFlaw.InvokeAsync(flaw.Name)"
+                                                title="Remove flaw">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-body-secondary fst-italic mb-0">No feats or flaws</p>
+}
+
+@code {
+    [Parameter] public List<FeatFlawOption> Feats { get; set; } = new();
+    [Parameter] public List<FeatFlawOption> Flaws { get; set; } = new();
+    [Parameter] public bool ShowRemove { get; set; } = true;
+    [Parameter] public bool ShowDetails { get; set; } = true;
+    [Parameter] public EventCallback<string> OnRemoveFeat { get; set; }
+    [Parameter] public EventCallback<string> OnRemoveFlaw { get; set; }
+}

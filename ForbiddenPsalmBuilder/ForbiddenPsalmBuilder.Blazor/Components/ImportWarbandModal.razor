@@ -1,0 +1,228 @@
+@using ForbiddenPsalmBuilder.Core.Services.State
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@inject IGameStateService StateService
+
+<div class="import-warband-modal">
+    <div class="alert alert-info mb-4">
+        <h4 class="mb-1">Import Warband</h4>
+        <p class="mb-0">Upload a JSON file to import a warband</p>
+    </div>
+
+    @if (isProcessing)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Importing...</span>
+            </div>
+            <p>Importing warband...</p>
+        </div>
+    }
+    else if (success)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>
+            Warband imported successfully!
+            @if (replacedExisting)
+            {
+                <div class="mt-2">
+                    <small><i class="fas fa-info-circle me-1"></i>Replaced existing warband with the same ID</small>
+                </div>
+            }
+        </div>
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-primary" @onclick="OnDone">
+                <i class="fas fa-check"></i> Done
+            </button>
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                @errorMessage
+            </div>
+        }
+
+        @if (previewWarband != null)
+        {
+            <div class="alert alert-warning mb-4">
+                <h5 class="mb-2"><i class="fas fa-info-circle me-2"></i>Preview</h5>
+                <div class="mb-2">
+                    <strong>Name:</strong> @previewWarband.Name<br/>
+                    <strong>Game:</strong> @previewWarband.GameVariant<br/>
+                    <strong>Members:</strong> @previewWarband.Members.Count active
+                    @if (previewWarband.DeadMembers.Any())
+                    {
+                        <text>, @previewWarband.DeadMembers.Count dead</text>
+                    }
+                    @if (previewWarband.FiredMembers.Any())
+                    {
+                        <text>, @previewWarband.FiredMembers.Count fired</text>
+                    }
+                    <br/>
+                    <strong>Gold:</strong> @previewWarband.Gold
+                    <strong class="ms-3">XP:</strong> @previewWarband.Experience
+                </div>
+                @if (willReplaceExisting)
+                {
+                    <div class="alert alert-danger mt-2 mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> A warband with this ID already exists and will be replaced!
+                    </div>
+                }
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-secondary flex-fill" @onclick="ClearPreview">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary flex-fill" @onclick="ConfirmImport">
+                    <i class="fas fa-upload"></i> Confirm Import
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="mb-4">
+                <label for="fileInput" class="form-label fw-bold">Select JSON File</label>
+                <InputFile id="fileInput"
+                           class="form-control"
+                           accept=".json"
+                           OnChange="HandleFileSelected"
+                           disabled="@isProcessing" />
+                <small class="form-text text-muted mt-1">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Only JSON files exported from this application are supported
+                </small>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-secondary w-100" @onclick="OnCancel">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<string> OnImportSuccess { get; set; }
+
+    private bool isProcessing = false;
+    private bool success = false;
+    private bool replacedExisting = false;
+    private bool willReplaceExisting = false;
+    private string? errorMessage;
+    private string? jsonContent;
+    private Core.Models.Warband.Warband? previewWarband;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        errorMessage = null;
+        jsonContent = null;
+        previewWarband = null;
+
+        var file = e.File;
+
+        if (file == null)
+            return;
+
+        // Check file size (max 10MB)
+        if (file.Size > 10 * 1024 * 1024)
+        {
+            errorMessage = "File is too large. Maximum size is 10MB.";
+            return;
+        }
+
+        // Check file extension
+        if (!file.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+        {
+            errorMessage = "Please select a JSON file (.json)";
+            return;
+        }
+
+        try
+        {
+            // Read file content
+            using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var reader = new StreamReader(stream);
+            jsonContent = await reader.ReadToEndAsync();
+
+            // Validate and preview
+            var isValid = await StateService.ValidateWarbandJsonAsync(jsonContent);
+            if (!isValid)
+            {
+                errorMessage = "Invalid warband JSON file. Please ensure this file was exported from Forbidden Psalm Builder.";
+                return;
+            }
+
+            // Deserialize for preview
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+            };
+            previewWarband = System.Text.Json.JsonSerializer.Deserialize<Core.Models.Warband.Warband>(jsonContent, options);
+
+            if (previewWarband != null)
+            {
+                // Check if warband with this ID exists
+                var existing = await StateService.GetWarbandAsync(previewWarband.Id);
+                willReplaceExisting = existing != null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error reading file: {ex.Message}";
+            jsonContent = null;
+            previewWarband = null;
+        }
+    }
+
+    private async Task ConfirmImport()
+    {
+        if (string.IsNullOrEmpty(jsonContent))
+        {
+            errorMessage = "No file selected";
+            return;
+        }
+
+        try
+        {
+            isProcessing = true;
+            errorMessage = null;
+
+            replacedExisting = willReplaceExisting;
+            var importedWarbandId = await StateService.ImportWarbandFromJsonAsync(jsonContent);
+
+            success = true;
+            await OnImportSuccess.InvokeAsync(importedWarbandId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Import failed: {ex.Message}";
+            isProcessing = false;
+        }
+    }
+
+    private void ClearPreview()
+    {
+        previewWarband = null;
+        jsonContent = null;
+        errorMessage = null;
+        willReplaceExisting = false;
+    }
+
+    private async Task OnCancel()
+    {
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task OnDone()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

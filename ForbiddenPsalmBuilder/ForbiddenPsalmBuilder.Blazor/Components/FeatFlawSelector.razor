@@ -1,0 +1,334 @@
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Core.Services
+
+<div class="row">
+    <div class="@(selectedItem != null ? "col-md-7" : "col-12")">
+        <div class="btn-group mb-3 w-100" role="group">
+            <button type="button"
+                    class="btn @(activeTab == "feats" ? "btn-primary" : "btn-secondary")"
+                    @onclick='() => SetActiveTab("feats")'>
+                <i class="fas fa-star"></i> Feats (@GetFilteredFeats().Count())
+            </button>
+            <button type="button"
+                    class="btn @(activeTab == "flaws" ? "btn-primary" : "btn-secondary")"
+                    @onclick='() => SetActiveTab("flaws")'>
+                <i class="fas fa-minus-circle"></i> Flaws (@GetFilteredFlaws().Count())
+            </button>
+        </div>
+
+        <div class="d-flex gap-2 mb-3">
+            <input type="search"
+                   class="form-control"
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   placeholder="@(activeTab == "feats" ? "Search feats..." : "Search flaws...")" />
+            <button type="button"
+                    class="btn btn-primary"
+                    @onclick="HandleRollRandom"
+                    disabled="@(activeTab == "feats" ? !OnRollFeat.HasDelegate : !OnRollFlaw.HasDelegate)">
+                <i class="fas fa-dice-d20"></i> Roll Random @(activeTab == "feats" ? "Feat" : "Flaw")
+            </button>
+        </div>
+
+        <div style="max-height: 500px; overflow-y: auto;">
+            @if (activeTab == "feats")
+            {
+                @* Current Feats Section *@
+                @if (GetCurrentFeats().Any())
+                {
+                    <div class="mb-3">
+                        <h4 class="h6 text-success text-uppercase mb-2">Current Feats</h4>
+                        <div class="d-flex flex-column gap-1">
+                            @foreach (var feat in GetCurrentFeats())
+                            {
+                                var isSelected = selectedItem?.Name == feat.Name;
+                                <div class="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer @(isSelected ? "border-primary bg-primary bg-opacity-10" : "")"
+                                     role="button"
+                                     @onclick="() => SelectItem(feat)">
+                                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                        <span class="fw-semibold">@feat.Name</span>
+                                    </div>
+                                    @if (OnRemoveFeat.HasDelegate)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger flex-shrink-0"
+                                                @onclick:stopPropagation="true"
+                                                @onclick="() => OnRemoveFeat.InvokeAsync(feat.Name)"
+                                                title="Remove feat">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    }
+                                    @if (isSelected)
+                                    {
+                                        <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* Available Feats Section *@
+                @if (GetAvailableFeats().Any())
+                {
+                    <div class="mb-3">
+                        <h4 class="h6 text-success text-uppercase mb-2">Available Feats</h4>
+                        <div class="d-flex flex-column gap-1">
+                            @foreach (var feat in GetAvailableFeats())
+                            {
+                                var isSelected = selectedItem?.Name == feat.Name;
+                                <div class="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer @(isSelected ? "border-primary bg-primary bg-opacity-10" : "")"
+                                     role="button"
+                                     @onclick="() => SelectItem(feat)">
+                                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                        <span class="fw-semibold">@feat.Name</span>
+                                    </div>
+                                    @if (isSelected)
+                                    {
+                                        <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (!GetFilteredFeats().Any())
+                {
+                    <div class="text-center py-5 text-body-secondary">
+                        <i class="fas fa-search fa-3x mb-3 d-block"></i>
+                        <p class="mb-0">No feats found</p>
+                    </div>
+                }
+            }
+            else
+            {
+                @* Current Flaws Section *@
+                @if (GetCurrentFlaws().Any())
+                {
+                    <div class="mb-3">
+                        <h4 class="h6 text-danger text-uppercase mb-2">Current Flaws</h4>
+                        <div class="d-flex flex-column gap-1">
+                            @foreach (var flaw in GetCurrentFlaws())
+                            {
+                                var isSelected = selectedItem?.Name == flaw.Name;
+                                <div class="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer @(isSelected ? "border-primary bg-primary bg-opacity-10" : "")"
+                                     role="button"
+                                     @onclick="() => SelectItem(flaw)">
+                                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                        <span class="fw-semibold">@flaw.Name</span>
+                                    </div>
+                                    @if (OnRemoveFlaw.HasDelegate)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger flex-shrink-0"
+                                                @onclick:stopPropagation="true"
+                                                @onclick="() => OnRemoveFlaw.InvokeAsync(flaw.Name)"
+                                                title="Remove flaw">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    }
+                                    @if (isSelected)
+                                    {
+                                        <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* Available Flaws Section *@
+                @if (GetAvailableFlaws().Any())
+                {
+                    <div class="mb-3">
+                        <h4 class="h6 text-danger text-uppercase mb-2">Available Flaws</h4>
+                        <div class="d-flex flex-column gap-1">
+                            @foreach (var flaw in GetAvailableFlaws())
+                            {
+                                var isSelected = selectedItem?.Name == flaw.Name;
+                                <div class="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer @(isSelected ? "border-primary bg-primary bg-opacity-10" : "")"
+                                     role="button"
+                                     @onclick="() => SelectItem(flaw)">
+                                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                        <span class="fw-semibold">@flaw.Name</span>
+                                    </div>
+                                    @if (isSelected)
+                                    {
+                                        <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (!GetFilteredFlaws().Any())
+                {
+                    <div class="text-center py-5 text-body-secondary">
+                        <i class="fas fa-search fa-3x mb-3 d-block"></i>
+                        <p class="mb-0">No flaws found</p>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    @if (selectedItem != null)
+    {
+        <div class="col-md-5">
+            <div class="card position-sticky" style="top: 1rem;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="h5 mb-0">@selectedItem.Name</h3>
+                    <button type="button" class="btn btn-sm btn-secondary" @onclick="CloseSidePanel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-body-secondary">Type:</span>
+                        <span class="badge text-bg-@(selectedItem.Type == "feat" ? "success" : "danger")">@selectedItem.Type</span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(selectedItem.Category))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">Category:</span>
+                            <span class="fw-semibold">@selectedItem.Category</span>
+                        </div>
+                    }
+
+                    <div class="mb-2">
+                        <span class="text-body-secondary d-block mb-1">Effect:</span>
+                        <span>@selectedItem.Effect</span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(selectedItem.RollRange))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">D100 Roll:</span>
+                            <span class="badge text-bg-primary">@selectedItem.RollRange</span>
+                        </div>
+                    }
+                    else if (selectedItem.Roll.HasValue)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">D100 Roll:</span>
+                            <span class="badge text-bg-primary">@selectedItem.Roll</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer">
+                    @if (activeTab == "feats")
+                    {
+                        var isDisabled = CurrentFeats.Contains(selectedItem.Name);
+                        <button type="button"
+                                class="btn btn-primary w-100"
+                                @onclick="() => OnAddFeat.InvokeAsync(selectedItem.Name)"
+                                disabled="@(isDisabled || !OnAddFeat.HasDelegate)">
+                            <i class="fas fa-plus"></i> Add Feat
+                        </button>
+                    }
+                    else
+                    {
+                        var isDisabled = CurrentFlaws.Contains(selectedItem.Name);
+                        <button type="button"
+                                class="btn btn-primary w-100"
+                                @onclick="() => OnAddFlaw.InvokeAsync(selectedItem.Name)"
+                                disabled="@(isDisabled || !OnAddFlaw.HasDelegate)">
+                            <i class="fas fa-plus"></i> Add Flaw
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<FeatFlawOption> AvailableFeats { get; set; } = new();
+    [Parameter] public List<FeatFlawOption> AvailableFlaws { get; set; } = new();
+    [Parameter] public List<string> CurrentFeats { get; set; } = new();
+    [Parameter] public List<string> CurrentFlaws { get; set; } = new();
+    [Parameter] public EventCallback OnRollFeat { get; set; }
+    [Parameter] public EventCallback OnRollFlaw { get; set; }
+    [Parameter] public EventCallback<string> OnAddFeat { get; set; }
+    [Parameter] public EventCallback<string> OnAddFlaw { get; set; }
+    [Parameter] public EventCallback<string> OnRemoveFeat { get; set; }
+    [Parameter] public EventCallback<string> OnRemoveFlaw { get; set; }
+
+    private string activeTab = "feats";
+    private string searchTerm = "";
+    private FeatFlawOption? selectedItem;
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        searchTerm = "";
+        selectedItem = null;
+    }
+
+    private void SelectItem(FeatFlawOption item)
+    {
+        selectedItem = item;
+    }
+
+    private void CloseSidePanel()
+    {
+        selectedItem = null;
+    }
+
+    private async Task HandleRollRandom()
+    {
+        if (activeTab == "feats")
+        {
+            await OnRollFeat.InvokeAsync();
+        }
+        else
+        {
+            await OnRollFlaw.InvokeAsync();
+        }
+    }
+
+    private IEnumerable<FeatFlawOption> GetFilteredFeats()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return AvailableFeats;
+
+        return AvailableFeats.Where(f =>
+            f.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            f.Effect.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IEnumerable<FeatFlawOption> GetFilteredFlaws()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return AvailableFlaws;
+
+        return AvailableFlaws.Where(f =>
+            f.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            f.Effect.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IEnumerable<FeatFlawOption> GetCurrentFeats()
+    {
+        return GetFilteredFeats().Where(f => CurrentFeats.Contains(f.Name));
+    }
+
+    private IEnumerable<FeatFlawOption> GetAvailableFeats()
+    {
+        return GetFilteredFeats().Where(f => !CurrentFeats.Contains(f.Name));
+    }
+
+    private IEnumerable<FeatFlawOption> GetCurrentFlaws()
+    {
+        return GetFilteredFlaws().Where(f => CurrentFlaws.Contains(f.Name));
+    }
+
+    private IEnumerable<FeatFlawOption> GetAvailableFlaws()
+    {
+        return GetFilteredFlaws().Where(f => !CurrentFlaws.Contains(f.Name));
+    }
+}

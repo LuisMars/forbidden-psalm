@@ -1,0 +1,103 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Core.Services
+
+<div class="mb-3">
+    <label class="form-label">@Label</label>
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <select class="form-select" @bind="selectedTraderId" @bind:after="OnTraderChanged">
+            @if (AllowNone)
+            {
+                <option value="">-- Select Trader --</option>
+            }
+            @foreach (var trader in AvailableTraders)
+            {
+                <option value="@trader.Id">@trader.Name</option>
+            }
+        </select>
+        @if (SelectedTrader != null && !string.IsNullOrEmpty(SelectedTrader.IconClass))
+        {
+            <i class="@SelectedTrader.IconClass fs-4 text-primary"></i>
+        }
+    </div>
+
+    @if (SelectedTrader != null && ShowPricingInfo)
+    {
+        <div class="card">
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(SelectedTrader.Description))
+                {
+                    <p class="text-body-secondary mb-3">@SelectedTrader.Description</p>
+                }
+                <div class="mb-2">
+                    <span class="fw-semibold d-block mb-1"><i class="fas fa-coins"></i> Pricing:</span>
+                    <small class="text-body-secondary">
+                        Buys at @((SelectedTrader.BuyMultiplier * 100))%@(SelectedTrader.BuyModifier != 0 ? $" {(SelectedTrader.BuyModifier > 0 ? "+" : "")}{SelectedTrader.BuyModifier}G" : "")
+                        | Sells at @((SelectedTrader.SellMultiplier * 100))%@(SelectedTrader.SellModifier != 0 ? $" {(SelectedTrader.SellModifier > 0 ? "+" : "")}{SelectedTrader.SellModifier}G" : "")
+                    </small>
+                </div>
+                @if (SelectedTrader.HasRisk)
+                {
+                    <div class="alert alert-warning mb-0 py-2" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span class="small">Risk: Roll D@(SelectedTrader.RiskDieSize ?? 20) each visit - on @(SelectedTrader.RiskFailValue ?? 1): @SelectedTrader.RiskPenalty</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<Trader> Traders { get; set; } = new();
+
+    [Parameter]
+    public string? SelectedTraderId { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> SelectedTraderIdChanged { get; set; }
+
+    [Parameter]
+    public string Label { get; set; } = "Select Trader";
+
+    [Parameter]
+    public bool AllowNone { get; set; } = true;
+
+    [Parameter]
+    public bool ShowPricingInfo { get; set; } = true;
+
+    [Parameter]
+    public int? CurrentChapter { get; set; }
+
+    private string? selectedTraderId;
+
+    protected override void OnParametersSet()
+    {
+        selectedTraderId = SelectedTraderId;
+    }
+
+    private List<Trader> AvailableTraders
+    {
+        get
+        {
+            if (CurrentChapter == null)
+                return Traders;
+
+            return Traders
+                .Where(t => t.MinimumChapter == null || t.MinimumChapter <= CurrentChapter)
+                .ToList();
+        }
+    }
+
+    private Trader? SelectedTrader => AvailableTraders.FirstOrDefault(t => t.Id == selectedTraderId);
+
+    private async Task OnTraderChanged()
+    {
+        SelectedTraderId = selectedTraderId;
+        if (SelectedTraderIdChanged.HasDelegate)
+        {
+            await SelectedTraderIdChanged.InvokeAsync(selectedTraderId);
+        }
+    }
+}

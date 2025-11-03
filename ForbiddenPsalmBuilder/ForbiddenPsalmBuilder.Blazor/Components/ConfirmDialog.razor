@@ -1,0 +1,43 @@
+@namespace ForbiddenPsalmBuilder.Components
+
+<Modal IsVisible="@IsVisible" OnClose="Cancel" Title="@Title">
+    <div>
+        <p class="mb-4">@Message</p>
+
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                <i class="fas fa-times"></i>
+                Cancel
+            </button>
+            <button type="button" class="btn btn-danger" @onclick="Confirm">
+                <i class="fas fa-check"></i>
+                @ConfirmText
+            </button>
+        </div>
+    </div>
+</Modal>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public string Title { get; set; } = "Confirm";
+    [Parameter] public string Message { get; set; } = "Are you sure?";
+    [Parameter] public string ConfirmText { get; set; } = "Confirm";
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private async Task Confirm()
+    {
+        if (OnConfirm.HasDelegate)
+        {
+            await OnConfirm.InvokeAsync();
+        }
+    }
+
+    private async Task Cancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+}

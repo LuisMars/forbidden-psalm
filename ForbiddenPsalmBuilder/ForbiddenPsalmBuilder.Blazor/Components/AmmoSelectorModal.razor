@@ -1,0 +1,188 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+
+<Modal IsVisible="true" OnClose="Cancel" Title="Reload Weapon">
+    <div>
+        @if (CompatibleAmmo.Count == 0)
+        {
+            <div class="text-center py-4">
+                <i class="ra ra-bullets fa-3x mb-3 d-block text-warning"></i>
+                <p class="mb-3">No compatible ammo found in inventory</p>
+                <p class="text-body-secondary small">@Weapon.Name requires: @Weapon.AmmoType</p>
+
+                @if (OnBuyAmmo.HasDelegate && Traders != null && Traders.Any())
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Trader</label>
+                        <select class="form-select" @bind="selectedTraderId">
+                            <option value="">-- Select a trader --</option>
+                            @foreach (var trader in Traders)
+                            {
+                                <option value="@trader.Id">@trader.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(selectedTraderId) && AmmoItem != null)
+                    {
+                        var trader = Traders.FirstOrDefault(t => t.Id == selectedTraderId);
+                        if (trader != null)
+                        {
+                            var price = trader.CalculateBuyPrice(AmmoItem.Cost);
+                            <div class="alert alert-info">
+                                <i class="fas fa-coins"></i>
+                                Cost: <strong>@price@CurrencySymbol</strong>
+                                @if (price != AmmoItem.Cost)
+                                {
+                                    <span class="text-muted">(Base: @AmmoItem.Cost@CurrencySymbol)</span>
+                                }
+                            </div>
+                        }
+                    }
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            @onclick="HandleBuyAmmo"
+                            disabled="@string.IsNullOrEmpty(selectedTraderId)">
+                        <i class="fas fa-shopping-cart"></i> Buy Ammo
+                    </button>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="mb-3">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Select ammo to reload <strong>@Weapon.Name</strong>
+                    (Current: @Weapon.CurrentShots/@Weapon.MaxShots shots)
+                </div>
+            </div>
+
+            <div style="max-height: 300px; overflow-y: auto;">
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var ammo in CompatibleAmmo)
+                    {
+                        var shotsToTransfer = Math.Min(Weapon.MaxShots - Weapon.CurrentShots, ammo.CurrentShots);
+                        var newWeaponShots = Weapon.CurrentShots + shotsToTransfer;
+                        var remainingAmmoShots = ammo.CurrentShots - shotsToTransfer;
+
+                        <div class="d-flex align-items-center gap-3 p-3 border rounded @(ammo.Id == selectedAmmoId ? "border-primary bg-primary bg-opacity-10" : "")"
+                             role="button"
+                             @onclick="@(() => SelectAmmo(ammo.Id))">
+                            <i class="@ammo.IconClass fs-4 text-info flex-shrink-0"></i>
+
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">@ammo.Name</div>
+                                <div class="small text-body-secondary">
+                                    Available: @ammo.CurrentShots shots
+                                </div>
+                            </div>
+
+                            <div class="flex-shrink-0 text-end">
+                                <div class="small text-body-secondary">Transfer @shotsToTransfer shots</div>
+                                <div class="small">
+                                    <span class="text-success">Weapon: @newWeaponShots/@Weapon.MaxShots</span>
+                                    @if (remainingAmmoShots > 0)
+                                    {
+                                        <br />
+                                        <span class="text-info">Remaining: @remainingAmmoShots</span>
+                                    }
+                                    else
+                                    {
+                                        <br />
+                                        <span class="text-warning">Empty (will be removed)</span>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (ammo.Id == selectedAmmoId)
+                            {
+                                <i class="fas fa-check-circle text-primary flex-shrink-0 fs-5"></i>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+        @if (CompatibleAmmo.Count > 0 && !string.IsNullOrEmpty(selectedAmmoId))
+        {
+            <button type="button" class="btn btn-primary" @onclick="ConfirmSelection">
+                <i class="fas fa-sync-alt"></i> Reload
+            </button>
+        }
+    </div>
+</Modal>
+
+@code {
+    [Parameter, EditorRequired]
+    public Equipment Weapon { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public List<Equipment> CompatibleAmmo { get; set; } = new();
+
+    [Parameter]
+    public List<Trader>? Traders { get; set; }
+
+    [Parameter]
+    public Equipment? AmmoItem { get; set; }
+
+    [Parameter]
+    public string CurrencySymbol { get; set; } = "G";
+
+    [Parameter]
+    public EventCallback<string> OnSelectAmmo { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnBuyAmmo { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private string? selectedAmmoId;
+    private string? selectedTraderId;
+
+    private void SelectAmmo(string ammoId)
+    {
+        selectedAmmoId = ammoId;
+    }
+
+    private async Task ConfirmSelection()
+    {
+        if (!string.IsNullOrEmpty(selectedAmmoId) && OnSelectAmmo.HasDelegate)
+        {
+            await OnSelectAmmo.InvokeAsync(selectedAmmoId);
+        }
+    }
+
+    private async Task HandleBuyAmmo()
+    {
+        Console.WriteLine($"[AmmoSelectorModal] HandleBuyAmmo clicked. HasDelegate: {OnBuyAmmo.HasDelegate}, SelectedTraderId: {selectedTraderId}");
+
+        if (OnBuyAmmo.HasDelegate && !string.IsNullOrEmpty(selectedTraderId))
+        {
+            Console.WriteLine($"[AmmoSelectorModal] Invoking OnBuyAmmo with traderId: {selectedTraderId}");
+            await OnBuyAmmo.InvokeAsync(selectedTraderId);
+            Console.WriteLine("[AmmoSelectorModal] OnBuyAmmo invoked successfully");
+        }
+        else
+        {
+            Console.WriteLine($"[AmmoSelectorModal] Skipped - HasDelegate: {OnBuyAmmo.HasDelegate}, TraderId empty: {string.IsNullOrEmpty(selectedTraderId)}");
+        }
+    }
+
+    private async Task Cancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+}

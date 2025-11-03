@@ -1,0 +1,45 @@
+@namespace ForbiddenPsalmBuilder.Components
+
+<div class="mb-2">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <small class="fw-semibold">@UsedSlots/@TotalSlots slots used</small>
+        @if (UsedSlots > TotalSlots)
+        {
+            <span class="badge text-bg-danger">
+                <i class="fas fa-exclamation-triangle"></i> Over capacity!
+            </span>
+        }
+    </div>
+    <div class="progress" role="progressbar" aria-valuenow="@UsedSlots" aria-valuemin="0" aria-valuemax="@TotalSlots">
+        <div class="progress-bar @GetFillClass()" style="width: @GetFillPercentage()%"></div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int UsedSlots { get; set; }
+
+    [Parameter, EditorRequired]
+    public int TotalSlots { get; set; }
+
+    private int GetFillPercentage()
+    {
+        if (TotalSlots == 0) return 0;
+        var percentage = (int)Math.Round((double)UsedSlots / TotalSlots * 100);
+        return Math.Min(percentage, 100); // Cap at 100% for visual display
+    }
+
+    private string GetFillClass()
+    {
+        var percentage = (double)UsedSlots / TotalSlots * 100;
+
+        if (UsedSlots > TotalSlots)
+            return "bg-danger";
+        else if (percentage >= 80)
+            return "bg-warning";
+        else if (percentage >= 50)
+            return "bg-info";
+        else
+            return "bg-success";
+    }
+}

@@ -1,0 +1,57 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+
+<div class="border rounded p-2 @(IsSelected ? "border-primary bg-primary bg-opacity-10" : "") @(IsDisabled ? "bg-secondary bg-opacity-10 opacity-50" : "")"
+     role="button"
+     @onclick="HandleClick">
+
+    <div class="d-flex align-items-center gap-2 mb-2">
+        @if (ShowIcon)
+        {
+            <i class="@Item.IconClass fs-4 text-primary flex-shrink-0"></i>
+        }
+        <div class="flex-grow-1">
+            <span class="fw-semibold">@Item.DisplayName</span>
+            @if (ShowCost && Item.Cost.HasValue && Item.Cost.Value > 0)
+            {
+                <span class="badge text-bg-success ms-2">@Item.Cost@CurrencySymbol</span>
+            }
+            else if (ShowCost && Item.Cost == 0)
+            {
+                <span class="badge text-bg-success ms-2">FREE</span>
+            }
+        </div>
+        @if (IsSelected)
+        {
+            <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+        }
+    </div>
+
+    <p class="text-body-secondary mb-0 small">@Item.Description</p>
+
+    @if (IsExpanded && !string.IsNullOrWhiteSpace(Item.GetDetailedInfo()))
+    {
+        <div class="mt-2 small border-top pt-2">
+            @((MarkupString)Item.GetDetailedInfo().Replace("\n", "<br>"))
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public ISelectableItem Item { get; set; } = null!;
+    [Parameter] public bool IsSelected { get; set; }
+    [Parameter] public bool IsDisabled { get; set; }
+    [Parameter] public bool ShowIcon { get; set; } = true;
+    [Parameter] public bool ShowCost { get; set; } = true;
+    [Parameter] public bool IsExpanded { get; set; }
+    [Parameter] public string CurrencySymbol { get; set; } = "";
+    [Parameter] public EventCallback<ISelectableItem> OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        if (!IsDisabled && OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync(Item);
+        }
+    }
+}

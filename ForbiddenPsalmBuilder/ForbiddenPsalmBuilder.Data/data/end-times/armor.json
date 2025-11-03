@@ -1,0 +1,149 @@
+[
+  {
+    "name": "Light Armor",
+    "armorValue": 1,
+    "armorType": "body",
+    "special": null,
+    "cost": 2,
+    "slots": 1,
+    "restrictions": [],
+    "iconClass": "ra ra-vest"
+  },
+  {
+    "name": "Medium Armor",
+    "armorValue": 2,
+    "armorType": "body",
+    "special": null,
+    "cost": 10,
+    "slots": 1,
+    "restrictions": [],
+    "iconClass": "ra ra-circular-shield"
+  },
+  {
+    "name": "Heavy Armor",
+    "armorValue": 3,
+    "armorType": "body",
+    "special": "Spellcasters cannot wear",
+    "cost": 20,
+    "slots": 1,
+    "restrictions": [
+      {
+        "type": "class_restriction",
+        "excludedClasses": [
+          "spellcaster"
+        ]
+      }
+    ],
+    "iconClass": "ra ra-vest"
+  },
+  {
+    "name": "Helm",
+    "armorValue": 0,
+    "armorType": "accessory",
+    "special": "Ignores Dazed",
+    "cost": 5,
+    "slots": 1,
+    "effects": [
+      {
+        "type": "immunity",
+        "immunities": [
+          "dazed"
+        ]
+      }
+    ],
+    "restrictions": [],
+    "iconClass": "ra ra-helmet"
+  },
+  {
+    "name": "Shield",
+    "armorValue": 1,
+    "armorType": "accessory",
+    "special": "Blocks ranged attacks, can be destroyed to ignore damage",
+    "cost": 3,
+    "slots": 1,
+    "restrictions": [],
+    "iconClass": "ra ra-shield"
+  },
+  {
+    "name": "Tower Shield",
+    "armorValue": 0,
+    "armorType": "accessory",
+    "special": "Acts as cover, -3 to ranged attacks against bearer",
+    "cost": 5,
+    "slots": 2,
+    "restrictions": [],
+    "iconClass": "ra ra-tower"
+  },
+  {
+    "name": "Full Plate",
+    "armorValue": 4,
+    "armorType": "body",
+    "special": "+2 Strength required or -1 Agility",
+    "cost": 50,
+    "slots": 2,
+    "restrictions": [
+      {
+        "type": "stat_requirement",
+        "stat": "strength",
+        "requiredValue": "+2",
+        "alternative": {
+          "type": "stat_penalty",
+          "stat": "agility",
+          "modifier": -1
+        }
+      }
+    ],
+    "iconClass": "ra ra-vest"
+  },
+  {
+    "name": "Pet Armor",
+    "armorValue": 1,
+    "armorType": "pet",
+    "special": "Can be used on any pet",
+    "cost": 10,
+    "slots": 1,
+    "restrictions": [
+      {
+        "type": "target_restriction",
+        "allowedTargets": [
+          "pets"
+        ]
+      }
+    ],
+    "iconClass": "fas fa-paw"
+  },
+  {
+    "name": "Improvised Armor",
+    "armorValue": 1,
+    "armorType": "body",
+    "special": "-1 Agility",
+    "cost": 0,
+    "slots": 1,
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "agility",
+        "modifier": -1
+      }
+    ],
+    "restrictions": [],
+    "iconClass": "ra ra-vest"
+  },
+  {
+    "name": "Comfy Socks",
+    "armorValue": 0,
+    "armorType": "accessory",
+    "special": "1 AV if has Scroll, Takes up no Equipment slots",
+    "cost": 15,
+    "slots": 0,
+    "effects": [
+      {
+        "type": "conditional_armor",
+        "condition": "has_scroll",
+        "armorValue": 1
+      }
+    ],
+    "restrictions": [],
+    "iconClass": "fas fa-socks"
+  }
+]

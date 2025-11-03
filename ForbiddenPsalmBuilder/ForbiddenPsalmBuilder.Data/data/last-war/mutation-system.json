@@ -1,0 +1,198 @@
+[
+  {
+    "roll": 1,
+    "name": "Cephalopod Suckers",
+    "effect": "Hands covered in suckers, never drops weapons unless by choice. -3 to thrown weapons",
+    "effects": [
+      {
+        "type": "weapon_penalty",
+        "weapon_type": "thrown",
+        "modifier": -3
+      },
+      {
+        "type": "immunity",
+        "immunities": [
+          "weapon_drop"
+        ]
+      }
+    ]
+  },
+  {
+    "roll": 2,
+    "name": "Large Fangs",
+    "effect": "Gains 1D4 Bite attack but -1 to Presence tests",
+    "effects": [
+      {
+        "type": "natural_weapon",
+        "weapon": "bite",
+        "damage": "1D4"
+      }
+    ]
+  },
+  {
+    "roll": 3,
+    "name": "Unnatural Metabolism",
+    "effect": "As action heal 1D4 to self, but eats any Resources found (loses Resource rewards)"
+  },
+  {
+    "roll": 4,
+    "name": "Evertible Stomach",
+    "effect": "As action can remove Poisoned status by everting stomach"
+  },
+  {
+    "roll": 5,
+    "name": "Iridescent Blue Skin",
+    "effect": "Skin turns blue, no mechanical effect"
+  },
+  {
+    "roll": 6,
+    "name": "Distorted Vocal Cords",
+    "effect": "Can no longer read Manuscripts. As action can growl to intimidate within 3 inches"
+  },
+  {
+    "roll": 7,
+    "name": "Enhanced Reflexes",
+    "effect": "+1 Agility but must make Presence test to avoid attacking nearest model",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "agility",
+        "modifier": 1
+      }
+    ]
+  },
+  {
+    "roll": 8,
+    "name": "Thick Hide",
+    "effect": "+1 Armor Value but -1 to social interactions",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "armor",
+        "modifier": 1
+      }
+    ]
+  },
+  {
+    "roll": 9,
+    "name": "Night Vision",
+    "effect": "Ignores Darkness penalties but -2 to tests in bright light",
+    "effects": [
+      {
+        "type": "immunity",
+        "immunities": [
+          "darkness_penalties"
+        ]
+      },
+      {
+        "type": "conditional_penalty",
+        "condition": "bright_light",
+        "modifier": -2
+      }
+    ]
+  },
+  {
+    "roll": 10,
+    "name": "Elongated Limbs",
+    "effect": "+2 inches reach for melee attacks but -1 Agility",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "agility",
+        "modifier": -1
+      },
+      {
+        "type": "reach_modifier",
+        "bonus": 2
+      }
+    ]
+  },
+  {
+    "roll": 11,
+    "name": "Acid Blood",
+    "effect": "When wounded, attacker takes 1 damage if in melee range"
+  },
+  {
+    "roll": 12,
+    "name": "Multiple Eyes",
+    "effect": "+2 to spotting hidden enemies but -1 Presence",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "presence",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 13,
+    "name": "Webbed Digits",
+    "effect": "+3 to swimming tests but -1 to fine manipulation"
+  },
+  {
+    "roll": 14,
+    "name": "Chitinous Plates",
+    "effect": "+1 Armor Value but takes 2 equipment slots worth of space",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "armor",
+        "modifier": 1
+      },
+      {
+        "type": "slot_cost",
+        "cost": 2
+      }
+    ]
+  },
+  {
+    "roll": 15,
+    "name": "Prehensile Tail",
+    "effect": "Can manipulate one additional item but takes extra equipment slot",
+    "effects": [
+      {
+        "type": "slot_cost",
+        "cost": 2
+      }
+    ]
+  },
+  {
+    "roll": 16,
+    "name": "Bioluminescence",
+    "effect": "Glows in dark, cannot hide but provides light"
+  },
+  {
+    "roll": 17,
+    "name": "Regeneration",
+    "effect": "Heal 1 HP per Scenario but must consume extra food (2R cost)",
+    "effects": [
+      {
+        "type": "regeneration",
+        "amount": 1,
+        "timing": "per_scenario",
+        "resource_cost": 2
+      }
+    ]
+  },
+  {
+    "roll": 18,
+    "name": "Toxic Secretions",
+    "effect": "Unarmed attacks cause Poisoned but cannot use medical items on others",
+    "effects": [
+      {
+        "type": "restriction",
+        "restriction_type": "cannot_use_medical_items_on_others"
+      }
+    ]
+  },
+  {
+    "roll": 19,
+    "name": "Psychic Sensitivity",
+    "effect": "Can sense Hostiles within 12 inches but takes 1 damage in presence of Manuscripts"
+  },
+  {
+    "roll": 20,
+    "name": "Adaptive Camouflage",
+    "effect": "+3 to hiding tests but must make Presence test to approach allies"
+  }
+]

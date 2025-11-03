@@ -1,0 +1,93 @@
+@namespace ForbiddenPsalmBuilder.Blazor.Components
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using static ForbiddenPsalmBuilder.Components.StatsDisplay
+
+@*
+    Shared component for displaying character stats with tragedies support
+*@
+
+<div class="mb-3">
+    <StatsDisplay Stats="@MainStats" />
+</div>
+<div class="mb-3">
+    <StatsDisplay Stats="@CalculatedStats" />
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Character Character { get; set; } = null!;
+
+    [Parameter]
+    public List<FeatFlawOption> FeatOptions { get; set; } = new();
+
+    [Parameter]
+    public List<FeatFlawOption> FlawOptions { get; set; } = new();
+
+    [Parameter]
+    public List<InjuryOption> InjuryOptions { get; set; } = new();
+
+    [Parameter]
+    public int? BaseAgility { get; set; }
+
+    [Parameter]
+    public int? BasePresence { get; set; }
+
+    [Parameter]
+    public int? BaseStrength { get; set; }
+
+    [Parameter]
+    public int? BaseToughness { get; set; }
+
+    private Stats EffectiveStats => Character.GetEffectiveStats(FeatOptions, FlawOptions, InjuryOptions);
+
+    private List<StatItem> MainStats
+    {
+        get
+        {
+            // Helper to create stat item with tooltip for modified stats
+            StatItem CreateStatItem(int effective, int? baseValue, string label)
+            {
+                bool isModified = baseValue.HasValue && effective != baseValue.Value;
+                return new StatItem
+                {
+                    Value = effective.ToString(),
+                    Label = label,
+                    IsModified = isModified,
+                    Title = isModified ? $"Base: {baseValue}, Modified: {effective}" : null
+                };
+            }
+
+            return new List<StatItem>
+            {
+                CreateStatItem(EffectiveStats.Agility, BaseAgility ?? Character.Stats.Agility, "AGI"),
+                CreateStatItem(EffectiveStats.Presence, BasePresence ?? Character.Stats.Presence, "PRE"),
+                CreateStatItem(EffectiveStats.Strength, BaseStrength ?? Character.Stats.Strength, "STR"),
+                CreateStatItem(EffectiveStats.Toughness, BaseToughness ?? Character.Stats.Toughness, "TGH")
+            };
+        }
+    }
+
+    private List<StatItem> CalculatedStats
+    {
+        get
+        {
+            var totalArmor = Character.Equipment.Where(e => e.IsArmor).Sum(e => e.ArmorValue);
+
+            var stats = new List<StatItem>
+            {
+                new StatItem { Value = EffectiveStats.HP.ToString(), Label = "HP" },
+                new StatItem { Value = totalArmor.ToString(), Label = "AV" },
+                new StatItem { Value = EffectiveStats.Movement.ToString(), Label = "MOV" }
+            };
+
+            // Add Tragedies if greater than 0
+            if (Character.Tragedies > 0)
+            {
+                stats.Add(new StatItem { Value = Character.Tragedies.ToString(), Label = "TRG" });
+            }
+
+            return stats;
+        }
+    }
+}

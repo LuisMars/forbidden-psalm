@@ -1,0 +1,132 @@
+{
+  "petRules": {
+    "limit": 1,
+    "inAdditionToWarband": true,
+    "restrictions": {
+      "scrolls": false,
+      "treasure": false,
+      "equipment": false,
+      "weapons": false
+    }
+  },
+  "availablePets": [
+    {
+      "name": "The Goodest Doggo",
+      "cost": 15,
+      "stats": {
+        "agility": 2,
+        "presence": 0,
+        "strength": 0,
+        "toughness": -2
+      },
+      "attack": {
+        "name": "Bite",
+        "damage": "D6",
+        "stat": "Strength"
+      },
+      "special": [
+        "Can search for Treasure",
+        "Can pick up and carry 1 Item"
+      ]
+    },
+    {
+      "name": "Snail/Slug Wizard",
+      "cost": 50,
+      "stats": {
+        "agility": -2,
+        "presence": 1,
+        "strength": -1,
+        "toughness": 0
+      },
+      "special": [
+        "Comes with 1 random Scroll",
+        "Can cast Scrolls",
+        "Is considered unarmed and never makes attacks"
+      ]
+    },
+    {
+      "name": "Pet Rock",
+      "cost": 0,
+      "stats": {
+        "agility": -10,
+        "presence": 0,
+        "strength": 0,
+        "toughness": 10
+      },
+      "special": [
+        "It's a rock, can be carried as Equipment",
+        "Can be thrown at enemies [D6][Thrown][Strength]"
+      ]
+    },
+    {
+      "name": "Chaos Beast",
+      "cost": "D4×D4×D4×D4 Gold",
+      "stats": {
+        "agility": "D4",
+        "presence": "D4",
+        "strength": "D4",
+        "toughness": "D4"
+      },
+      "attack": {
+        "name": "Chaotic Attacks",
+        "damage": "3D4",
+        "stat": "Presence"
+      },
+      "special": [
+        "Criticals and Fumbles: Chaos Beast takes D4 damage in addition to other effects",
+        "Cost is rerolled and must be paid again between Scenarios"
+      ]
+    },
+    {
+      "name": "Mount",
+      "cost": 30,
+      "optional": true,
+      "stats": {
+        "agility": 4,
+        "presence": -2,
+        "strength": 1,
+        "toughness": 0
+      },
+      "attack": {
+        "name": "Kick",
+        "damage": "D8",
+        "stat": "Strength"
+      },
+      "special": [
+        "Can be ridden by other party members",
+        "Requires action to mount or dismount",
+        "Mounts do not get activation when ridden",
+        "Cannot climb"
+      ]
+    }
+  ],
+  "petEquipment": {
+    "petArmor": {
+      "cost": 10,
+      "armorValue": 1,
+      "slots": 1,
+      "description": "Can be used on any pet"
+    }
+  },
+  "featInteractions": {
+    "animalLover": "Warband pays half cost to recruit pets",
+    "ratCatcher": "Model gains a free Bag o' Rats"
+  },
+  "wildCreatures": {
+    "morkaPorta": {
+      "name": "Morka-Porka (Wild Hogs)",
+      "stats": {
+        "hp": 10,
+        "morale": 5,
+        "attack": "Gore D8",
+        "armor": 1
+      },
+      "taming": {
+        "requirement": "Feed it their flesh when within 1 inch",
+        "test": "DR12 Presence test",
+        "success": "Gain Lost Limb Injury but gain Morka-Porka as mount (+3 inches movement, gain gore attack D8)",
+        "failure": "It attacks the model"
+      }
+    }
+  }
+}

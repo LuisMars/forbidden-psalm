@@ -1,0 +1,260 @@
+[
+  {
+    "id": "witch",
+    "name": "Witch",
+    "displayName": "Witch",
+    "description": "Starts with 2 random Manuscripts and can use these to cast spells",
+    "cost": 5,
+    "iconClass": "ra ra-crystal-ball",
+    "gameVariant": "last-war",
+    "isSpellcaster": true,
+    "startingEquipment": [],
+    "statBonuses": {},
+    "abilities": [
+      "Can use Manuscripts to cast spells",
+      "Starts with 2 random Manuscripts"
+    ],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1,
+      "startingMagicItems": {
+        "amount": 2,
+        "type": "random",
+        "categories": ["manuscript"]
+      }
+    }
+  },
+  {
+    "id": "sniper",
+    "name": "Sniper",
+    "displayName": "Sniper",
+    "description": "Expert marksman with enhanced Presence and a sniper rifle",
+    "cost": 5,
+    "iconClass": "fas fa-crosshairs",
+    "gameVariant": "last-war",
+    "startingEquipment": ["sniper rifle", "Ammo (5)"],
+    "statBonuses": {
+      "presence": 1
+    },
+    "abilities": ["+1 Presence"],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1
+    }
+  },
+  {
+    "id": "anti-tank-gunner",
+    "name": "Anti-Tank Gunner",
+    "displayName": "Anti-Tank Gunner",
+    "description": "Heavy weapons specialist equipped with anti-tank rifle and explosives",
+    "cost": 5,
+    "iconClass": "ra ra-skull",
+    "gameVariant": "last-war",
+    "startingEquipment": ["anti-tank rifle", "Ammo (5)", "makeshift explosive (1)"],
+    "statBonuses": {},
+    "abilities": [],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1
+    }
+  },
+  {
+    "id": "scout",
+    "name": "Scout",
+    "displayName": "Scout",
+    "description": "Fast-moving reconnaissance specialist with enhanced Agility",
+    "cost": 5,
+    "iconClass": "fas fa-shoe-prints",
+    "gameVariant": "last-war",
+    "startingEquipment": ["flare gun", "Ammo (2)"],
+    "statBonuses": {
+      "agility": 2
+    },
+    "abilities": ["+2 Agility"],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1
+    }
+  },
+  {
+    "id": "gunner",
+    "name": "Gunner",
+    "displayName": "Gunner",
+    "description": "Heavy machine gunner with enhanced Strength",
+    "cost": 5,
+    "iconClass": "fas fa-gun",
+    "gameVariant": "last-war",
+    "startingEquipment": ["buzzsaw", "Ammo (10)"],
+    "statBonuses": {
+      "strength": 1
+    },
+    "abilities": ["+1 Strength"],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1
+    }
+  },
+  {
+    "id": "trench-trooper",
+    "name": "Trench Trooper",
+    "displayName": "Trench Trooper",
+    "description": "Heavily armored close combat specialist with enhanced Toughness",
+    "cost": 5,
+    "iconClass": "ra ra-shield",
+    "gameVariant": "last-war",
+    "startingEquipment": ["prototype armor", "trench club"],
+    "statBonuses": {
+      "toughness": 2
+    },
+    "abilities": ["+2 Toughness"],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1
+    }
+  },
+  {
+    "id": "flametrooper",
+    "name": "Flametrooper",
+    "displayName": "Flametrooper",
+    "description": "Fire specialist who ignores Burn condition",
+    "cost": 5,
+    "iconClass": "ra ra-fire",
+    "gameVariant": "last-war",
+    "startingEquipment": ["flamethrower", "fuel tank (1)"],
+    "statBonuses": {},
+    "abilities": ["Ignores Burn condition"],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1
+    }
+  },
+  {
+    "id": "civilian",
+    "name": "Civilian",
+    "displayName": "Civilian",
+    "description": "Untrained recruit with extra Feat and Flaw reroll",
+    "cost": 5,
+    "iconClass": "fas fa-user",
+    "gameVariant": "last-war",
+    "startingEquipment": [],
+    "statBonuses": {},
+    "abilities": [
+      "Can pick one extra Feat",
+      "Can reroll one Flaw"
+    ],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": null,
+      "canSelectMultiple": true
+    }
+  },
+  {
+    "id": "loup-garou",
+    "name": "Loup-Garou",
+    "displayName": "Loup-Garou",
+    "description": "Werewolf with enhanced stats at night and regeneration",
+    "cost": 5,
+    "iconClass": "ra ra-wolf-head",
+    "gameVariant": "last-war",
+    "startingEquipment": [],
+    "statBonuses": {},
+    "abilities": [
+      "During nighttime missions: +1 Agility, Strength and Presence",
+      "If Downed: auto-passes Death Saves and never gains Injuries"
+    ],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1
+    }
+  },
+  {
+    "id": "hunter",
+    "name": "Hunter",
+    "displayName": "Hunter",
+    "description": "Vampire hunter with specialized equipment and resistance",
+    "cost": 5,
+    "iconClass": "ra ra-crossbow",
+    "gameVariant": "last-war",
+    "startingEquipment": ["dayfield body shield", "whisky", "rifle", "Ammo (5)"],
+    "statBonuses": {},
+    "abilities": ["Gains 'Vampires Don't Exist' Feat"],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1,
+      "startingFeat": "vampires-dont-exist"
+    }
+  },
+  {
+    "id": "arcane-scholar",
+    "name": "Arcane Scholar",
+    "displayName": "Arcane Scholar",
+    "description": "Scholar who can select a Manuscript and gains Family Heirloom",
+    "cost": 5,
+    "iconClass": "ra ra-scroll-unfurled",
+    "gameVariant": "last-war",
+    "isSpellcaster": true,
+    "startingEquipment": [],
+    "statBonuses": {},
+    "abilities": [
+      "Can select 1 Manuscript",
+      "Gains 'Family Heirloom' Feat"
+    ],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1,
+      "startingFeat": "family-heirloom",
+      "canSelectManuscript": true
+    }
+  },
+  {
+    "id": "fog-tainted",
+    "name": "Fog Tainted",
+    "displayName": "Fog Tainted",
+    "description": "Mutated individual immune to magic but with random mutation",
+    "cost": 5,
+    "iconClass": "ra ra-bubbling-potion",
+    "gameVariant": "last-war",
+    "startingEquipment": [],
+    "statBonuses": {},
+    "abilities": [
+      "Manuscripts do not work on this model",
+      "Gains 1 random mutation"
+    ],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1,
+      "startingMutation": true
+    }
+  },
+  {
+    "id": "medic",
+    "name": "Medic",
+    "displayName": "Medic",
+    "description": "Field medic who can heal allies during battle",
+    "cost": 5,
+    "iconClass": "ra ra-potion",
+    "gameVariant": "last-war",
+    "startingEquipment": ["bandage", "lead & opium", "bandolier"],
+    "statBonuses": {},
+    "abilities": [
+      "As an action can heal 1 model within 1 inch for 1D4 HP"
+    ],
+    "metadata": {
+      "replacementCost": 0,
+      "freeEquipment": true,
+      "limit": 1
+    }
+  }
+]

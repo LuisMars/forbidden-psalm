@@ -1,0 +1,794 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using Microsoft.Extensions.Logging
+
+<div class="@(UseCompactMode ? "row" : "")">
+    <div class="@(UseCompactMode ? "col-md-7" : "")">
+        @if (ShowTabs)
+        {
+            <div class="btn-group mb-3 w-100" role="group">
+                <button type="button"
+                        class="btn @(activeTab == "all" ? "btn-primary" : "btn-secondary")"
+                        @onclick="SetTabAll">
+                    All (@GetFilteredEquipment("all").Count)
+                </button>
+                <button type="button"
+                        class="btn @(activeTab == "weapons" ? "btn-primary" : "btn-secondary")"
+                        @onclick="SetTabWeapons">
+                    <i class="ra ra-crossed-swords"></i> Weapons (@GetFilteredEquipment("weapons").Count)
+                </button>
+                <button type="button"
+                        class="btn @(activeTab == "armor" ? "btn-primary" : "btn-secondary")"
+                        @onclick="SetTabArmor">
+                    <i class="ra ra-shield"></i> Armor (@GetFilteredEquipment("armor").Count)
+                </button>
+                <button type="button"
+                        class="btn @(activeTab == "items" ? "btn-primary" : "btn-secondary")"
+                        @onclick="SetTabItems">
+                    <i class="fas fa-box"></i> Items (@GetFilteredEquipment("items").Count)
+                </button>
+                <button type="button"
+                        class="btn @(activeTab == "relics" ? "btn-primary" : "btn-secondary")"
+                        @onclick="SetTabRelics">
+                    <i class="fas fa-crown"></i> Relics (@GetFilteredEquipment("relics").Count)
+                </button>
+            </div>
+        }
+
+        @if (ShowSearch)
+        {
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="search"
+                       class="form-control"
+                       placeholder="Search equipment..."
+                       @bind="searchQuery"
+                       @bind:event="oninput" />
+                @if (!string.IsNullOrEmpty(searchQuery))
+                {
+                    <button type="button" class="btn btn-secondary" @onclick="ClearSearch">
+                        <i class="fas fa-times"></i>
+                    </button>
+                }
+            </div>
+        }
+
+        @if (activeTab == "weapons" && (Equipment.Any(e => e.IsWeapon) || Weapons.Any()))
+        {
+            <div class="mb-3">
+                <div class="btn-group mb-2 w-100" role="group">
+                    <button type="button"
+                            class="btn btn-sm @(weaponHandFilter == "all" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => weaponHandFilter = "all"'>
+                        All Hands
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm @(weaponHandFilter == "one-handed" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => weaponHandFilter = "one-handed"'>
+                        One-Handed
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm @(weaponHandFilter == "two-handed" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => weaponHandFilter = "two-handed"'>
+                        Two-Handed
+                    </button>
+                </div>
+                <div class="btn-group w-100" role="group">
+                    <button type="button"
+                            class="btn btn-sm @(weaponTypeFilter == "all" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => weaponTypeFilter = "all"'>
+                        All Types
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm @(weaponTypeFilter == "melee" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => weaponTypeFilter = "melee"'>
+                        Melee
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm @(weaponTypeFilter == "ranged" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => weaponTypeFilter = "ranged"'>
+                        Ranged
+                    </button>
+                </div>
+            </div>
+        }
+
+        @if (activeTab == "relics" && (Equipment.Any(e => e.IsRelic) || Relics.Any()))
+        {
+            <div class="mb-3">
+                @if (OnRollRandomRelic.HasDelegate)
+                {
+                    <div class="mb-2">
+                        <button
+                            type="button"
+                            class="btn btn-warning w-100"
+                            @onclick="HandleRollRandomRelic">
+                            <i class="fas fa-dice"></i> <i class="fas fa-crown"></i>
+                            Roll Random Relic
+                        </button>
+                        <small class="text-muted">Simulates a d20 relic roll</small>
+                    </div>
+                }
+                <div class="btn-group w-100" role="group">
+                    <button type="button"
+                            class="btn btn-sm @(relicCategoryFilter == "all" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => relicCategoryFilter = "all"'>
+                        <i class="fas fa-crown"></i> All Relics
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm @(relicCategoryFilter == "chapter1" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => relicCategoryFilter = "chapter1"'>
+                        Chapter 1
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm @(relicCategoryFilter == "chapter2" ? "btn-primary" : "btn-secondary")"
+                            @onclick='() => relicCategoryFilter = "chapter2"'>
+                        Chapter 2
+                    </button>
+                </div>
+            </div>
+        }
+
+        <div class="@(UseCompactMode ? "d-flex flex-column gap-2" : "row g-3")" style="@(UseCompactMode ? "max-height: 500px; overflow-y: auto;" : "")">
+            @{
+                var filteredEquipment = GetFilteredEquipment(activeTab);
+
+                // Apply weapon filters
+                if (activeTab == "weapons")
+                {
+                    // Apply hand filter
+                    if (weaponHandFilter != "all")
+                    {
+                        filteredEquipment = filteredEquipment.Where(e =>
+                        {
+                            if (weaponHandFilter == "one-handed")
+                                return e.Slots == 1;
+                            if (weaponHandFilter == "two-handed")
+                                return e.Slots == 2;
+                            return true;
+                        }).ToList();
+                    }
+
+                    // Apply type filter (melee vs ranged)
+                    if (weaponTypeFilter != "all")
+                    {
+                        filteredEquipment = filteredEquipment.Where(e =>
+                        {
+                            var category = !string.IsNullOrEmpty(e.Category) ? e.Category.ToLower() : "";
+
+                            if (weaponTypeFilter == "melee")
+                            {
+                                // Check if category contains "melee" OR if it doesn't have "ranged" property and isn't a throwable
+                                return category.Contains("melee") ||
+                                       (!e.Properties.Any(p => p.Equals("Ranged", StringComparison.OrdinalIgnoreCase)) &&
+                                        !category.Contains("throwable"));
+                            }
+                            if (weaponTypeFilter == "ranged")
+                            {
+                                // Check if category contains "ranged" OR has "Ranged" property
+                                return category.Contains("ranged") ||
+                                       e.Properties.Any(p => p.Equals("Ranged", StringComparison.OrdinalIgnoreCase));
+                            }
+                            return true;
+                        }).ToList();
+                    }
+                }
+
+                // Apply relic category filter
+                if (activeTab == "relics" && relicCategoryFilter != "all")
+                {
+                    filteredEquipment = filteredEquipment.Where(e =>
+                    {
+                        var category = !string.IsNullOrEmpty(e.Category) ? e.Category.ToLower() : "";
+                        return category == relicCategoryFilter.ToLower();
+                    }).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(searchQuery))
+                {
+                    var query = searchQuery.ToLower();
+                    filteredEquipment = filteredEquipment
+                        .Where(e =>
+                            e.Name.ToLower().Contains(query) ||
+                            (e.Special?.ToLower().Contains(query) ?? false) ||
+                            (e.Effect?.ToLower().Contains(query) ?? false) ||
+                            e.Properties.Any(p => p.ToLower().Contains(query)))
+                        .ToList();
+                }
+
+                if (filteredEquipment.Count == 0)
+                {
+                    <div class="@(UseCompactMode ? "" : "col-12") text-center py-5 text-body-secondary">
+                        <i class="fas fa-search fa-3x mb-3 d-block"></i>
+                        <p class="mb-0">No equipment found</p>
+                    </div>
+                }
+                else
+                {
+                    foreach (var equipment in filteredEquipment)
+                    {
+                        var isSelected = SelectedEquipmentId == equipment.Id;
+                        var isDisabled = DisabledEquipmentIds?.Contains(equipment.Id) ?? false;
+                        var price = PriceCalculator?.Invoke(equipment);
+                        var sellPrice = SellPriceCalculator?.Invoke(equipment);
+
+                        if (!UseCompactMode)
+                        {
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <EquipmentCard Equipment="equipment"
+                                               CompactMode="false"
+                                               ShowPrice="ShowPrice"
+                                               Price="price"
+                                               SellPrice="sellPrice"
+                                               TraderName="@TraderName"
+                                               ShowActions="ShowActions"
+                                               IsSelected="isSelected"
+                                               IsDisabled="isDisabled"
+                                               IsAcquired="@(AcquiredRelicIds.Contains(equipment.Id))"
+                                               OnClick="() => HandleEquipmentClick(equipment)"
+                                               OnBuy="@GetBuyCallback()"
+                                               OnSell="@GetSellCallback()"
+                                               OnRemove="@GetRemoveCallback()"
+                                               OnAssign="@GetAssignCallback()"
+                                               OnMoveToStash="@GetMoveToStashCallback()"
+                                               OnMarkAcquired="@GetMarkAcquiredCallback()"
+                                               OnMarkAvailable="@GetMarkAvailableCallback()" />
+                            </div>
+                        }
+                        else
+                        {
+                            <EquipmentCard Equipment="equipment"
+                                           CompactMode="true"
+                                           ShowPrice="ShowPrice"
+                                           Price="price"
+                                           SellPrice="sellPrice"
+                                           TraderName="@TraderName"
+                                           ShowActions="false"
+                                           IsSelected="isSelected"
+                                           IsDisabled="isDisabled"
+                                           IsAcquired="@(AcquiredRelicIds.Contains(equipment.Id))"
+                                           OnClick="() => HandleEquipmentClick(equipment)"
+                                           OnBuy="@GetBuyCallback()"
+                                           OnSell="@GetSellCallback()"
+                                           OnRemove="@GetRemoveCallback()"
+                                           OnAssign="@GetAssignCallback()"
+                                           OnMoveToStash="@GetMoveToStashCallback()"
+                                           OnMarkAcquired="@GetMarkAcquiredCallback()"
+                                           OnMarkAvailable="@GetMarkAvailableCallback()" />
+                        }
+                    }
+                }
+            }
+        </div>
+    </div>
+
+    @if (UseCompactMode && selectedEquipmentForPanel != null)
+    {
+        <div class="col-md-5">
+            <div class="card position-sticky" style="top: 1rem;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="h5 mb-0">@selectedEquipmentForPanel.Name</h3>
+                    <button type="button" class="btn btn-sm btn-secondary" @onclick="CloseSidePanel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(selectedEquipmentForPanel.Damage))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary"><i class="ra ra-crossed-swords"></i> Damage:</span>
+                            <span class="fw-semibold">@selectedEquipmentForPanel.Damage</span>
+                        </div>
+                    }
+
+                    @if (selectedEquipmentForPanel.ArmorValue > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary"><i class="ra ra-shield"></i> Armor:</span>
+                            <span class="fw-semibold">@selectedEquipmentForPanel.ArmorValue</span>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(selectedEquipmentForPanel.ArmorType))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">Type:</span>
+                            <span class="fw-semibold">@selectedEquipmentForPanel.ArmorType</span>
+                        </div>
+                    }
+
+                    @if (selectedEquipmentForPanel.Slots > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary"><i class="fas fa-box"></i> Slots:</span>
+                            <span class="fw-semibold">@selectedEquipmentForPanel.Slots</span>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(selectedEquipmentForPanel.Stat))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">Stat:</span>
+                            <span class="fw-semibold">@selectedEquipmentForPanel.Stat</span>
+                        </div>
+                    }
+
+                    @if (selectedEquipmentForPanel.Properties?.Any() == true)
+                    {
+                        <div class="mb-2">
+                            <span class="text-body-secondary d-block mb-1">Properties:</span>
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var prop in selectedEquipmentForPanel.Properties)
+                                {
+                                    <span class="badge text-bg-secondary">@prop</span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(selectedEquipmentForPanel.Special))
+                    {
+                        <div class="mb-2">
+                            <span class="text-body-secondary d-block mb-1">Special:</span>
+                            <span class="small">@selectedEquipmentForPanel.Special</span>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(selectedEquipmentForPanel.Effect))
+                    {
+                        <div class="mb-2">
+                            <span class="text-body-secondary d-block mb-1">Effect:</span>
+                            <span class="small">@selectedEquipmentForPanel.Effect</span>
+                        </div>
+                    }
+
+                    @if (ShowPrice && selectedEquipmentPrice.HasValue)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">Price:</span>
+                            <span class="badge text-bg-success">@selectedEquipmentPrice.Value@CurrencySymbol</span>
+                        </div>
+                    }
+                </div>
+
+                @if (ShowActions)
+                {
+                    <div class="card-footer">
+                        @if (WarbandMoney.HasValue)
+                        {
+                            <div class="mb-2 text-center">
+                                <small class="text-body-secondary">Available:</small>
+                                <span class="fw-semibold"><i class="fas fa-coins"></i> @WarbandMoney.Value G</span>
+                            </div>
+                        }
+
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (OnBuy.HasDelegate)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-primary flex-fill"
+                                        @onclick="() => HandleBuy(selectedEquipmentForPanel)"
+                                        disabled="@(DisableBuyButton || (DisabledEquipmentIds?.Contains(selectedEquipmentForPanel.Id) ?? false))">
+                                    <i class="fas fa-shopping-cart"></i> Buy to Inventory
+                                </button>
+                            }
+
+                            @if (OnBuyAndEquip.HasDelegate)
+                            {
+                                <button type="button" class="btn btn-sm btn-primary flex-fill"
+                                        @onclick="() => HandleBuyAndEquip(selectedEquipmentForPanel)"
+                                        disabled="@(DisableBuyButton || (DisabledEquipmentIds?.Contains(selectedEquipmentForPanel.Id) ?? false))">
+                                    <i class="fas fa-shopping-cart"></i> Buy & Equip
+                                </button>
+                            }
+
+                            @if (OnSell.HasDelegate && selectedEquipmentForPanel.Type != "spell")
+                            {
+                                var sellPrice = SellPriceCalculator?.Invoke(selectedEquipmentForPanel);
+                                var sellText = "Sell";
+                                if (!string.IsNullOrEmpty(TraderName) && sellPrice.HasValue)
+                                {
+                                    sellText = $"Sell to {TraderName} for {sellPrice.Value}{CurrencySymbol}";
+                                }
+                                else if (sellPrice.HasValue)
+                                {
+                                    sellText = $"Sell for {sellPrice.Value}{CurrencySymbol}";
+                                }
+                                <button type="button" class="btn btn-sm btn-success flex-fill"
+                                        @onclick="() => HandleSell(selectedEquipmentForPanel)">
+                                    <i class="fas fa-coins"></i> @sellText
+                                </button>
+                            }
+
+                            @if (OnRemove.HasDelegate)
+                            {
+                                <button type="button" class="btn btn-sm btn-danger flex-fill"
+                                        @onclick="() => HandleRemove(selectedEquipmentForPanel)">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                            }
+
+                            @if (OnAssign.HasDelegate)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-primary flex-fill"
+                                        @onclick="() => HandleAssign(selectedEquipmentForPanel)">
+                                    <i class="fas fa-gift"></i> Assign to Inventory
+                                </button>
+                            }
+
+                            @if (OnAssignAndEquip.HasDelegate)
+                            {
+                                <button type="button" class="btn btn-sm btn-primary flex-fill"
+                                        @onclick="() => HandleAssignAndEquip(selectedEquipmentForPanel)">
+                                    <i class="fas fa-gift"></i> Assign & Equip
+                                </button>
+                            }
+                        </div>
+
+                        @if (selectedEquipmentForPanel.IsRelic && selectedEquipmentForPanel.Unique)
+                        {
+                            <div class="d-flex flex-wrap gap-2 mt-2 pt-2 border-top">
+                                @if (!AcquiredRelicIds.Contains(selectedEquipmentForPanel.Id) && OnMarkAcquired.HasDelegate)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-warning flex-fill"
+                                            @onclick="() => HandleMarkAcquired(selectedEquipmentForPanel)">
+                                        <i class="fas fa-check-circle"></i> Mark as Acquired
+                                    </button>
+                                }
+                                @if (AcquiredRelicIds.Contains(selectedEquipmentForPanel.Id) && OnMarkAvailable.HasDelegate)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-secondary flex-fill"
+                                            @onclick="() => HandleMarkAvailable(selectedEquipmentForPanel)">
+                                        <i class="fas fa-undo"></i> Mark as Available
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<Equipment> Equipment { get; set; } = new();
+
+    // Legacy parameters - kept for backward compatibility but no longer used internally
+    [Parameter]
+    public List<Weapon> Weapons { get; set; } = new();
+
+    [Parameter]
+    public List<Armor> Armors { get; set; } = new();
+
+    [Parameter]
+    public List<Item> Items { get; set; } = new();
+
+    [Parameter]
+    public List<Equipment> Relics { get; set; } = new();
+
+    [Parameter]
+    public string? SelectedEquipmentId { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnEquipmentSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnBuy { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnBuyAndEquip { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnSell { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnRemove { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnAssign { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnAssignAndEquip { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnMoveToStash { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnMarkAcquired { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnMarkAvailable { get; set; }
+
+    [Parameter]
+    public List<string> AcquiredRelicIds { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRollRandomRelic { get; set; }
+
+    [Parameter]
+    public bool ShowTabs { get; set; } = true;
+
+    [Parameter]
+    public bool ShowSearch { get; set; } = true;
+
+    [Parameter]
+    public bool ShowPrice { get; set; } = false;
+
+    [Parameter]
+    public bool ShowActions { get; set; } = false;
+
+    [Parameter]
+    public Func<Equipment, int?>? PriceCalculator { get; set; }
+
+    [Parameter]
+    public Func<Equipment, int?>? SellPriceCalculator { get; set; }
+
+    [Parameter]
+    public string? TraderName { get; set; }
+
+    [Parameter]
+    public List<string>? DisabledEquipmentIds { get; set; }
+
+    [Parameter]
+    public string InitialTab { get; set; } = "all";
+
+    [Parameter]
+    public bool UseCompactMode { get; set; } = false;
+
+    [Parameter]
+    public string CurrencySymbol { get; set; } = "G";
+
+    [Parameter]
+    public bool DisableBuyButton { get; set; } = false;
+
+    [Parameter]
+    public int? WarbandMoney { get; set; }
+
+    private string activeTab = "all";
+    private string searchQuery = string.Empty;
+    private string weaponHandFilter = "all";
+    private string weaponTypeFilter = "all";
+    private string relicCategoryFilter = "all";
+    private Equipment? selectedEquipmentForPanel;
+    private int? selectedEquipmentPrice;
+
+    protected override void OnInitialized()
+    {
+        activeTab = InitialTab;
+        Logger.LogInformation("EquipmentSelector OnInitialized - OnBuy.HasDelegate: {HasDelegate}", OnBuy.HasDelegate);
+    }
+
+    protected override void OnParametersSet()
+    {
+        Logger.LogInformation("EquipmentSelector OnParametersSet - OnBuy.HasDelegate: {HasDelegate}", OnBuy.HasDelegate);
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        searchQuery = string.Empty;
+        weaponHandFilter = "all";
+        weaponTypeFilter = "all";
+    }
+
+    private void SetTabAll() => SetActiveTab("all");
+    private void SetTabWeapons() => SetActiveTab("weapons");
+    private void SetTabArmor() => SetActiveTab("armor");
+    private void SetTabItems() => SetActiveTab("items");
+    private void SetTabRelics() => SetActiveTab("relics");
+
+    private void ClearSearch()
+    {
+        searchQuery = string.Empty;
+    }
+
+    private List<Equipment> GetFilteredEquipment(string tab)
+    {
+        // Use unified Equipment list directly - no conversion needed!
+        var allEquipment = new List<Equipment>(Equipment);
+
+        // Legacy support: If old parameters are used, convert and add them
+        // TODO: Remove this once all callers are updated to use Equipment parameter
+        if (Weapons.Any() || Armors.Any() || Items.Any() || Relics.Any())
+        {
+            allEquipment.AddRange(ConvertLegacyParameters());
+        }
+
+        return tab switch
+        {
+            "weapons" => allEquipment.Where(e => e.IsWeapon).OrderBy(e => e.Name).ToList(),
+            "armor" => allEquipment.Where(e => e.IsArmor).OrderBy(e => e.Name).ToList(),
+            "items" => allEquipment.Where(e => e.IsItem || e.IsAmmo || e.IsConsumable).OrderBy(e => e.Name).ToList(),
+            "relics" => allEquipment.Where(e => e.IsRelic).OrderBy(e => e.Name).ToList(),
+            _ => allEquipment.OrderBy(e => e.Name).ToList()
+        };
+    }
+
+    // Legacy conversion - TODO: Remove once all callers are updated
+    private List<Equipment> ConvertLegacyParameters()
+    {
+        var converted = new List<Equipment>();
+
+        // Convert Weapons
+        foreach (var weapon in Weapons)
+        {
+            converted.Add(new Equipment
+            {
+                Id = weapon.Id,
+                Name = weapon.Name,
+                Type = "weapon",
+                Category = weapon.Category,
+                Damage = weapon.Damage,
+                Properties = weapon.Properties,
+                Stat = weapon.Stat,
+                Cost = weapon.Cost ?? 0,
+                Slots = weapon.Slots,
+                IconClass = weapon.IconClass
+            });
+        }
+
+        // Convert Armors
+        foreach (var armor in Armors)
+        {
+            converted.Add(new Equipment
+            {
+                Id = armor.Id,
+                Name = armor.Name,
+                Type = "armor",
+                Cost = armor.Cost ?? 0,
+                Slots = armor.Slots,
+                ArmorValue = armor.ArmorValue,
+                ArmorType = armor.ArmorType,
+                Special = armor.Special,
+                IconClass = armor.IconClass
+            });
+        }
+
+        // Convert Items
+        foreach (var item in Items)
+        {
+            converted.Add(new Equipment
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Type = "item",
+                Cost = item.Cost ?? 0,
+                Slots = item.Slots,
+                Effect = item.Effect,
+                IconClass = item.IconClass
+            });
+        }
+
+        // Add Relics (already Equipment type)
+        converted.AddRange(Relics);
+
+        return converted;
+    }
+
+    private async Task HandleEquipmentClick(Equipment equipment)
+    {
+        if (UseCompactMode)
+        {
+            // In compact mode, open side panel
+            selectedEquipmentForPanel = equipment;
+            selectedEquipmentPrice = PriceCalculator?.Invoke(equipment);
+            StateHasChanged();
+        }
+        else if (OnEquipmentSelected.HasDelegate)
+        {
+            await OnEquipmentSelected.InvokeAsync(equipment);
+        }
+    }
+
+    private void CloseSidePanel()
+    {
+        selectedEquipmentForPanel = null;
+        selectedEquipmentPrice = null;
+    }
+
+    [Inject]
+    public ILogger<EquipmentSelector> Logger { get; set; } = null!;
+
+    private async Task HandleBuy(Equipment equipment)
+    {
+        Logger.LogInformation("HandleBuy called for {EquipmentName}, HasDelegate: {HasDelegate}, Equipment null: {EquipmentNull}",
+            equipment?.Name, OnBuy.HasDelegate, equipment == null);
+
+        if (equipment == null)
+        {
+            Logger.LogWarning("Equipment is null in HandleBuy");
+            return;
+        }
+
+        if (OnBuy.HasDelegate)
+        {
+            Logger.LogInformation("Invoking OnBuy callback with equipment: {EquipmentId}", equipment.Id);
+            await OnBuy.InvokeAsync(equipment);
+            Logger.LogInformation("OnBuy callback completed");
+        }
+        else
+        {
+            Logger.LogWarning("OnBuy has no delegate - callback not set from parent");
+        }
+    }
+
+    private async Task HandleBuyAndEquip(Equipment equipment)
+    {
+        Logger.LogInformation("HandleBuyAndEquip called for {EquipmentName}, HasDelegate: {HasDelegate}", equipment?.Name, OnBuyAndEquip.HasDelegate);
+        if (OnBuyAndEquip.HasDelegate)
+        {
+            await OnBuyAndEquip.InvokeAsync(equipment);
+        }
+    }
+
+    private async Task HandleAssignAndEquip(Equipment equipment)
+    {
+        Logger.LogInformation("HandleAssignAndEquip called for {EquipmentName}, HasDelegate: {HasDelegate}", equipment?.Name, OnAssignAndEquip.HasDelegate);
+        if (OnAssignAndEquip.HasDelegate)
+        {
+            await OnAssignAndEquip.InvokeAsync(equipment);
+        }
+    }
+
+    private async Task HandleSell(Equipment equipment)
+    {
+        Logger.LogInformation("HandleSell called for {EquipmentName}, HasDelegate: {HasDelegate}", equipment?.Name, OnSell.HasDelegate);
+        if (OnSell.HasDelegate)
+        {
+            await OnSell.InvokeAsync(equipment);
+        }
+    }
+
+    private async Task HandleRemove(Equipment equipment)
+    {
+        if (OnRemove.HasDelegate)
+        {
+            await OnRemove.InvokeAsync(equipment);
+        }
+    }
+
+    private async Task HandleAssign(Equipment equipment)
+    {
+        if (OnAssign.HasDelegate)
+        {
+            await OnAssign.InvokeAsync(equipment);
+        }
+    }
+
+    private async Task HandleMarkAcquired(Equipment equipment)
+    {
+        if (OnMarkAcquired.HasDelegate)
+        {
+            await OnMarkAcquired.InvokeAsync(equipment);
+        }
+    }
+
+    private async Task HandleMarkAvailable(Equipment equipment)
+    {
+        if (OnMarkAvailable.HasDelegate)
+        {
+            await OnMarkAvailable.InvokeAsync(equipment);
+        }
+    }
+
+    private EventCallback<Equipment> GetBuyCallback() => OnBuy.HasDelegate ? OnBuy : default;
+    private EventCallback<Equipment> GetBuyAndEquipCallback() => OnBuyAndEquip.HasDelegate ? OnBuyAndEquip : default;
+    private EventCallback<Equipment> GetSellCallback() => OnSell.HasDelegate ? OnSell : default;
+    private EventCallback<Equipment> GetRemoveCallback() => OnRemove.HasDelegate ? OnRemove : default;
+    private EventCallback<Equipment> GetAssignCallback() => OnAssign.HasDelegate ? OnAssign : default;
+    private EventCallback<Equipment> GetAssignAndEquipCallback() => OnAssignAndEquip.HasDelegate ? OnAssignAndEquip : default;
+    private EventCallback<Equipment> GetMoveToStashCallback() => OnMoveToStash.HasDelegate ? OnMoveToStash : default;
+    private EventCallback<Equipment> GetMarkAcquiredCallback() => OnMarkAcquired.HasDelegate ? OnMarkAcquired : default;
+    private EventCallback<Equipment> GetMarkAvailableCallback() => OnMarkAvailable.HasDelegate ? OnMarkAvailable : default;
+
+    private async Task HandleRollRandomRelic()
+    {
+        if (OnRollRandomRelic.HasDelegate)
+        {
+            await OnRollRandomRelic.InvokeAsync();
+        }
+    }
+}

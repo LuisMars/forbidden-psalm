@@ -1,0 +1,203 @@
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+
+<div class="row">
+    <div class="@(selectedInjury != null ? "col-md-7" : "col-12")">
+        <div class="d-flex gap-2 mb-3">
+            <input type="search"
+                   class="form-control"
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   placeholder="Search injuries..." />
+            <button type="button"
+                    class="btn btn-primary"
+                    @onclick="HandleRollRandom"
+                    disabled="@(!OnRollInjury.HasDelegate)">
+                <i class="fas fa-dice-d20"></i> Roll Random Injury
+            </button>
+        </div>
+
+        <div style="max-height: 500px; overflow-y: auto;">
+            @* Current Injuries Section *@
+            @if (GetCurrentInjuries().Any())
+            {
+                <div class="mb-3">
+                    <h4 class="h6 text-danger text-uppercase mb-2">Current Injuries</h4>
+                    <div class="d-flex flex-column gap-1">
+                        @foreach (var injury in GetCurrentInjuries())
+                        {
+                            var isSelected = selectedInjury?.Name == injury.Name;
+                            <div class="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer @(isSelected ? "border-primary bg-primary bg-opacity-10" : "")"
+                                 role="button"
+                                 @onclick="() => SelectItem(injury)">
+                                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                    <span class="fw-semibold">@injury.Name</span>
+                                </div>
+                                @if (OnRemoveInjury.HasDelegate)
+                                {
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger flex-shrink-0"
+                                            @onclick:stopPropagation="true"
+                                            @onclick="() => OnRemoveInjury.InvokeAsync(injury.Name)"
+                                            title="Remove injury">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                }
+                                @if (isSelected)
+                                {
+                                    <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* Available Injuries Section *@
+            @if (GetAvailableInjuries().Any())
+            {
+                <div class="mb-3">
+                    <h4 class="h6 text-danger text-uppercase mb-2">Available Injuries</h4>
+                    <div class="d-flex flex-column gap-1">
+                        @foreach (var injury in GetAvailableInjuries())
+                        {
+                            var isSelected = selectedInjury?.Name == injury.Name;
+                            <div class="d-flex align-items-center justify-content-between border rounded p-2 cursor-pointer @(isSelected ? "border-primary bg-primary bg-opacity-10" : "")"
+                                 role="button"
+                                 @onclick="() => SelectItem(injury)">
+                                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                    <span class="fw-semibold">@injury.Name</span>
+                                </div>
+                                @if (isSelected)
+                                {
+                                    <i class="fas fa-check-circle text-primary flex-shrink-0"></i>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!GetFilteredInjuries().Any())
+            {
+                <div class="text-center py-5 text-body-secondary">
+                    <i class="fas fa-search fa-3x mb-3 d-block"></i>
+                    <p class="mb-0">No injuries found</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (selectedInjury != null)
+    {
+        <div class="col-md-5">
+            <div class="card position-sticky" style="top: 1rem;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="h5 mb-0">@selectedInjury.Name</h3>
+                    <button type="button" class="btn btn-sm btn-secondary" @onclick="CloseSidePanel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-body-secondary">Type:</span>
+                        <span class="badge text-bg-danger">@selectedInjury.Type</span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(selectedInjury.Category))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">Category:</span>
+                            <span class="fw-semibold">@selectedInjury.Category</span>
+                        </div>
+                    }
+
+                    <div class="mb-2">
+                        <span class="text-body-secondary d-block mb-1">Effect:</span>
+                        <span>@selectedInjury.Effect</span>
+                    </div>
+
+                    @if (selectedInjury.Roll.HasValue)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">D20 Roll:</span>
+                            <span class="badge text-bg-primary">@selectedInjury.Roll</span>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(selectedInjury.Duration))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-body-secondary">Duration:</span>
+                            <span class="fw-semibold">@selectedInjury.Duration</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer">
+                    <button type="button"
+                            class="btn btn-primary w-100"
+                            @onclick="() => OnSelectInjury.InvokeAsync(selectedInjury.Name)"
+                            disabled="@(CurrentInjuryNames.Contains(selectedInjury.Name) || !OnSelectInjury.HasDelegate)">
+                        <i class="fas fa-plus"></i> Add Injury
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<InjuryOption> AvailableInjuries { get; set; } = new();
+
+    [Parameter]
+    public List<string> CurrentInjuryNames { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRollInjury { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSelectInjury { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnRemoveInjury { get; set; }
+
+    private InjuryOption? selectedInjury;
+    private string searchTerm = "";
+
+    private void SelectItem(InjuryOption injury)
+    {
+        selectedInjury = injury;
+    }
+
+    private void CloseSidePanel()
+    {
+        selectedInjury = null;
+    }
+
+    private async Task HandleRollRandom()
+    {
+        await OnRollInjury.InvokeAsync();
+    }
+
+    private IEnumerable<InjuryOption> GetFilteredInjuries()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return AvailableInjuries;
+
+        return AvailableInjuries.Where(i =>
+            i.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            i.Effect.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IEnumerable<InjuryOption> GetCurrentInjuries()
+    {
+        return GetFilteredInjuries().Where(i => CurrentInjuryNames.Contains(i.Name));
+    }
+
+    private IEnumerable<InjuryOption> GetAvailableInjuries()
+    {
+        return GetFilteredInjuries().Where(i => !CurrentInjuryNames.Contains(i.Name));
+    }
+}

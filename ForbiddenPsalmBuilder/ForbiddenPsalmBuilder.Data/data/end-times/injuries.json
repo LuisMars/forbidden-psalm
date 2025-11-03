@@ -1,0 +1,244 @@
+[
+  {
+    "roll": 1,
+    "name": "Lasting Injury",
+    "effect": "Roll for new Flaw (in addition to existing Flaws). Reroll duplicates",
+    "type": "permanent",
+    "category": "flaw",
+    "effects": [
+      {
+        "type": "flaw_gain",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "roll": 2,
+    "name": "Weak Immune System",
+    "effect": "Auto-fails tests against Diseased and Poisoned",
+    "type": "permanent",
+    "category": "vulnerability"
+  },
+  {
+    "roll": 3,
+    "name": "Internal Bleeding",
+    "effect": "If Downed in next Scenario, auto-fails Death Save",
+    "type": "temporary",
+    "category": "conditional",
+    "duration": "next scenario"
+  },
+  {
+    "roll": 4,
+    "name": "Broken Bones",
+    "effect": "-1 Agility",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "agility",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 5,
+    "name": "Saddened",
+    "effect": "-1 Presence",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "presence",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 6,
+    "name": "Weak",
+    "effect": "-1 Strength",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "strength",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 7,
+    "name": "Malaise",
+    "effect": "-1 Toughness (can be cured with Tincture)",
+    "type": "curable",
+    "category": "stat_reduction",
+    "cure": "Tincture",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "toughness",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 8,
+    "name": "Maimed",
+    "effect": "-1 HP",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "hp",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 9,
+    "name": "Lost Limb",
+    "effect": "Can only use One-Handed Weapons, has 1 fewer Equipment slot",
+    "type": "permanent",
+    "category": "restriction",
+    "effects": [
+      {
+        "type": "equipment_restriction",
+        "weaponTypes": [
+          "one_handed"
+        ],
+        "slotModifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 10,
+    "name": "Missing Eye",
+    "effect": "Maximum range for ranged attacks and spells reduced by 3 inches",
+    "type": "permanent",
+    "category": "combat_penalty",
+    "effects": [
+      {
+        "type": "combat_modifier",
+        "rangeReduction": 3
+      }
+    ]
+  },
+  {
+    "roll": 11,
+    "name": "Afraid",
+    "effect": "Auto-fails Morale during next Scenario",
+    "type": "temporary",
+    "category": "conditional",
+    "duration": "next scenario"
+  },
+  {
+    "roll": 12,
+    "name": "Concussed",
+    "effect": "-1 to all rolls for next Scenario only",
+    "type": "temporary",
+    "category": "general_penalty",
+    "duration": "next scenario",
+    "effects": [
+      {
+        "type": "general_modifier",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 13,
+    "name": "Sprained Ankle",
+    "effect": "-1 Agility for next Scenario only",
+    "type": "temporary",
+    "category": "stat_reduction",
+    "duration": "next scenario",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "agility",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 14,
+    "name": "Bruised Eye",
+    "effect": "-1 Presence for next Scenario only",
+    "type": "temporary",
+    "category": "stat_reduction",
+    "duration": "next scenario",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "presence",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 15,
+    "name": "Bruised Ribs",
+    "effect": "-1 Toughness for next Scenario only",
+    "type": "temporary",
+    "category": "stat_reduction",
+    "duration": "next scenario",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "toughness",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 16,
+    "name": "Discombobulated",
+    "effect": "Swap two Stats at random",
+    "type": "permanent",
+    "category": "stat_modification",
+    "effects": [
+      {
+        "type": "stat_swap",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "roll": 17,
+    "name": "Forgetful",
+    "effect": "Immediately lose one random piece of Equipment/Weapon permanently",
+    "type": "permanent",
+    "category": "equipment_loss"
+  },
+  {
+    "roll": 18,
+    "name": "Only a Flesh Wound",
+    "effect": "No Injury",
+    "type": "none",
+    "category": "positive"
+  },
+  {
+    "roll": 19,
+    "name": "Learn through Failure",
+    "effect": "Roll for one extra Feat",
+    "type": "positive",
+    "category": "feat_gain",
+    "effects": [
+      {
+        "type": "feat_gain",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "roll": 20,
+    "name": "What Doesn't Kill You",
+    "effect": "Remove one Flaw from this warband member",
+    "type": "positive",
+    "category": "flaw_removal"
+  }
+]

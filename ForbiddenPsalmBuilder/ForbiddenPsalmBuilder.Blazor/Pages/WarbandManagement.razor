@@ -1,0 +1,637 @@
+@page "/warband/{WarbandId}"
+@using ForbiddenPsalmBuilder.Core.Services.State
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Core.DTOs
+@using ForbiddenPsalmBuilder.Core.Validation
+@using ForbiddenPsalmBuilder.Blazor.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@inject IGameStateService StateService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@inject ForbiddenPsalmBuilder.Core.Services.FeatFlawService FeatFlawService
+@inject ForbiddenPsalmBuilder.Core.Services.InjuryService InjuryService
+@inject ForbiddenPsalmBuilder.Core.Services.SpellService SpellService
+<PageTitle>@(warband?.Name ?? "Warband") - Forbidden Psalm Builder</PageTitle>
+<main class="container-fluid py-4">
+    @if (warband == null)
+    {
+        <section class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+            <div class="text-center">
+                @if (isLoading)
+                {
+                    <section>
+                        <div role="status" class="spinner-border text-primary mb-3" aria-hidden="true"></div>
+                        <p class="text-body-secondary">Loading warband...</p>
+                    </section>
+                }
+                else
+                {
+                    <section class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                        <h3 class="h4">Warband Not Found</h3>
+                        <p class="mb-3">The warband you're looking for doesn't exist or has been deleted.</p>
+                        <button class="btn btn-primary" @onclick="GoHome">
+                            <i class="fas fa-home"></i>
+                            Go Home
+                        </button>
+                    </section>
+                }
+            </div>
+        </section>
+    }
+    else
+    {
+        <!-- Web-only Header with Actions -->
+        <section class="mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <button class="btn btn-secondary" @onclick="GoHome">
+                    <i class="fas fa-home"></i>
+                    Home
+                </button>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-warning" @onclick="() => showXpSpenderModal = true" disabled="@(!CanSpendXp())">
+                        <i class="fas fa-star"></i>
+                        Spend XP (@warband.Experience)
+                    </button>
+                    <button class="btn btn-primary" @onclick="() => showEditModal = true">
+                        <i class="fas fa-edit"></i>
+                        Rename
+                    </button>
+                    <button class="btn btn-info" @onclick="() => showStashModal = true">
+                        <i class="fas fa-box-open"></i>
+                        Stash
+                    </button>
+                    <button class="btn btn-success" @onclick="AddCharacter" disabled="@(!warband.CanAddMember)">
+                        <i class="fas fa-user"></i>
+                        Add Member
+                    </button>
+                    <button class="btn btn-secondary" @onclick="PrintWarband">
+                        <i class="fas fa-print"></i>
+                        Print
+                    </button>
+                    <button class="btn btn-primary" @onclick="() => showExportModal = true">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                    <button class="btn btn-info" @onclick="() => showImportModal = true">
+                        <i class="fas fa-upload"></i>
+                        Import
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- Warband Title and Stats -->
+        <section class="mb-4">
+            <div class="d-flex justify-content-between align-items-start gap-4">
+                <h1 class="display-4 mb-0">
+                @warband.Name
+                </h1>
+                <div class="d-flex gap-3">
+                    <div>
+                        <label for="warbandGold" class="form-label small fw-bold">@GetCurrencyName()</label>
+                        <NumberInput @bind-Value="warband.Gold" @bind-Value:after="AutoSaveWarband" Min="0" Max="9999" Step="1" />
+                    </div>
+                    <div>
+                        <label for="warbandXP" class="form-label small fw-bold">Experience</label>
+                        <NumberInput @bind-Value="warband.Experience" @bind-Value:after="AutoSaveWarband" Min="0" Max="999" Step="1" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Warband Members -->
+        <section class="mb-4">
+            @if (warband.Members.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var character in warband.Members)
+                    {
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <CharacterCard
+                                Character="@character"
+                                SpecialClassIcon="@GetSpecialClassIcon(character.SpecialClassId)"
+                                FeatOptions="@GetFeatOptions(character.Feats)"
+                                FlawOptions="@GetFlawOptions(character.Flaws)"
+                                InjuryOptions="@GetInjuryOptions(character.Injuries)"
+                                SpellOptions="@GetSpellOptions(character.Spells)"
+                                OnEdit="@(() => EditCharacter(character.Id))"
+                                OnDelete="@((isDead) => RemoveCharacter(character.Id, isDead))" />
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <section class="text-center py-5">
+                    <i class="ra ra-muscle-up fa-4x text-primary mb-3"></i>
+                    <p class="lead">No members in this warband yet.</p>
+                    <p class="text-body-secondary mb-3">Add your first character to get started!</p>
+                    <button class="btn btn-primary btn-lg" @onclick="AddCharacter">
+                        <i class="fas fa-user"></i>
+                        Add First Member
+                    </button>
+                </section>
+            }
+        </section>
+
+        <!-- Warband Stash -->
+        @if (warband.Stash.Any())
+        {
+            <section class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h3 mb-0">Warband Stash (@warband.Stash.Count items)</h2>
+                    <button class="btn btn-info" @onclick="() => showStashModal = true">
+                        <i class="fas fa-exchange-alt"></i>
+                        Manage
+                    </button>
+                </div>
+                <div class="row g-3">
+                    @foreach (var equipment in warband.Stash)
+                    {
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <EquipmentCard
+                                Equipment="equipment"
+                                CompactMode="false"
+                                ShowActions="false"
+                                ShowPrice="false" />
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+    }
+    <!-- Rename Warband Modal -->
+    <Modal
+        IsVisible="@(showEditModal && warband != null)"
+        Title="Rename Warband"
+        OnClose="CancelEdit">
+        <EditForm Model="editWarbandDto" OnValidSubmit="SaveWarband">
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label for="warbandName" class="form-label">Warband Name</label>
+                <div class="input-group">
+                    <InputText
+                        id="warbandName"
+                        class="form-control"
+                        @bind-Value="editWarbandDto.Name"
+                        placeholder="Enter warband name..." />
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        @onclick="GenerateNewName"
+                        title="Generate new random name">
+                        <i class="fas fa-dice"></i>
+                    </button>
+                </div>
+                <ValidationMessage For="@(() => editWarbandDto.Name)" class="text-danger" />
+            </div>
+            @if (validationErrors.Any())
+            {
+                <aside class="alert alert-danger" role="alert">
+                    <strong>Validation Errors:</strong>
+                    <ul class="mb-0">
+                        @foreach (var error in validationErrors)
+                        {
+                            <li>
+                            @error
+                            </li>
+                        }
+                    </ul>
+                </aside>
+            }
+            <footer class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-secondary" @onclick="CancelEdit">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary" disabled="@(!IsValidForm())">
+                    <i class="fas fa-save"></i>
+                    Save Changes
+                </button>
+            </footer>
+        </EditForm>
+    </Modal>
+
+    <!-- Stash Modal -->
+    <StashModal
+        Warband="@warband"
+        IsVisible="@showStashModal"
+        OnClose="CloseStashModal"
+        OnEquipmentChanged="LoadWarband" />
+
+    <!-- Warband XP Spender Modal -->
+    @if (showXpSpenderModal && warband != null)
+    {
+        <Modal IsVisible="true" Title="Spend Warband XP" OnClose="CloseXpSpenderModal" ModalDialogClass="modal-lg">
+            <WarbandXpSpender
+                WarbandId="@WarbandId"
+                Warband="@warband"
+                OnClose="CloseXpSpenderModal"
+                OnXpSpent="HandleXpSpent" />
+        </Modal>
+    }
+
+    <!-- Export Modal -->
+    @if (showExportModal && warband != null)
+    {
+        <Modal IsVisible="true" Title="Export Warband" OnClose="CloseExportModal" ModalDialogClass="modal-lg">
+            <ExportOptionsModal
+                Warband="@warband"
+                OnClose="CloseExportModal"
+                OnExport="HandleExport" />
+        </Modal>
+    }
+
+    <!-- Import Modal -->
+    @if (showImportModal)
+    {
+        <Modal IsVisible="true" Title="Import Warband" OnClose="CloseImportModal" ModalDialogClass="modal-lg">
+            <ImportWarbandModal
+                OnClose="CloseImportModal"
+                OnImportSuccess="HandleImportSuccess" />
+        </Modal>
+    }
+</main>
+
+@code {
+    [Parameter] public string WarbandId { get; set; } = string.Empty;
+
+    private Warband? warband;
+    private EditWarbandDto editWarbandDto = new();
+    private List<string> validationErrors = new();
+    private bool isLoading = true;
+    private bool showEditModal = false;
+    private bool showStashModal = false;
+    private bool showXpSpenderModal = false;
+    private bool showExportModal = false;
+    private bool showImportModal = false;
+    private List<FeatFlawOption> availableFeats = new();
+    private List<FeatFlawOption> availableFlaws = new();
+    private List<InjuryOption> availableInjuries = new();
+    private List<SpellOption> availableSpells = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWarband();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(WarbandId))
+        {
+            await LoadWarband();
+        }
+    }
+
+    private async Task LoadWarband()
+    {
+        isLoading = true;
+        validationErrors.Clear();
+
+        try
+        {
+            warband = await StateService.GetWarbandAsync(WarbandId);
+
+            if (warband != null)
+            {
+                // Set this warband as active when navigating to it
+                await StateService.SetActiveWarbandAsync(WarbandId);
+
+                editWarbandDto = new EditWarbandDto
+                {
+                    Id = warband.Id,
+                    Name = warband.Name,
+                    Gold = warband.Gold,
+                    Experience = warband.Experience,
+                    GameVariant = warband.GameVariant
+                };
+
+                // Load feats/flaws/injuries/spells for this game variant
+                availableFeats = await FeatFlawService.GetFeatsAsync(warband.GameVariant);
+                availableFlaws = await FeatFlawService.GetFlawsAsync(warband.GameVariant);
+                availableInjuries = await InjuryService.GetInjuriesAsync(warband.GameVariant);
+                availableSpells = await SpellService.GetSpellsAsync(warband.GameVariant);
+            }
+        }
+        catch (Exception ex)
+        {
+            await StateService.SetErrorAsync($"Failed to load warband: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveWarband()
+    {
+        if (warband == null) return;
+
+        validationErrors.Clear();
+
+        try
+        {
+            // Update the warband name
+            warband.Name = editWarbandDto.Name.Trim();
+
+            // Save the updated warband
+            await StateService.UpdateWarbandAsync(warband);
+
+            // Close modal and refresh
+            showEditModal = false;
+            await LoadWarband();
+        }
+        catch (Exception ex)
+        {
+            await StateService.SetErrorAsync($"Failed to save warband: {ex.Message}");
+        }
+    }
+
+    private void CancelEdit()
+    {
+        showEditModal = false;
+        validationErrors.Clear();
+
+        // Reset the form to original values
+        if (warband != null)
+        {
+            editWarbandDto = new EditWarbandDto
+            {
+                Id = warband.Id,
+                Name = warband.Name,
+                Gold = warband.Gold,
+                Experience = warband.Experience,
+                GameVariant = warband.GameVariant
+            };
+        }
+    }
+
+    private async Task AutoSaveWarband()
+    {
+        if (warband == null) return;
+
+        try
+        {
+            await StateService.UpdateWarbandAsync(warband);
+        }
+        catch (Exception ex)
+        {
+            await StateService.SetErrorAsync($"Failed to save warband: {ex.Message}");
+        }
+    }
+
+    private async Task GenerateNewName()
+    {
+        editWarbandDto.Name = await StateService.GenerateWarbandNameAsync();
+        StateHasChanged();
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private async Task AddCharacter()
+    {
+        if (warband == null) return;
+
+        try
+        {
+            // Create a new character immediately
+            var newCharacter = new Character(await StateService.GenerateCharacterNameAsync(warband.GameVariant))
+            {
+                Stats = new Stats(0, 0, 0, 0)
+            };
+
+            var characterId = await StateService.AddCharacterToWarbandAsync(warband.Id, newCharacter);
+
+            // Navigate to edit the newly created character
+            Navigation.NavigateTo($"/warband/{WarbandId}/character/{characterId}");
+        }
+        catch (Exception ex)
+        {
+            await StateService.SetErrorAsync($"Failed to create character: {ex.Message}");
+        }
+    }
+
+    private void EditCharacter(string characterId)
+    {
+        Navigation.NavigateTo($"/warband/{WarbandId}/character/{characterId}");
+    }
+
+    private string? GetSpecialClassIcon(string? specialClassId)
+    {
+        if (string.IsNullOrEmpty(specialClassId) || warband == null) return null;
+
+        var specialClass = StateService.GetSpecialClassByIdAsync(specialClassId, warband.GameVariant).GetAwaiter().GetResult();
+        return specialClass?.IconClass;
+    }
+
+    private async Task RemoveCharacter(string characterId, bool isDead)
+    {
+        if (warband == null) return;
+
+        try
+        {
+            await StateService.RemoveCharacterFromWarbandAsync(warband.Id, characterId, isDead);
+            await LoadWarband(); // Refresh the page
+        }
+        catch (Exception ex)
+        {
+            await StateService.SetErrorAsync($"Failed to remove character: {ex.Message}");
+        }
+    }
+
+
+    private bool IsValidForm()
+    {
+        if (editWarbandDto == null) return false;
+        if (string.IsNullOrWhiteSpace(editWarbandDto.Name)) return false;
+        return true;
+    }
+
+    private string GetGameVariantDisplayName(string variant)
+    {
+        return variant switch
+        {
+            "28-psalms" => "28 Psalms",
+            "end-times" => "Forbidden Psalm: End Times",
+            "last-war" => "The Last War",
+            _ => variant
+        };
+    }
+
+    private string GetCurrencyName()
+    {
+        return warband?.GameVariant switch
+        {
+            "28-psalms" => "Credits",
+            "end-times" => "Gold",
+            "last-war" => "Resources",
+            _ => "Gold"
+        };
+    }
+
+    private string GetCurrencySymbol()
+    {
+        return warband?.GameVariant switch
+        {
+            "28-psalms" => "C",
+            "end-times" => "G",
+            "last-war" => "R",
+            _ => "G"
+        };
+    }
+
+    private List
+<
+ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem> GetWarbandStats()
+    {
+        if (warband == null) return new List
+<
+ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem>();
+
+        return new List
+<
+ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem>
+        {
+            new ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem
+            {
+                Value = $"{warband.Gold}{GetCurrencySymbol()}",
+                Label = GetCurrencyName()
+            },
+            new ForbiddenPsalmBuilder.Components.StatsDisplay.StatItem
+            {
+                Value = $"{warband.Experience}",
+                Label = "Experience"
+            }
+        };
+    }
+
+    private List
+<
+ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem> GetBreadcrumbItems()
+    {
+        return new List
+<
+ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem>
+        {
+            new ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem
+            {
+                Text = "Home",
+                Href = "/"
+            },
+            new ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem
+            {
+                Text = warband?.Name ?? "Warband",
+                Href = null
+            }
+        };
+    }
+
+    private async Task PrintWarband()
+    {
+        await JSRuntime.InvokeVoidAsync("window.print");
+    }
+
+    private void CloseStashModal()
+    {
+        showStashModal = false;
+    }
+
+    private void CloseXpSpenderModal()
+    {
+        showXpSpenderModal = false;
+    }
+
+    private async Task HandleXpSpent()
+    {
+        await LoadWarband(); // Refresh warband to show updated XP and resurrected members
+    }
+
+    private bool CanSpendXp()
+    {
+        if (warband == null) return false;
+        // Can spend XP if there are dead members and enough XP
+        return warband.DeadMembers.Any() && warband.Experience >= 5;
+    }
+
+    private void CloseExportModal()
+    {
+        showExportModal = false;
+    }
+
+    private void CloseImportModal()
+    {
+        showImportModal = false;
+    }
+
+    private async Task HandleExport((string content, string filename, string format) exportData)
+    {
+        try
+        {
+            // Use JSInterop to download the file
+            await JSRuntime.InvokeVoidAsync("downloadFile", exportData.filename, exportData.content);
+            showExportModal = false;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Export failed: {ex.Message}");
+        }
+    }
+
+    private async Task HandleImportSuccess(string importedWarbandId)
+    {
+        // Close modal and reload if we imported the current warband
+        showImportModal = false;
+        if (importedWarbandId == WarbandId)
+        {
+            await LoadWarband();
+        }
+        else
+        {
+            // Navigate to the imported warband
+            Navigation.NavigateTo($"/warband/{importedWarbandId}");
+        }
+    }
+
+    private List<FeatFlawOption> GetFeatOptions(List<string> featNames)
+    {
+        return featNames
+            .Select(name => availableFeats.FirstOrDefault(f => f.Name == name))
+            .Where(f => f != null)
+            .Cast<FeatFlawOption>()
+            .ToList();
+    }
+
+    private List<FeatFlawOption> GetFlawOptions(List<string> flawNames)
+    {
+        return flawNames
+            .Select(name => availableFlaws.FirstOrDefault(f => f.Name == name))
+            .Where(f => f != null)
+            .Cast<FeatFlawOption>()
+            .ToList();
+    }
+
+    private List<InjuryOption> GetInjuryOptions(List<string> injuryNames)
+    {
+        return injuryNames
+            .Select(name => availableInjuries.FirstOrDefault(i => i.Name == name))
+            .Where(i => i != null)
+            .Cast<InjuryOption>()
+            .ToList();
+    }
+
+    private List<SpellOption> GetSpellOptions(List<string> spellNames)
+    {
+        return spellNames
+            .Select(name => availableSpells.FirstOrDefault(s => s.Name == name))
+            .Where(s => s != null)
+            .Cast<SpellOption>()
+            .ToList();
+    }
+}

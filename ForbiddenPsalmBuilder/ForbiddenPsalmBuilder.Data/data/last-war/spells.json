@@ -1,0 +1,104 @@
+{
+  "spells": [
+    {
+      "name": "Burn the Wicked",
+      "effect": "Target makes Toughness test or begins to Burn",
+      "category": "sanctified"
+    },
+    {
+      "name": "Silencing the Dogs of War",
+      "effect": "Target weapon with Jam - on success weapon Jams",
+      "category": "sanctified"
+    },
+    {
+      "name": "Flap",
+      "effect": "Target makes Presence test. On failure flees battlefield per morale rules",
+      "category": "sanctified"
+    },
+    {
+      "name": "ZIGZAG",
+      "effect": "Target treated as -3 to hit for all Ranged Attacks (stacks with modifiers)",
+      "category": "sanctified"
+    },
+    {
+      "name": "Command",
+      "effect": "Target gains extra activation (once per Scenario only)",
+      "category": "sanctified"
+    },
+    {
+      "name": "Let There Be Light",
+      "effect": "Fog pushed back, all Ranged weapons become 24\" range next round",
+      "category": "sanctified"
+    },
+    {
+      "name": "Once More Unto the Breach",
+      "effect": "All models within 3\" of caster auto-pass morale for rest of Scenario",
+      "category": "sanctified"
+    },
+    {
+      "name": "Chin Up",
+      "effect": "Grants 2HP to target who has taken at least 2 damage",
+      "category": "sanctified"
+    },
+    {
+      "name": "Mistaken Identity",
+      "effect": "Target dead model removed from table but considered survived Scenario",
+      "category": "sanctified"
+    },
+    {
+      "name": "Artillery",
+      "effect": "Select point, all within 3\" make Agility test or take 1D10 damage. On failed cast centers on caster",
+      "category": "sanctified"
+    },
+    {
+      "name": "Booby Trap",
+      "effect": "Select terrain within 12\". Models within 1\" take 1D10 damage when triggered",
+      "category": "heathen"
+    },
+    {
+      "name": "Death Was Written Large",
+      "effect": "All Downed models are instead killed for remainder of Scenario",
+      "category": "heathen"
+    },
+    {
+      "name": "Blood For Blood",
+      "effect": "Caster can give their HP to another model (1:1 ratio)",
+      "category": "heathen"
+    },
+    {
+      "name": "Detonate",
+      "effect": "Target weapon with Explode. On pass weapon explodes. On fail caster takes 1D4 damage",
+      "category": "heathen"
+    },
+    {
+      "name": "Die Already",
+      "effect": "Target who has taken damage makes Presence test or drops to 1HP (doesn't work on Hostiles with 8+ HP)",
+      "category": "heathen"
+    },
+    {
+      "name": "Cries of the Wounded",
+      "effect": "Select two targets. Damage split equally between them, rounded down",
+      "category": "heathen"
+    },
+    {
+      "name": "Change the Tides",
+      "effect": "On success reroll Scenario condition. On Fumble roll twice and apply both",
+      "category": "heathen"
+    },
+    {
+      "name": "Basket Case",
+      "effect": "Target makes Presence test or takes 1D8 damage. On Fumble arms/legs fall off (AGI -10, can't use weapons). If pass caster takes 1D8 or on Critical caster's limbs fall off",
+      "category": "heathen"
+    },
+    {
+      "name": "Drain The Blood",
+      "effect": "Target gains Bleeding condition and loses 1\" movement",
+      "category": "heathen"
+    },
+    {
+      "name": "Cursed",
+      "effect": "Target makes Presence test. On failure cursed (-2 to all rolls until end)",
+      "category": "heathen"
+    }
+  ]
+}

@@ -1,0 +1,603 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Core.Services
+@using ForbiddenPsalmBuilder.Core.Services.State
+@using Microsoft.Extensions.Logging
+
+<Modal IsVisible="@IsVisible" OnClose="@OnClose" Title="Equipment Management">
+    <div class="modal-lg">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <div>
+                <span class="fw-semibold">@Warband?.Name</span>
+                <span class="badge text-bg-success ms-2">
+                    <i class="fas fa-coins"></i>
+                    @Warband?.Gold@GetCurrencySymbol()
+                </span>
+            </div>
+        </div>
+
+        <div class="btn-group mb-3 w-100" role="group">
+            <button type="button"
+                    class="btn @(activeTab == "stash" ? "btn-primary" : "btn-secondary")"
+                    @onclick="SetTabStash">
+                <i class="fas fa-box-open"></i>
+                Warband Stash (@(Warband?.Stash.Count ?? 0))
+            </button>
+            <button type="button"
+                    class="btn @(activeTab == "buy" ? "btn-primary" : "btn-secondary")"
+                    @onclick="SetTabBuy">
+                <i class="fas fa-shopping-cart"></i>
+                Buy Equipment
+            </button>
+            <button type="button"
+                    class="btn @(activeTab == "sell" ? "btn-primary" : "btn-secondary")"
+                    @onclick="SetTabSell"
+                    disabled="@(!HasStashEquipment())">
+                <i class="fas fa-coins"></i>
+                Sell Equipment
+            </button>
+        </div>
+
+        <div style="max-height: 60vh; overflow-y: auto;">
+            @if (activeTab == "stash")
+            {
+                <div>
+                    @if (HasStashEquipment())
+                    {
+                        <EquipmentSelector
+                            Equipment="@Warband!.Stash"
+                            ShowTabs="true"
+                            ShowSearch="true"
+                            ShowActions="true"
+                            AcquiredRelicIds="@(Warband?.AcquiredRelicIds ?? new())"
+                            OnAssign="ShowCharacterSelector"
+                            OnRemove="@(async (eq) => await RemoveFromStash(eq.Id))"
+                            OnMarkAcquired="@HandleMarkRelicAcquired"
+                            OnMarkAvailable="@HandleMarkRelicAvailable" />
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 text-body-secondary">
+                            <i class="fas fa-box-open fa-3x mb-3 d-block"></i>
+                            <p class="fw-semibold mb-2">Your stash is empty</p>
+                            <p class="small mb-0">Buy equipment to add items to your stash</p>
+                        </div>
+                    }
+                </div>
+            }
+            else if (activeTab == "buy")
+            {
+                <div>
+                    <TraderSelector
+                        Traders="@availableTraders"
+                        SelectedTraderId="@selectedTraderId"
+                        SelectedTraderIdChanged="@OnTraderChanged"
+                        Label="Select Trader (or leave empty to assign equipment)"
+                        AllowNone="true"
+                        ShowPricingInfo="true" />
+
+                    @if (selectedTrader?.HasLimitedInventory == true)
+                    {
+                        <div class="alert alert-info mb-3" role="alert">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button type="button" class="btn btn-sm btn-primary" @onclick="RollMerchantInventory">
+                                    <i class="fas fa-dice"></i> Roll Merchant Inventory
+                                </button>
+                                @if (merchantInventoryIds.Any())
+                                {
+                                    <span class="badge text-bg-success">
+                                        @merchantInventoryIds.Count items available
+                                    </span>
+                                    <button type="button" class="btn btn-sm btn-secondary" @onclick="ClearMerchantInventory">
+                                        <i class="fas fa-times"></i> Clear
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (string.IsNullOrEmpty(selectedTraderId))
+                    {
+                        <EquipmentSelector
+                            Equipment="@GetFilteredEquipment()"
+                            ShowTabs="true"
+                            ShowSearch="true"
+                            ShowPrice="false"
+                            ShowActions="true"
+                            UseCompactMode="true"
+                            CurrencySymbol="@GetCurrencySymbol()"
+                            AcquiredRelicIds="@(Warband?.AcquiredRelicIds ?? new())"
+                            OnAssign="@_handleAssignEquipment"
+                            OnMarkAcquired="@HandleMarkRelicAcquired"
+                            OnMarkAvailable="@HandleMarkRelicAvailable" />
+                    }
+                    else
+                    {
+                        <EquipmentSelector
+                            Equipment="@GetFilteredEquipment()"
+                            ShowTabs="true"
+                            ShowSearch="true"
+                            ShowPrice="true"
+                            ShowActions="true"
+                            UseCompactMode="true"
+                            CurrencySymbol="@GetCurrencySymbol()"
+                            WarbandMoney="@Warband?.Gold"
+                            PriceCalculator="@CalculateBuyPrice"
+                            DisabledEquipmentIds="@GetUnaffordableEquipmentIds()"
+                            DisableBuyButton="@((selectedTrader?.HasLimitedInventory == true && !merchantInventoryIds.Any()))"
+                            AcquiredRelicIds="@(Warband?.AcquiredRelicIds ?? new())"
+                            OnBuy="@_handleBuyEquipment"
+                            OnMarkAcquired="@HandleMarkRelicAcquired"
+                            OnMarkAvailable="@HandleMarkRelicAvailable" />
+                    }
+                </div>
+            }
+            else if (activeTab == "sell")
+            {
+                <div>
+                    <TraderSelector
+                        Traders="@availableTraders"
+                        SelectedTraderId="@selectedTraderId"
+                        SelectedTraderIdChanged="@OnTraderChanged"
+                        Label="Select Trader"
+                        AllowNone="true"
+                        ShowPricingInfo="true" />
+
+                    @if (!string.IsNullOrEmpty(selectedTraderId))
+                    {
+                        <EquipmentSelector
+                            Equipment="@Warband!.Stash"
+                            ShowTabs="true"
+                            ShowSearch="true"
+                            ShowPrice="true"
+                            ShowActions="true"
+                            PriceCalculator="@CalculateSellPrice"
+                            SellPriceCalculator="@CalculateSellPrice"
+                            TraderName="@selectedTrader?.Name"
+                            OnSell="@_handleSellEquipment" />
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 text-body-secondary">
+                            <i class="fas fa-hand-holding-usd fa-3x mb-3 d-block"></i>
+                            <p class="mb-0">Select a trader to sell equipment</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (showCharacterSelector && equipmentToAssign != null)
+        {
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="h5 mb-0">Assign Equipment to Character</h3>
+                    <button type="button" class="btn btn-sm btn-secondary" @onclick="CloseCharacterSelector">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var character in Warband!.Members)
+                        {
+                            var canEquip = StateService.CanCharacterEquip(Warband.Id, character.Id, equipmentToAssign);
+                            <div class="border rounded p-2 @(canEquip ? "cursor-pointer" : "bg-secondary bg-opacity-10 opacity-50")"
+                                 role="@(canEquip ? "button" : "")"
+                                 @onclick="async () => { if (canEquip) await AssignToCharacter(character.Id); }">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-semibold">@character.Name</span>
+                                    <span class="badge text-bg-secondary">
+                                        @character.Equipment.Sum(e => e.CalculateRequiredSlots())/@character.GetEffectiveEquipmentSlots() slots
+                                    </span>
+                                </div>
+                                @if (!canEquip)
+                                {
+                                    <span class="badge text-bg-danger mt-1">Cannot equip</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span>@errorMessage</span>
+                <button type="button" class="btn-close" @onclick="ClearError" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+</Modal>
+
+@code {
+    [Parameter, EditorRequired]
+    public Warband? Warband { get; set; }
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback OnEquipmentChanged { get; set; }
+
+    [Inject]
+    public IGameStateService StateService { get; set; } = null!;
+
+    [Inject]
+    public EquipmentService EquipmentService { get; set; } = null!;
+
+    [Inject]
+    public TraderService TraderService { get; set; } = null!;
+
+    [Inject]
+    public ILogger<StashModal> Logger { get; set; } = null!;
+
+    [Inject]
+    public IJSRuntime JSRuntime { get; set; } = null!;
+
+    private string activeTab = "stash";
+    private string? selectedTraderId;
+    private List<Trader> availableTraders = new();
+    private List<Equipment> availableEquipment = new();
+    private Trader? selectedTrader;
+    private bool showCharacterSelector = false;
+    private Equipment? equipmentToAssign;
+    private string? errorMessage;
+    private List<string> merchantInventoryIds = new();
+
+    private EventCallback<Equipment> _handleBuyEquipment;
+    private EventCallback<Equipment> _handleSellEquipment;
+    private EventCallback<Equipment> _handleAssignEquipment;
+
+    protected override void OnInitialized()
+    {
+        _handleBuyEquipment = EventCallback.Factory.Create<Equipment>(this, BuyEquipment);
+        _handleSellEquipment = EventCallback.Factory.Create<Equipment>(this, SellEquipment);
+        _handleAssignEquipment = EventCallback.Factory.Create<Equipment>(this, AssignEquipment);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Warband != null && IsVisible)
+        {
+            await LoadData();
+        }
+
+        Logger.LogInformation("StashModal OnParametersSetAsync - activeTab: {ActiveTab}, selectedTraderId: {TraderId}",
+            activeTab, selectedTraderId);
+    }
+
+    private async Task LoadData()
+    {
+        if (Warband == null) return;
+
+        // Load traders
+        availableTraders = await TraderService.GetTradersAsync(Warband.GameVariant);
+
+        // Load all equipment using unified service
+        availableEquipment = await EquipmentService.GetEquipmentAsync(Warband.GameVariant);
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        selectedTraderId = null;
+        selectedTrader = null;
+        ClearError();
+    }
+
+    private void SetTabStash() => SetActiveTab("stash");
+    private void SetTabBuy() => SetActiveTab("buy");
+    private void SetTabSell() => SetActiveTab("sell");
+
+    private async Task OnTraderChanged(string? traderId)
+    {
+        selectedTraderId = traderId;
+        selectedTrader = !string.IsNullOrEmpty(traderId)
+            ? await TraderService.GetTraderByIdAsync(traderId, Warband!.GameVariant)
+            : null;
+        ClearError();
+    }
+
+    private bool HasStashEquipment()
+    {
+        return Warband?.Stash.Any() ?? false;
+    }
+
+    private string GetCurrencySymbol()
+    {
+        if (Warband == null) return "G";
+        var gameConfig = StateService.State.GameConfigs.GetValueOrDefault(Warband.GameVariant);
+        return gameConfig?.Currency?.Symbol ?? "G";
+    }
+
+    private int? CalculateBuyPrice(Equipment equipment)
+    {
+        if (selectedTrader == null) return equipment.Cost;
+        return selectedTrader.CalculateBuyPrice(equipment.Cost);
+    }
+
+    private int? CalculateSellPrice(Equipment equipment)
+    {
+        if (selectedTrader == null) return equipment.Cost;
+        return selectedTrader.CalculateSellPrice(equipment.Cost);
+    }
+
+    private List<string> GetUnaffordableEquipmentIds()
+    {
+        if (Warband == null || selectedTrader == null) return new();
+
+        var unaffordable = new List<string>();
+
+        foreach (var equipment in availableEquipment)
+        {
+            if (equipment.Cost > 0)
+            {
+                var price = selectedTrader.CalculateBuyPrice(equipment.Cost);
+                if (!Warband.CanAfford(price))
+                {
+                    unaffordable.Add(equipment.Id);
+                }
+            }
+        }
+
+        return unaffordable;
+    }
+
+    private async Task AssignEquipment(Equipment equipment)
+    {
+        Logger.LogInformation("AssignEquipment called for {EquipmentName}, WarbandId: {WarbandId}",
+            equipment?.Name, Warband?.Id);
+
+        if (equipment == null || Warband == null)
+        {
+            Logger.LogWarning("AssignEquipment called with null equipment or warband");
+            return;
+        }
+
+        try
+        {
+            // Add equipment directly to warband stash without cost
+            Warband.Stash.Add(equipment);
+            await StateService.UpdateWarbandAsync(Warband);
+            Logger.LogInformation("Equipment {EquipmentName} added to warband stash", equipment.Name);
+            await NotifyEquipmentChanged();
+            ClearError();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "AssignEquipment error");
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task BuyEquipment(Equipment equipment)
+    {
+        Logger.LogInformation("BuyEquipment called for {EquipmentName}, WarbandId: {WarbandId}, TraderId: {TraderId}, Equipment null: {EquipmentNull}",
+            equipment?.Name, Warband?.Id, selectedTraderId, equipment == null);
+
+        if (equipment == null)
+        {
+            Logger.LogError("BuyEquipment called with null equipment");
+            errorMessage = "Equipment is null";
+            return;
+        }
+
+        if (Warband == null || string.IsNullOrEmpty(selectedTraderId))
+        {
+            Logger.LogWarning("BuyEquipment aborted - Warband is null: {WarbandNull}, TraderId empty: {TraderIdEmpty}",
+                Warband == null, string.IsNullOrEmpty(selectedTraderId));
+            return;
+        }
+
+        try
+        {
+            Logger.LogInformation("Calling StateService.BuyEquipmentAsync with EquipmentId: {EquipmentId}, Type: {Type}",
+                equipment.Id, equipment.Type);
+            await StateService.BuyEquipmentAsync(Warband.Id, equipment.Id, equipment.Type, selectedTraderId);
+            Logger.LogInformation("BuyEquipmentAsync succeeded");
+            await NotifyEquipmentChanged();
+            ClearError();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BuyEquipment error");
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task SellEquipment(Equipment equipment)
+    {
+        Logger.LogInformation("SellEquipment called for {EquipmentName}, WarbandId: {WarbandId}, TraderId: {TraderId}", equipment?.Name, Warband?.Id, selectedTraderId);
+        if (Warband == null || equipment == null || string.IsNullOrEmpty(selectedTraderId))
+        {
+            Logger.LogWarning("SellEquipment aborted - Warband is null: {WarbandNull}, Equipment is null: {EquipmentNull}, TraderId empty: {TraderIdEmpty}",
+                Warband == null, equipment == null, string.IsNullOrEmpty(selectedTraderId));
+            return;
+        }
+
+        try
+        {
+            Logger.LogInformation("Calling StateService.SellEquipmentAsync");
+            await StateService.SellEquipmentAsync(Warband.Id, equipment.Id, selectedTraderId!);
+            Logger.LogInformation("SellEquipmentAsync succeeded");
+            await NotifyEquipmentChanged();
+            ClearError();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "SellEquipment error");
+            errorMessage = ex.Message;
+        }
+    }
+
+    private void ShowCharacterSelector(Equipment equipment)
+    {
+        equipmentToAssign = equipment;
+        showCharacterSelector = true;
+    }
+
+    private void CloseCharacterSelector()
+    {
+        showCharacterSelector = false;
+        equipmentToAssign = null;
+    }
+
+    private async Task AssignToCharacter(string characterId)
+    {
+        if (Warband == null || equipmentToAssign == null) return;
+
+        try
+        {
+            await StateService.TransferEquipmentToCharacterAsync(Warband.Id, characterId, equipmentToAssign.Id);
+            await NotifyEquipmentChanged();
+            CloseCharacterSelector();
+            ClearError();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "AssignToCharacter error");
+            errorMessage = ex.Message;
+            CloseCharacterSelector();
+        }
+    }
+
+    private async Task RemoveFromStash(string equipmentId)
+    {
+        if (Warband == null) return;
+
+        var equipment = Warband.Stash.FirstOrDefault(e => e.Id == equipmentId);
+        if (equipment == null) return;
+
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Discard {equipment.Name}? This cannot be undone." });
+        if (!confirmed) return;
+
+        try
+        {
+            // Find and remove equipment from stash
+            if (equipment != null)
+            {
+                Warband.Stash.Remove(equipment);
+                await StateService.UpdateWarbandAsync(Warband);
+                await NotifyEquipmentChanged();
+                ClearError();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "RemoveFromStash error");
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task NotifyEquipmentChanged()
+    {
+        if (OnEquipmentChanged.HasDelegate)
+        {
+            await OnEquipmentChanged.InvokeAsync();
+        }
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+    }
+
+    private void RollMerchantInventory()
+    {
+        if (selectedTrader == null || !selectedTrader.HasLimitedInventory) return;
+
+        merchantInventoryIds.Clear();
+        var random = new Random();
+
+        // Roll weapons (max according to trader)
+        var weaponCount = selectedTrader.MaxWeapons ?? 0;
+        if (weaponCount > 0)
+        {
+            var weapons = availableEquipment.Where(e => e.IsWeapon).ToList();
+            if (weapons.Any())
+            {
+                var selectedWeapons = weapons.OrderBy(x => random.Next()).Take(weaponCount);
+                merchantInventoryIds.AddRange(selectedWeapons.Select(w => w.Id));
+            }
+        }
+
+        // Roll armor (max according to trader)
+        var armorCount = selectedTrader.MaxArmor ?? 0;
+        if (armorCount > 0)
+        {
+            var armors = availableEquipment.Where(e => e.IsArmor).ToList();
+            if (armors.Any())
+            {
+                var selectedArmors = armors.OrderBy(x => random.Next()).Take(armorCount);
+                merchantInventoryIds.AddRange(selectedArmors.Select(a => a.Id));
+            }
+        }
+
+        // Roll items (max according to trader)
+        var itemCount = selectedTrader.MaxEquipment ?? 0;
+        if (itemCount > 0)
+        {
+            var items = availableEquipment.Where(e => e.IsItem).ToList();
+            if (items.Any())
+            {
+                var selectedItems = items.OrderBy(x => random.Next()).Take(itemCount);
+                merchantInventoryIds.AddRange(selectedItems.Select(i => i.Id));
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private void ClearMerchantInventory()
+    {
+        merchantInventoryIds.Clear();
+        StateHasChanged();
+    }
+
+    private List<Equipment> GetFilteredEquipment()
+    {
+        if (selectedTrader?.HasLimitedInventory != true || !merchantInventoryIds.Any())
+            return availableEquipment;
+        return availableEquipment.Where(e => merchantInventoryIds.Contains(e.Id)).ToList();
+    }
+
+    private async Task HandleMarkRelicAcquired(Equipment relic)
+    {
+        if (Warband == null || relic == null || string.IsNullOrEmpty(relic.Id))
+            return;
+
+        try
+        {
+            await StateService.MarkRelicAsAcquiredAsync(Warband.Id, relic.Id);
+            // Warband will be reloaded via state change notification
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error marking relic as acquired: {RelicId}", relic.Id);
+        }
+    }
+
+    private async Task HandleMarkRelicAvailable(Equipment relic)
+    {
+        if (Warband == null || relic == null || string.IsNullOrEmpty(relic.Id))
+            return;
+
+        try
+        {
+            await StateService.MarkRelicAsAvailableAsync(Warband.Id, relic.Id);
+            // Warband will be reloaded via state change notification
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error marking relic as available: {RelicId}", relic.Id);
+        }
+    }
+}

@@ -1,0 +1,160 @@
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" @onclick="HandleBackdropClick">
+        <div class="modal-dialog modal-dialog-centered @ModalDialogClass" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                @if (!string.IsNullOrEmpty(Title))
+                {
+                    <div class="modal-header">
+                        <h3 class="modal-title h5">@Title</h3>
+                        @if (ShowCloseButton)
+                        {
+                            <button type="button" class="btn-close" @onclick="Close" aria-label="Close"></button>
+                        }
+                    </div>
+                }
+
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public bool ShowCloseButton { get; set; } = true;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public string? ModalDialogClass { get; set; }
+
+    private bool _previousIsVisible = false;
+    private bool _modalOpenAdded = false;
+    private DotNetObjectReference<Modal>? _dotNetHelper;
+    private IJSObjectReference? _jsModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetHelper = DotNetObjectReference.Create(this);
+            try
+            {
+                _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Modal.razor.js");
+            }
+            catch
+            {
+                // JS module import failed (e.g., in testing environment)
+                // Modal will still work but without ESC/back button support
+            }
+        }
+
+        if (_previousIsVisible != IsVisible)
+        {
+            if (IsVisible)
+            {
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("document.body.classList.add", "modal-open");
+                    _modalOpenAdded = true;
+                }
+                catch
+                {
+                    // Ignore errors in test environment
+                }
+
+                // Setup ESC key and back button handlers
+                if (_jsModule != null && _dotNetHelper != null)
+                {
+                    try
+                    {
+                        await _jsModule.InvokeVoidAsync("setupModalHandlers", _dotNetHelper);
+                    }
+                    catch
+                    {
+                        // Ignore errors in test environment
+                    }
+                }
+            }
+            else
+            {
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("document.body.classList.remove", "modal-open");
+                    _modalOpenAdded = false;
+                }
+                catch
+                {
+                    // Ignore errors in test environment
+                }
+
+                // Cleanup handlers
+                if (_jsModule != null)
+                {
+                    try
+                    {
+                        await _jsModule.InvokeVoidAsync("cleanupModalHandlers");
+                    }
+                    catch
+                    {
+                        // Ignore errors in test environment
+                    }
+                }
+            }
+            _previousIsVisible = IsVisible;
+        }
+    }
+
+    private async Task Close()
+    {
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task HandleBackdropClick()
+    {
+        await Close();
+    }
+
+    [JSInvokable]
+    public async Task CloseFromJS()
+    {
+        await Close();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_modalOpenAdded)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("document.body.classList.remove", "modal-open");
+            }
+            catch
+            {
+                // Ignore errors during disposal
+            }
+        }
+
+        if (_jsModule != null)
+        {
+            try
+            {
+                await _jsModule.InvokeVoidAsync("cleanupModalHandlers");
+                await _jsModule.DisposeAsync();
+            }
+            catch
+            {
+                // Ignore errors during disposal
+            }
+        }
+
+        _dotNetHelper?.Dispose();
+    }
+}

@@ -1,0 +1,488 @@
+{
+  "flaws": [
+    {
+      "roll": 1,
+      "rollRange": null,
+      "name": "Damned",
+      "effect": "Roll two more times and apply all results",
+      "type": "permanent",
+      "category": "meta_flaw",
+      "additionalRolls": 2
+    },
+    {
+      "roll": 2,
+      "name": "Hoplophobia",
+      "effect": "Cannot use guns. Reroll for Special Troopers",
+      "type": "permanent",
+      "category": "weapon_restriction",
+      "rerollForSpecialTroopers": true,
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "weapon",
+          "allowed_types": []
+        }
+      ]
+    },
+    {
+      "roll": 3,
+      "name": "Trench Foot",
+      "effect": "Can only make a single Move per activation",
+      "type": "permanent",
+      "category": "movement_restriction",
+      "maxMovesPerActivation": 1
+    },
+    {
+      "roll": 4,
+      "name": "Broken",
+      "effect": "Suffers -1 to all tests",
+      "type": "permanent",
+      "category": "general_penalty",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "test_modifier",
+          "scope": "all_tests",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "roll": 5,
+      "name": "Unlucky",
+      "effect": "Rerolls all natural 20s rolled",
+      "type": "permanent",
+      "category": "dice_modifier",
+      "rerollCondition": "natural_20s"
+    },
+    {
+      "roll": 6,
+      "name": "Phonophobia",
+      "effect": "When successfully attacked by EXPLODE weapon, must make morale test",
+      "type": "permanent",
+      "category": "conditional",
+      "trigger": "hit_by_explosive_weapon",
+      "consequence": "morale_test_required"
+    },
+    {
+      "roll": 7,
+      "name": "Weak Heart",
+      "effect": "A Fumble on morale test means they die",
+      "type": "permanent",
+      "category": "morale_modifier",
+      "fumbleConsequence": "death"
+    },
+    {
+      "roll": 8,
+      "name": "Baldrick",
+      "effect": "Always carries a turnip, -1 equipment slot",
+      "type": "permanent",
+      "category": "equipment_requirement",
+      "requiredEquipment": [
+        "turnip"
+      ],
+      "equipmentSlotModifier": -1,
+      "effects": [
+        {
+          "type": "equipment_requirement",
+          "items": [
+            "turnip"
+          ]
+        }
+      ]
+    },
+    {
+      "roll": 9,
+      "name": "Mysophobia",
+      "effect": "Auto fails morale if Diseased",
+      "type": "permanent",
+      "category": "conditional",
+      "trigger": "diseased_condition",
+      "consequence": "auto_fail_morale"
+    },
+    {
+      "roll": 10,
+      "name": "Clumsy",
+      "effect": "Drops weapons if roll 3 or less on any combat test",
+      "type": "permanent",
+      "category": "conditional",
+      "trigger": "combat_test_3_or_less",
+      "consequence": "drop_weapon"
+    },
+    {
+      "roll": 11,
+      "name": "Forgetful",
+      "effect": "End of Scenario roll D4. On 1-2 lose 1 random equipment",
+      "type": "permanent",
+      "category": "conditional",
+      "trigger": "end_of_scenario",
+      "consequence": "equipment_loss_chance",
+      "rollDetails": {
+        "die": "D4",
+        "loseOn": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "roll": 12,
+      "name": "Safety First",
+      "effect": "Must always wear helmet (comes with free helmet)",
+      "type": "permanent",
+      "category": "equipment_requirement",
+      "requiredEquipment": [
+        "helmet"
+      ],
+      "freeEquipment": [
+        "helmet"
+      ],
+      "effects": [
+        {
+          "type": "equipment_requirement",
+          "items": [
+            "helmet"
+          ]
+        }
+      ]
+    },
+    {
+      "roll": 13,
+      "name": "Flatulophobia",
+      "effect": "Must always wear gas mask (comes with free gas mask)",
+      "type": "permanent",
+      "category": "equipment_requirement",
+      "requiredEquipment": [
+        "gas_mask"
+      ],
+      "freeEquipment": [
+        "gas_mask"
+      ],
+      "effects": [
+        {
+          "type": "equipment_requirement",
+          "items": [
+            "gas_mask"
+          ]
+        }
+      ]
+    },
+    {
+      "roll": 14,
+      "name": "Dumber Than They Look",
+      "effect": "-1 to Presence tests",
+      "type": "permanent",
+      "category": "stat_reduction",
+      "stat": "presence",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "stat_modifier",
+          "stat": "presence",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "roll": 15,
+      "name": "Flammable",
+      "effect": "Auto fails Toughness test against Burn weapons",
+      "type": "permanent",
+      "category": "vulnerability",
+      "vulnerability": "burn_weapons",
+      "effect_type": "auto_fail_defense"
+    },
+    {
+      "roll": 16,
+      "name": "Jammed",
+      "effect": "Cannot un-jam guns",
+      "type": "permanent",
+      "category": "restriction",
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "general"
+        }
+      ]
+    },
+    {
+      "roll": 17,
+      "name": "Unhinged",
+      "effect": "Will only use knife and no other weapon, reroll for Special Troopers",
+      "type": "permanent",
+      "category": "weapon_restriction",
+      "allowedWeaponTypes": [
+        "knife_only"
+      ],
+      "rerollForSpecialTroopers": true,
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "weapon",
+          "allowed_types": [
+            "knife_only"
+          ]
+        }
+      ]
+    },
+    {
+      "roll": 18,
+      "name": "Prey",
+      "effect": "When in line of sight of monster, always treated as closest model",
+      "type": "permanent",
+      "category": "targeting_modifier",
+      "trigger": "monster_line_of_sight",
+      "consequence": "always_closest_target"
+    },
+    {
+      "roll": 19,
+      "name": "Brittle",
+      "effect": "Takes twice as much damage if Critically hit",
+      "type": "permanent",
+      "category": "damage_modifier",
+      "trigger": "critical_hit_received",
+      "damageMultiplier": 2
+    },
+    {
+      "roll": 20,
+      "name": "Lucky",
+      "effect": "No Flaw",
+      "type": "permanent",
+      "category": "positive"
+    }
+  ],
+  "feats": [
+    {
+      "roll": 1,
+      "name": "Sharpshooter",
+      "effect": "Ignores all cover modifiers to Ranged attacks",
+      "type": "permanent",
+      "category": "ranged_ability",
+      "effects": [
+        {
+          "type": "ranged_ability",
+          "ability": "ignore_cover_modifiers"
+        }
+      ]
+    },
+    {
+      "roll": 2,
+      "name": "Family Heirloom",
+      "effect": "Small heirloom. When shot, roll D6. On 1, bullet hits heirloom and no damage",
+      "type": "permanent",
+      "category": "damage_reduction",
+      "trigger": "when_shot",
+      "chanceToBlock": "1_in_6"
+    },
+    {
+      "roll": 3,
+      "name": "Light Footed",
+      "effect": "Ignores Muddy conditions",
+      "type": "permanent",
+      "category": "immunity",
+      "immunities": [
+        "muddy_conditions"
+      ]
+    },
+    {
+      "roll": 4,
+      "name": "Nightingale",
+      "effect": "Within 1 inch of model, make Presence test to heal them 1D4",
+      "type": "permanent",
+      "category": "healing_ability",
+      "range": 1,
+      "test": "presence",
+      "healingAmount": "1D4"
+    },
+    {
+      "roll": 5,
+      "name": "Iron Lungs",
+      "effect": "Immune to Gas and Smoke effects",
+      "type": "permanent",
+      "category": "immunity",
+      "immunities": [
+        "gas_effects",
+        "smoke_effects"
+      ]
+    },
+    {
+      "roll": 6,
+      "name": "Well Read",
+      "effect": "Gains a free Manuscript",
+      "type": "permanent",
+      "category": "free_equipment",
+      "freeEquipment": [
+        "manuscript"
+      ],
+      "effects": [
+        {
+          "type": "free_equipment",
+          "items": [
+            "manuscript"
+          ]
+        }
+      ]
+    },
+    {
+      "roll": 7,
+      "name": "Vinny",
+      "effect": "Comes with free makeshift explosive at start of each Scenario",
+      "type": "permanent",
+      "category": "starting_equipment",
+      "freeEquipment": [
+        "makeshift_explosive"
+      ],
+      "frequency": "each_scenario",
+      "effects": [
+        {
+          "type": "starting_equipment",
+          "items": [
+            "makeshift_explosive"
+          ]
+        }
+      ]
+    },
+    {
+      "roll": 8,
+      "name": "Sapper",
+      "effect": "As action can dig hole that provides cover for 1 model",
+      "type": "permanent",
+      "category": "special_action",
+      "actionType": "dig_cover"
+    },
+    {
+      "roll": 9,
+      "name": "Zig-Zag",
+      "effect": "All Ranged Attacks suffer -3 to hit model",
+      "type": "permanent",
+      "category": "defense_modifier",
+      "attackTypesAffected": [
+        "ranged"
+      ],
+      "defensiveModifier": -3
+    },
+    {
+      "roll": 10,
+      "name": "Vampires Don't Exist",
+      "effect": "Never takes morale test from Hostile attacks or abilities",
+      "type": "permanent",
+      "category": "immunity",
+      "immunities": [
+        "hostile_morale_tests"
+      ]
+    },
+    {
+      "roll": 11,
+      "name": "Carrot Cake",
+      "effect": "Ignores Darkness and Partial Darkness",
+      "type": "permanent",
+      "category": "immunity",
+      "immunities": [
+        "darkness",
+        "partial_darkness"
+      ]
+    },
+    {
+      "roll": 12,
+      "name": "Always Prepared",
+      "effect": "Can select 1 piece of equipment for free to bring to Scenario",
+      "type": "permanent",
+      "category": "equipment_selection",
+      "amount": 1
+    },
+    {
+      "roll": 13,
+      "name": "What Doesn't Kill You Only Makes You Stronger",
+      "effect": "If Downed in Scenario and not killed, gains +1HP",
+      "type": "permanent",
+      "category": "conditional_stat_increase",
+      "trigger": "downed_but_survived",
+      "stat": "hp",
+      "modifier": 1,
+      "effects": [
+        {
+          "type": "stat_modifier",
+          "stat": "hp",
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "roll": 14,
+      "name": "Cunning Plan",
+      "effect": "May make Presence test to be removed from table at any time. Considered survived",
+      "type": "permanent",
+      "category": "special_action",
+      "actionType": "escape",
+      "test": "presence"
+    },
+    {
+      "roll": 15,
+      "name": "Orders",
+      "effect": "Can give up activation to allow another model within 3 inches to act instead",
+      "type": "permanent",
+      "category": "special_action",
+      "actionType": "transfer_activation",
+      "range": 3
+    },
+    {
+      "roll": 16,
+      "name": "Duck and Cover",
+      "effect": "Can make Agility test to ignore damage from EXPLOSIVE weapons",
+      "type": "permanent",
+      "category": "damage_reduction",
+      "trigger": "explosive_weapon_damage",
+      "test": "agility"
+    },
+    {
+      "roll": 17,
+      "name": "Hero",
+      "effect": "Can pick up another Downed model and carry them without negative effect",
+      "type": "permanent",
+      "category": "special_action",
+      "actionType": "carry_downed"
+    },
+    {
+      "roll": 18,
+      "name": "Resourceful",
+      "effect": "Never runs out of Ammo",
+      "type": "permanent",
+      "category": "immunity",
+      "immunities": [
+        "ammo_depletion"
+      ]
+    },
+    {
+      "roll": 19,
+      "name": "Drop and Roll",
+      "effect": "Ignores Burn",
+      "type": "permanent",
+      "category": "immunity",
+      "immunities": [
+        "burn"
+      ]
+    },
+    {
+      "roll": 20,
+      "name": "Vet",
+      "effect": "Roll twice more and take both results",
+      "type": "permanent",
+      "category": "meta_feat",
+      "additionalRolls": 2
+    }
+  ],
+  "specialTrooperInteractions": {
+    "rerollRequirements": [
+      "Hoplophobia: Cannot use guns",
+      "Unhinged: Will only use knife"
+    ],
+    "civilianSpecialTrooper": "Can pick one extra Feat and reroll one Flaw. Can be selected multiple times for 5 Resources each"
+  },
+  "equipmentInteractions": {
+    "freeEquipment": [
+      "Safety First: Free helmet",
+      "Flatulophobia: Free gas mask",
+      "Baldrick: Forced to carry turnip (-1 equipment slot)"
+    ]
+  }
+}

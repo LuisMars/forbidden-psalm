@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Smote",
+    "effect": "Target one model within 12\". That model takes 1D6 HP damage. On failure to cast, Caster takes damage instead",
+    "category": "scroll",
+    "roll": 1
+  },
+  {
+    "name": "Transfusion",
+    "effect": "Target one model within 12\". That model heals 1D6 HP and caster takes 1 HP damage",
+    "category": "scroll",
+    "roll": 2
+  },
+  {
+    "name": "Warp",
+    "effect": "Target one model within 12\". On success, model moves 1D6\" in direction caster chooses, suffering falling penalties",
+    "category": "scroll",
+    "roll": 3
+  },
+  {
+    "name": "Toxins",
+    "effect": "Target one model within 12\". On success, target becomes Poisoned",
+    "category": "scroll",
+    "roll": 4
+  },
+  {
+    "name": "Blind",
+    "effect": "Target one model within 12\". On success, target becomes Blinded for remainder of Scenario",
+    "category": "scroll",
+    "roll": 5
+  },
+  {
+    "name": "Fear",
+    "effect": "Target one model within 12\". On success, target must make morale test or flee",
+    "category": "scroll",
+    "roll": 6
+  },
+  {
+    "name": "Shield",
+    "effect": "Caster gains +1 Armor Value for remainder of Scenario",
+    "category": "scroll",
+    "roll": 7
+  },
+  {
+    "name": "Haste",
+    "effect": "Target friendly model within 12\". That model gains +2 Agility for remainder of Scenario",
+    "category": "scroll",
+    "roll": 8
+  },
+  {
+    "name": "Heal",
+    "effect": "Target friendly model within 12\". That model heals 1D6 HP",
+    "category": "scroll",
+    "roll": 9
+  },
+  {
+    "name": "Fireball",
+    "effect": "All models within 3\" of target point take 1D6 damage",
+    "category": "scroll",
+    "roll": 10
+  }
+]

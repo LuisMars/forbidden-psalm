@@ -1,0 +1,312 @@
+{
+  "oneHandedRanged": [
+    {
+      "name": "Flintlock Pistol",
+      "damage": "D8",
+      "properties": ["Ranged", "Explode", "Reload"],
+      "stat": "Presence",
+      "cost": 15,
+      "slots": 1,
+      "rollRange": "1-3",
+      "iconClass": "ra ra-revolver",
+      "ammoType": "Pistol Balls"
+    },
+    {
+      "name": "Sling",
+      "damage": "D4",
+      "properties": ["Ranged"],
+      "stat": "Agility",
+      "cost": 1,
+      "slots": 1,
+      "rollRange": "4-7",
+      "iconClass": "ra ra-arrow-cluster",
+      "ammoType": "Sling Stones"
+    }
+  ],
+  "twoHandedRanged": [
+    {
+      "name": "Musket",
+      "damage": "D10",
+      "properties": ["Ranged", "Explode", "Reload"],
+      "stat": "Presence",
+      "cost": 20,
+      "slots": 2,
+      "rollRange": "8-9",
+      "iconClass": "ra ra-rifle",
+      "ammoType": "Musket Balls"
+    },
+    {
+      "name": "Cannon",
+      "damage": "D20",
+      "properties": ["Ranged", "Explode", "Reload"],
+      "stat": "Strength",
+      "cost": 100,
+      "slots": 2,
+      "rollRange": "10",
+      "special": "Does not come with ammo",
+      "iconClass": "ra ra-cannon-shot",
+      "ammoType": "Cannonball"
+    },
+    {
+      "name": "Crossbow",
+      "damage": "D6",
+      "properties": ["Ranged", "Cruel", "Reload"],
+      "stat": "Presence",
+      "cost": 8,
+      "slots": 2,
+      "rollRange": "11-15",
+      "iconClass": "ra ra-crossbow",
+      "ammoType": "Bolts"
+    },
+    {
+      "name": "Bow",
+      "damage": "D6",
+      "properties": ["Ranged"],
+      "stat": "Presence",
+      "cost": 5,
+      "slots": 2,
+      "rollRange": "16-19",
+      "iconClass": "ra ra-crossbow",
+      "ammoType": "Arrows"
+    }
+  ],
+  "oneHandedMelee": [
+    {
+      "name": "One-Handed Makeshift",
+      "damage": "D4",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 0,
+      "slots": 1,
+      "rollRange": "20-25",
+      "iconClass": "ra ra-bat-sword"
+    },
+    {
+      "name": "Staff",
+      "damage": "D4",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 1,
+      "slots": 1,
+      "rollRange": "26-29",
+      "iconClass": "ra ra-sword"
+    },
+    {
+      "name": "Shortsword",
+      "damage": "D6",
+      "properties": [],
+      "stat": "Agility",
+      "cost": 2,
+      "slots": 1,
+      "rollRange": "30-35",
+      "iconClass": "ra ra-sword"
+    },
+    {
+      "name": "Dagger",
+      "damage": "D4",
+      "properties": ["Thrown"],
+      "stat": "Agility",
+      "cost": 1,
+      "slots": 1,
+      "rollRange": "36-40",
+      "iconClass": "ra ra-daggers"
+    },
+    {
+      "name": "Hand Axe",
+      "damage": "D8",
+      "properties": ["Thrown"],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 1,
+      "rollRange": "41-43",
+      "iconClass": "ra ra-axe"
+    },
+    {
+      "name": "Ulfberht Sword",
+      "damage": "D8",
+      "properties": ["Criticals cause Bleeding"],
+      "stat": "Strength",
+      "cost": 10,
+      "slots": 1,
+      "rollRange": "43-46",
+      "iconClass": "ra ra-sword"
+    },
+    {
+      "name": "Morning Star",
+      "damage": "D8",
+      "properties": ["Criticals cause Dazed", "Cruel"],
+      "stat": "Strength",
+      "cost": 8,
+      "slots": 1,
+      "rollRange": "47-50",
+      "iconClass": "ra ra-spiked-mace"
+    },
+    {
+      "name": "Horseman's Pick",
+      "damage": "D6",
+      "properties": ["Cruel"],
+      "stat": "Strength",
+      "cost": 8,
+      "slots": 1,
+      "rollRange": "51-55",
+      "iconClass": "ra ra-axe"
+    },
+    {
+      "name": "Flail",
+      "damage": "D8",
+      "properties": ["Criticals cause Bleeding"],
+      "stat": "Strength",
+      "cost": 7,
+      "slots": 1,
+      "rollRange": "56-60",
+      "iconClass": "ra ra-spiked-mace"
+    },
+    {
+      "name": "Brass Knuckles",
+      "damage": "2",
+      "properties": ["Takes up no Equipment slot", "Criticals cause Dazed"],
+      "stat": "Agility",
+      "cost": 9,
+      "slots": 0,
+      "rollRange": "61-65",
+      "iconClass": "fas fa-hand-rock"
+    },
+    {
+      "name": "Bone Flail",
+      "damage": "D8",
+      "properties": ["Criticals cause Dazed and Bleeding"],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 1,
+      "rollRange": "66-69",
+      "iconClass": "ra ra-spiked-mace"
+    },
+    {
+      "name": "Net",
+      "damage": "-",
+      "properties": ["Thrown", "Target must pass Agility test or lose movement"],
+      "stat": "Agility",
+      "cost": 4,
+      "slots": 1,
+      "rollRange": "70-73",
+      "iconClass": "fas fa-fish"
+    },
+    {
+      "name": "Warhammer",
+      "damage": "D6",
+      "properties": ["Criticals cause Dazed"],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 1,
+      "rollRange": "74-75",
+      "iconClass": "ra ra-hammer"
+    },
+    {
+      "name": "Sword",
+      "damage": "D6",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 4,
+      "slots": 1,
+      "rollRange": "76-77",
+      "iconClass": "ra ra-sword"
+    },
+    {
+      "name": "Rapier",
+      "damage": "D6",
+      "properties": ["Criticals disarm enemy"],
+      "stat": "Agility",
+      "cost": 1,
+      "slots": 1,
+      "rollRange": "78-79",
+      "iconClass": "ra ra-knife"
+    }
+  ],
+  "twoHandedMelee": [
+    {
+      "name": "Two-Handed Makeshift",
+      "damage": "D6",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 0,
+      "slots": 2,
+      "rollRange": "80-84",
+      "iconClass": "ra ra-bat-sword"
+    },
+    {
+      "name": "Bastard Sword",
+      "damage": "D10",
+      "properties": ["Criticals destroy enemy Weapons"],
+      "stat": "Strength",
+      "cost": 10,
+      "slots": 2,
+      "rollRange": "85-89",
+      "iconClass": "ra ra-broadsword"
+    },
+    {
+      "name": "Great Axe",
+      "damage": "D10",
+      "properties": ["Criticals destroy Shields and deal damage"],
+      "stat": "Strength",
+      "cost": 10,
+      "slots": 2,
+      "rollRange": "90-91",
+      "iconClass": "ra ra-crossed-axes"
+    },
+    {
+      "name": "Glaive",
+      "damage": "D8",
+      "properties": ["Reach"],
+      "stat": "Strength",
+      "cost": 8,
+      "slots": 2,
+      "rollRange": "92-93",
+      "iconClass": "ra ra-halberd"
+    },
+    {
+      "name": "Spear",
+      "damage": "D6",
+      "properties": ["Reach", "Thrown"],
+      "stat": "Agility",
+      "cost": 8,
+      "slots": 2,
+      "rollRange": "94",
+      "iconClass": "ra ra-spear-head"
+    },
+    {
+      "name": "Trident",
+      "damage": "D6",
+      "properties": ["Thrown", "Criticals disarm enemy"],
+      "stat": "Agility",
+      "cost": 7,
+      "slots": 2,
+      "rollRange": "95-96",
+      "iconClass": "ra ra-trident"
+    }
+  ],
+  "throwables": [
+    {
+      "name": "Unholy Hand Grenades",
+      "damage": "D10",
+      "properties": ["Thrown", "Explode", "Called Shot"],
+      "stat": "Agility",
+      "cost": 6,
+      "slots": 1,
+      "rollRange": "95-96",
+      "consumable": true,
+      "iconClass": "ra ra-bombs"
+    },
+    {
+      "name": "Bag o' Rats",
+      "damage": "-",
+      "properties": ["Thrown"],
+      "stat": "Agility",
+      "cost": 3,
+      "slots": 1,
+      "rollRange": "97-100",
+      "consumable": true,
+      "iconClass": "fas fa-sack-dollar"
+    }
+  ],
+  "notes": "All ranged weapons come with 5 Ammo except Cannon (which comes with 1 Cannonball). Additional Ammo can be purchased in Equipment for 1G per stack (5 shots). Cannonballs cost 2G each. Each crew member has 5 + Strength slots for Equipment. Weapons, Items, Armor, Artefacts, and Ammo each take up one Equipment slot unless otherwise stated."
+}

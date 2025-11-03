@@ -1,0 +1,151 @@
+{
+  "items": [
+    {
+      "name": "Bandages",
+      "effect": "Cures Bleeding",
+      "cost": 1,
+      "slots": 1,
+      "roll": 1,
+      "iconClass": "fas fa-band-aid",
+      "isConsumable": true,
+      "consumableEffect": "cure_bleeding"
+    },
+    {
+      "name": "Lantern",
+      "effect": "Required for models to see in the dark",
+      "cost": 3,
+      "slots": 1,
+      "roll": 2,
+      "iconClass": "fas fa-lantern"
+    },
+    {
+      "name": "Torch",
+      "effect": "As a lantern but only lasts 3 rounds. Can be used as One-Handed Makeshift Weapon",
+      "cost": 1,
+      "slots": 1,
+      "roll": 3,
+      "iconClass": "ra ra-torch"
+    },
+    {
+      "name": "Backpack",
+      "effect": "Takes up one Equipment slot but provides two additional slots",
+      "cost": 1,
+      "slots": 1,
+      "extraSlots": 2,
+      "roll": 4,
+      "iconClass": "fas fa-backpack",
+      "effects": [
+        {
+          "type": "slot_modifier",
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "name": "Potion",
+      "effect": "Heals D6, then drinker makes Toughness test or becomes Dazed",
+      "cost": 6,
+      "slots": 1,
+      "roll": 5,
+      "iconClass": "ra ra-potion",
+      "isConsumable": true,
+      "consumableEffect": "heal_hp"
+    },
+    {
+      "name": "Antidote",
+      "effect": "Cures Poisoned",
+      "cost": 7,
+      "slots": 1,
+      "roll": 6,
+      "iconClass": "ra ra-potion",
+      "isConsumable": true,
+      "consumableEffect": "cure_poisoned"
+    },
+    {
+      "name": "Bag o' Rats",
+      "effect": "Special throwable item",
+      "cost": 3,
+      "slots": 1,
+      "roll": 7,
+      "iconClass": "fas fa-sack-dollar"
+    },
+    {
+      "name": "Whisky",
+      "effect": "Required for Dutch Courage flaw",
+      "cost": 2,
+      "slots": 1,
+      "roll": 8,
+      "iconClass": "fas fa-wine-bottle",
+      "effects": [
+        {
+          "type": "flaw_requirement",
+          "related_flaw": "dutch_courage"
+        }
+      ]
+    },
+    {
+      "name": "Manuscript",
+      "effect": "Ancient writings",
+      "cost": "Variable",
+      "slots": 1,
+      "roll": 9,
+      "iconClass": "ra ra-scroll-unfurled"
+    }
+  ],
+  "ammo": [
+    {
+      "type": "Arrows",
+      "effect": "Five arrows per stack",
+      "shots": 5,
+      "cost": 1,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-arrow-cluster"
+    },
+    {
+      "type": "Bolts",
+      "effect": "Five bolts per stack",
+      "shots": 5,
+      "cost": 1,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-crossbow"
+    },
+    {
+      "type": "Sling Stones",
+      "effect": "Five stones per stack",
+      "shots": 5,
+      "cost": 1,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-gem"
+    },
+    {
+      "type": "Musket Balls",
+      "effect": "Five musket balls per stack",
+      "shots": 5,
+      "cost": 1,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-bullets"
+    },
+    {
+      "type": "Pistol Balls",
+      "effect": "Five pistol balls per stack",
+      "shots": 5,
+      "cost": 1,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-bullets"
+    },
+    {
+      "type": "Cannonball",
+      "effect": "One shot of Cannon Ammo",
+      "shots": 1,
+      "cost": 2,
+      "slots": 1,
+      "roll": null,
+      "iconClass": "ra ra-cannon-shot"
+    }
+  ]
+}

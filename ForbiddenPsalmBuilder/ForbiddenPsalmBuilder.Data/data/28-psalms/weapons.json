@@ -1,0 +1,402 @@
+{
+  "oneHandedMelee": [
+    {
+      "name": "Dagger",
+      "damage": "D4",
+      "properties": [
+        "Thrown"
+      ],
+      "stat": "Agility",
+      "cost": 1,
+      "slots": 1,
+      "techLevel": "past",
+      "iconClass": "ra ra-daggers",
+      "rollRange": null,
+      "special": null
+    },
+    {
+      "name": "Sword",
+      "damage": "D6",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 1,
+      "techLevel": "past",
+      "iconClass": "ra ra-sword"
+    },
+    {
+      "name": "Axe",
+      "damage": "D6",
+      "properties": [
+        "Thrown"
+      ],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 1,
+      "techLevel": "past",
+      "iconClass": "ra ra-axe"
+    },
+    {
+      "name": "Flail",
+      "damage": "D8",
+      "properties": [
+        "Critical causes Bleeding"
+      ],
+      "stat": "Strength",
+      "cost": 5,
+      "slots": 1,
+      "techLevel": "past",
+      "iconClass": "ra ra-spiked-mace"
+    },
+    {
+      "name": "Makeshift",
+      "damage": "D4",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 0,
+      "slots": 1,
+      "techLevel": "past",
+      "iconClass": "ra ra-bat-sword"
+    },
+    {
+      "name": "Torch",
+      "damage": "D4",
+      "properties": [
+        "Burn"
+      ],
+      "stat": "Strength",
+      "cost": 1,
+      "slots": 1,
+      "techLevel": "past",
+      "iconClass": "ra ra-torch"
+    },
+    {
+      "name": "Space Sword",
+      "damage": "D8",
+      "properties": [
+        "AP"
+      ],
+      "stat": "Strength",
+      "cost": 10,
+      "slots": 1,
+      "techLevel": "future",
+      "iconClass": "ra ra-broadsword"
+    },
+    {
+      "name": "Space Axe",
+      "damage": "D6",
+      "properties": [
+        "Thrown"
+      ],
+      "stat": "Strength",
+      "cost": 3,
+      "slots": 1,
+      "techLevel": "future",
+      "iconClass": "ra ra-axe"
+    },
+    {
+      "name": "Space Flail",
+      "damage": "D8",
+      "properties": [
+        "Critical causes Bleeding"
+      ],
+      "stat": "Strength",
+      "cost": 5,
+      "slots": 1,
+      "techLevel": "future",
+      "iconClass": "ra ra-spiked-mace"
+    },
+    {
+      "name": "Baton",
+      "damage": "D6",
+      "properties": [
+        "Critical causes Dazed"
+      ],
+      "stat": "Strength",
+      "cost": 5,
+      "slots": 1,
+      "techLevel": "future",
+      "iconClass": "ra ra-trident"
+    }
+  ],
+  "twoHandedMelee": [
+    {
+      "name": "Great Axe",
+      "damage": "D10",
+      "properties": [
+        "Criticals break enemy weapons"
+      ],
+      "stat": "Strength",
+      "cost": 10,
+      "slots": 2,
+      "techLevel": "past",
+      "iconClass": "ra ra-crossed-axes"
+    },
+    {
+      "name": "Bastard Sword",
+      "damage": "D10",
+      "properties": [
+        "Criticals break enemy weapons"
+      ],
+      "stat": "Strength",
+      "cost": 10,
+      "slots": 2,
+      "techLevel": "past",
+      "iconClass": "ra ra-broadsword"
+    },
+    {
+      "name": "Spear",
+      "damage": "D6",
+      "properties": [
+        "Reach",
+        "Thrown"
+      ],
+      "stat": "Agility",
+      "cost": 8,
+      "slots": 2,
+      "techLevel": "past",
+      "iconClass": "ra ra-spear-head"
+    },
+    {
+      "name": "Makeshift",
+      "damage": "D6",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 0,
+      "slots": 2,
+      "techLevel": "past",
+      "iconClass": "ra ra-bat-sword"
+    },
+    {
+      "name": "Power Tool",
+      "damage": "D6",
+      "properties": [],
+      "stat": "Strength",
+      "cost": 5,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "fas fa-wrench"
+    },
+    {
+      "name": "Katana",
+      "damage": "D10",
+      "properties": [
+        "Criticals break enemy weapons"
+      ],
+      "stat": "Agility",
+      "cost": 20,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "ra ra-sword"
+    }
+  ],
+  "oneHandedRanged": [
+    {
+      "name": "Revolver",
+      "damage": "D6",
+      "properties": [
+        "Reload 5",
+        "Ranged"
+      ],
+      "stat": "Presence",
+      "cost": 10,
+      "slots": 1,
+      "techLevel": "future",
+      "iconClass": "ra ra-revolver",
+      "ammoType": "Revolver Ammo"
+    },
+    {
+      "name": "Pistol",
+      "damage": "D6",
+      "properties": [
+        "Reload 6",
+        "Ranged"
+      ],
+      "stat": "Presence",
+      "cost": 11,
+      "slots": 1,
+      "techLevel": "future",
+      "iconClass": "ra ra-revolver",
+      "ammoType": "Pistol Ammo"
+    }
+  ],
+  "twoHandedRanged": [
+    {
+      "name": "Bow",
+      "damage": "D6",
+      "properties": [
+        "Reload",
+        "Ranged"
+      ],
+      "stat": "Presence",
+      "cost": 5,
+      "slots": 2,
+      "techLevel": "past",
+      "iconClass": "ra ra-crossbow",
+      "ammoType": "Arrows"
+    },
+    {
+      "name": "Crossbow",
+      "damage": "D6",
+      "properties": [
+        "Reload",
+        "Ranged",
+        "Cruel"
+      ],
+      "stat": "Presence",
+      "cost": 8,
+      "slots": 2,
+      "techLevel": "past",
+      "iconClass": "ra ra-crossbow",
+      "ammoType": "Arrows"
+    },
+    {
+      "name": "Rifle",
+      "damage": "D8",
+      "properties": [
+        "Ranged"
+      ],
+      "stat": "Presence",
+      "cost": 15,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "ra ra-rifle",
+      "ammoType": "Rifle Ammo"
+    },
+    {
+      "name": "Plas-mar",
+      "damage": "D10",
+      "properties": [
+        "Reload 2",
+        "Explode",
+        "Ranged",
+        "AP"
+      ],
+      "stat": "Presence",
+      "cost": 25,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "ra ra-lightning",
+      "ammoType": "Plasma Cell"
+    },
+    {
+      "name": "Pulse Rifle",
+      "damage": "D10",
+      "properties": [
+        "AF3",
+        "Ranged 15",
+        "Cyber",
+        "Reload 5"
+      ],
+      "stat": "Presence",
+      "cost": 30,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "ra ra-rifle",
+      "ammoType": "Plasma Cell"
+    },
+    {
+      "name": "Shotgun",
+      "damage": "D8",
+      "properties": [
+        "Explode",
+        "Ranged 6",
+        "Reload 2"
+      ],
+      "stat": "Strength",
+      "cost": 12,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "fas fa-gun",
+      "ammoType": "Shotgun Shells"
+    },
+    {
+      "name": "Molten Slug Gun",
+      "damage": "D8",
+      "properties": [
+        "AP",
+        "Ranged",
+        "Reload 3"
+      ],
+      "stat": "Strength",
+      "cost": 18,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "fas fa-gun",
+      "ammoType": "Slug Ammo"
+    },
+    {
+      "name": "Flamethrower",
+      "damage": "D6",
+      "properties": [
+        "Burn",
+        "Ranged 6",
+        "Template"
+      ],
+      "stat": "Strength",
+      "cost": 20,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "ra ra-flame-symbol",
+      "ammoType": "Flame"
+    },
+    {
+      "name": "Laser",
+      "damage": "D6",
+      "properties": [
+        "Ranged 12",
+        "Reload 12"
+      ],
+      "stat": "Presence",
+      "cost": 15,
+      "slots": 2,
+      "techLevel": "future",
+      "iconClass": "ra ra-rifle",
+      "ammoType": "Laser"
+    }
+  ],
+  "throwables": [
+    {
+      "name": "Molotov",
+      "damage": "D6",
+      "properties": [
+        "Burn",
+        "Explode",
+        "Thrown"
+      ],
+      "stat": "Agility",
+      "cost": 3,
+      "slots": 1,
+      "techLevel": "past",
+      "iconClass": "ra ra-brandy-bottle"
+    },
+    {
+      "name": "Black Powder Bomb",
+      "damage": "D6",
+      "properties": [
+        "Explode",
+        "Thrown"
+      ],
+      "stat": "Agility",
+      "cost": 3,
+      "slots": 1,
+      "techLevel": "past",
+      "iconClass": "ra ra-bombs"
+    },
+    {
+      "name": "Space Grenade",
+      "damage": "D6",
+      "properties": [
+        "Explode",
+        "Thrown",
+        "Template"
+      ],
+      "stat": "Agility",
+      "cost": 3,
+      "slots": 1,
+      "techLevel": "future",
+      "iconClass": "ra ra-bombs"
+    }
+  ],
+  "notes": "All ranged weapons come with one stack of ammo"
+}

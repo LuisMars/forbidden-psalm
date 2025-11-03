@@ -1,0 +1,185 @@
+{
+  "warband": {
+    "size": 5,
+    "startingCredits": 50
+  },
+  "statGeneration": {
+    "method": "array_selection",
+    "arrays": [
+      {
+        "id": "specialist",
+        "name": "Specialist",
+        "values": [
+          3,
+          1,
+          0,
+          -3
+        ],
+        "description": "High specialization with major weakness"
+      },
+      {
+        "id": "balanced",
+        "name": "Balanced",
+        "values": [
+          2,
+          2,
+          -1,
+          -2
+        ],
+        "description": "More balanced distribution"
+      }
+    ],
+    "statOrder": [
+      "agility",
+      "presence",
+      "strength",
+      "toughness"
+    ]
+  },
+  "derivedStats": {
+    "movement": {
+      "formula": "base + modifier",
+      "base": 5,
+      "modifierStat": "agility"
+    },
+    "hp": {
+      "formula": "base + modifier",
+      "base": 8,
+      "modifierStat": "toughness"
+    },
+    "equipmentSlots": {
+      "formula": "base + modifier",
+      "base": 5,
+      "modifierStat": "strength"
+    }
+  },
+  "stats": {
+    "agility": {
+      "id": "agility",
+      "name": "Agility",
+      "usageTypes": [
+        {
+          "category": "combat",
+          "subcategory": "attack",
+          "context": "agility_weapons"
+        },
+        {
+          "category": "movement",
+          "subcategory": "calculation",
+          "context": "base_movement"
+        }
+      ],
+      "affects": [
+        "movement"
+      ]
+    },
+    "presence": {
+      "id": "presence",
+      "name": "Presence",
+      "usageTypes": [
+        {
+          "category": "magic",
+          "subcategory": "casting",
+          "context": "spells_scrolls"
+        },
+        {
+          "category": "combat",
+          "subcategory": "attack",
+          "context": "ranged_weapons"
+        },
+        {
+          "category": "social",
+          "subcategory": "test",
+          "context": "morale_leadership"
+        }
+      ],
+      "affects": []
+    },
+    "strength": {
+      "id": "strength",
+      "name": "Strength",
+      "usageTypes": [
+        {
+          "category": "combat",
+          "subcategory": "attack",
+          "context": "strength_weapons"
+        },
+        {
+          "category": "equipment",
+          "subcategory": "capacity",
+          "context": "carrying_limit"
+        }
+      ],
+      "affects": [
+        "equipmentSlots"
+      ]
+    },
+    "toughness": {
+      "id": "toughness",
+      "name": "Toughness",
+      "usageTypes": [
+        {
+          "category": "survival",
+          "subcategory": "health",
+          "context": "hit_points"
+        },
+        {
+          "category": "resistance",
+          "subcategory": "test",
+          "context": "damage_effects",
+          "resistanceTypes": [
+            "damage",
+            "disease",
+            "poison",
+            "environmental"
+          ]
+        }
+      ],
+      "affects": [
+        "hp"
+      ]
+    }
+  },
+  "gameRules": {
+    "dice": {
+      "type": "D20",
+      "defaultDifficulty": 12
+    },
+    "modifiers": {
+      "range": {
+        "min": -3,
+        "max": 3
+      },
+      "application": "additive"
+    },
+    "health": {
+      "calculation": {
+        "method": "formula",
+        "base": 8,
+        "modifierStat": "toughness"
+      },
+      "states": {
+        "healthy": {
+          "condition": "hp > 0"
+        },
+        "downed": {
+          "condition": "hp <= 0",
+          "effects": [
+            "cannot_act",
+            "vulnerable_to_death"
+          ]
+        },
+        "dead": {
+          "condition": "damage_while_downed",
+          "effects": [
+            "removed_from_play"
+          ]
+        }
+      },
+      "recovery": {
+        "timing": "between_scenarios",
+        "amount": "full"
+      }
+    }
+  }
+}

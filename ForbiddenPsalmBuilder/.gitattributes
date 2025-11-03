@@ -1,0 +1,3 @@
+# Treat JavaScript files as binary to prevent line-ending conversions
+# This is required for Blazor WebAssembly integrity checks to pass
+*.js binary

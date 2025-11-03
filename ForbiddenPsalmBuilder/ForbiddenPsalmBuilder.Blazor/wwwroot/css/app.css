@@ -1,0 +1,64 @@
+/* Blazor Framework CSS - MÖRK BORG Theme */
+
+#blazor-error-ui {
+    background: var(--bs-danger, #FF3EB5);
+    color: var(--bs-danger-foreground, #000);
+    bottom: 0;
+    box-shadow: none;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    border: none;
+    font-family: var(--bs-font-condensed, sans-serif);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+    color: var(--bs-danger-foreground, #000);
+    font-size: 1.5rem;
+}
+
+.loading-progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #000;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.loading-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--blazor-load-percentage, 0%);
+    background-color: var(--bs-magenta-500, #FF3EB5);
+    transition: width 0.05s ease-in-out;
+}
+
+.loading-progress-text {
+    position: relative;
+    text-align: center;
+    font-weight: 800;
+    font-family: var(--bs-font-condensed, sans-serif);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--bs-yellow-500, #FEEA00);
+    margin-top: 1rem;
+}
+
+.loading-progress-text:after {
+    content: var(--blazor-load-percentage-text, "Loading");
+}

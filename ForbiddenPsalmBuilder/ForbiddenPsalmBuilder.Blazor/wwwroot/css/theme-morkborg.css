@@ -1,0 +1,1145 @@
+/**
+ * MÖRK BORG Core Theme for Halfmoon CSS
+ *
+ * A brutal, DIY zine aesthetic with obsidian blacks, neon yellow, and hot magenta.
+ * Sharp transitions, heavy contrast, flat surfaces, no apologizing for loudness.
+ *
+ * Usage: <html data-bs-core="morkborg">
+ */
+
+/* ============================================================================
+   FONTS - Doom Metal & Brutal Utility
+   ============================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=Germania+One&family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap');
+
+/* ============================================================================
+   MÖRK BORG ROOT OVERRIDES - Only when morkborg core is active
+   ============================================================================ */
+[data-bs-core="morkborg"] {
+  /* Override Halfmoon's default primary (blue/navy) with yellow */
+  --bs-primary-hue: 54;
+  --bs-primary-saturation: 100%;
+  --bs-primary-hsl: 54 100% 63%;
+  --bs-primary: hsl(54 100% 63%);
+  --bs-primary-rgb: 254, 234, 0;
+
+  /* Override info (also blue in Halfmoon) with magenta */
+  --bs-info-hue: 320;
+  --bs-info-saturation: 100%;
+  --bs-info-hsl: 320 100% 62%;
+  --bs-info: hsl(320 100% 62%);
+  --bs-info-rgb: 255, 62, 181;
+
+  /* Secondary is gray/sable in Halfmoon, keep it obsidian */
+  --bs-secondary-hue: 0;
+  --bs-secondary-saturation: 0%;
+  --bs-secondary-hsl: 0 0% 30%;
+  --bs-secondary: hsl(0 0% 30%);
+
+  /* Link colors - yellow with magenta hover */
+  --bs-link-color-hsl: 54 100% 63%;
+  --bs-link-color: hsl(54 100% 63%);
+  --bs-link-hover-color-hsl: 320 100% 62%;
+  --bs-link-hover-color: hsl(320 100% 62%);
+}
+
+/* ============================================================================
+   MÖRK BORG THEME-SPECIFIC OVERRIDES
+   Only apply when data-bs-core="morkborg" is set
+   ============================================================================ */
+[data-bs-core="morkborg"][data-bs-theme="light"],
+[data-bs-core="morkborg"][data-bs-theme="dark"],
+[data-bs-core="morkborg"] {
+  /* Primary = Yellow */
+  --bs-primary-hue: 54;
+  --bs-primary-saturation: 100%;
+  --bs-primary-hsl: 54 100% 63%;
+  --bs-primary: hsl(54 100% 63%);
+  --bs-primary-text-emphasis-hsl: 54 100% 85%;
+  --bs-primary-bg-subtle-hsl: 54 100% 20%;
+  --bs-primary-border-subtle-hsl: 54 100% 40%;
+
+  /* Info = Magenta */
+  --bs-info-hue: 320;
+  --bs-info-saturation: 100%;
+  --bs-info-hsl: 320 100% 62%;
+  --bs-info: hsl(320 100% 62%);
+  --bs-info-text-emphasis-hsl: 320 100% 80%;
+  --bs-info-bg-subtle-hsl: 320 100% 20%;
+  --bs-info-border-subtle-hsl: 320 100% 40%;
+
+  /* Secondary = Obsidian */
+  --bs-secondary-hue: 0;
+  --bs-secondary-saturation: 0%;
+  --bs-secondary-hsl: 0 0% 30%;
+  --bs-secondary: hsl(0 0% 30%);
+
+  /* Link colors */
+  --bs-link-color-hsl: 54 100% 63%;
+  --bs-link-color: hsl(54 100% 63%);
+  --bs-link-hover-color-hsl: 320 100% 62%;
+  --bs-link-hover-color: hsl(320 100% 62%);
+}
+
+/* ============================================================================
+   MÖRK BORG CORE THEME - Single Consolidated Block
+   ============================================================================ */
+
+[data-bs-core=morkborg] {
+  /* --------------------------------------------------------------------------
+     COLOR PALETTE - HSL Components
+     Neon Yellow, Hot Magenta, Obsidian Black
+     -------------------------------------------------------------------------- */
+
+  /* Yellow - Neon, garish, loud */
+  --bs-yellow-hue: 54;
+  --bs-yellow-saturation: 100%;
+
+  --bs-yellow-100-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 97%;
+  --bs-yellow-200-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 93%;
+  --bs-yellow-300-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 85%;
+  --bs-yellow-400-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 75%;
+  --bs-yellow-500-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 63%; /* #FEEA00 */
+  --bs-yellow-600-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 50%;
+  --bs-yellow-700-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 40%;
+  --bs-yellow-800-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 30%;
+  --bs-yellow-900-hsl: var(--bs-yellow-hue) var(--bs-yellow-saturation) 20%;
+
+  --bs-yellow-100: hsl(var(--bs-yellow-100-hsl));
+  --bs-yellow-200: hsl(var(--bs-yellow-200-hsl));
+  --bs-yellow-300: hsl(var(--bs-yellow-300-hsl));
+  --bs-yellow-400: hsl(var(--bs-yellow-400-hsl));
+  --bs-yellow-500: hsl(var(--bs-yellow-500-hsl));
+  --bs-yellow-600: hsl(var(--bs-yellow-600-hsl));
+  --bs-yellow-700: hsl(var(--bs-yellow-700-hsl));
+  --bs-yellow-800: hsl(var(--bs-yellow-800-hsl));
+  --bs-yellow-900: hsl(var(--bs-yellow-900-hsl));
+
+  /* Magenta - Hot, loud, no apologies */
+  --bs-magenta-hue: 320;
+  --bs-magenta-saturation: 100%;
+
+  --bs-magenta-100-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 97%;
+  --bs-magenta-200-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 90%;
+  --bs-magenta-300-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 80%;
+  --bs-magenta-400-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 70%;
+  --bs-magenta-500-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 62%; /* #FF3EB5 */
+  --bs-magenta-600-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 50%;
+  --bs-magenta-700-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 40%;
+  --bs-magenta-800-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 30%;
+  --bs-magenta-900-hsl: var(--bs-magenta-hue) var(--bs-magenta-saturation) 20%;
+
+  --bs-magenta-100: hsl(var(--bs-magenta-100-hsl));
+  --bs-magenta-200: hsl(var(--bs-magenta-200-hsl));
+  --bs-magenta-300: hsl(var(--bs-magenta-300-hsl));
+  --bs-magenta-400: hsl(var(--bs-magenta-400-hsl));
+  --bs-magenta-500: hsl(var(--bs-magenta-500-hsl));
+  --bs-magenta-600: hsl(var(--bs-magenta-600-hsl));
+  --bs-magenta-700: hsl(var(--bs-magenta-700-hsl));
+  --bs-magenta-800: hsl(var(--bs-magenta-800-hsl));
+  --bs-magenta-900: hsl(var(--bs-magenta-900-hsl));
+
+  /* Obsidian - Pure black, dark grays */
+  --bs-obsidian-hue: 0;
+  --bs-obsidian-saturation: 0%;
+
+  --bs-obsidian-100-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 95%;
+  --bs-obsidian-200-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 85%;
+  --bs-obsidian-300-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 75%;
+  --bs-obsidian-400-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 50%;
+  --bs-obsidian-500-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 30%;
+  --bs-obsidian-600-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 20%;
+  --bs-obsidian-700-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 10%;
+  --bs-obsidian-800-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 5%;
+  --bs-obsidian-900-hsl: var(--bs-obsidian-hue) var(--bs-obsidian-saturation) 0%; /* Pure black */
+
+  --bs-obsidian-100: hsl(var(--bs-obsidian-100-hsl));
+  --bs-obsidian-200: hsl(var(--bs-obsidian-200-hsl));
+  --bs-obsidian-300: hsl(var(--bs-obsidian-300-hsl));
+  --bs-obsidian-400: hsl(var(--bs-obsidian-400-hsl));
+  --bs-obsidian-500: hsl(var(--bs-obsidian-500-hsl));
+  --bs-obsidian-600: hsl(var(--bs-obsidian-600-hsl));
+  --bs-obsidian-700: hsl(var(--bs-obsidian-700-hsl));
+  --bs-obsidian-800: hsl(var(--bs-obsidian-800-hsl));
+  --bs-obsidian-900: hsl(var(--bs-obsidian-900-hsl));
+
+  /* --------------------------------------------------------------------------
+     SEMANTIC COLOR MAPPING - Light Mode (less used, but available)
+     -------------------------------------------------------------------------- */
+  --bs-primary-hsl: var(--bs-magenta-500-hsl);
+  --bs-primary-emphasis-hsl: var(--bs-magenta-700-hsl);
+  --bs-primary-subtle-hsl: var(--bs-magenta-100-hsl);
+  --bs-primary: var(--bs-magenta-500);
+
+  --bs-secondary-hsl: var(--bs-obsidian-600-hsl);
+  --bs-secondary-emphasis-hsl: var(--bs-obsidian-800-hsl);
+  --bs-secondary-subtle-hsl: var(--bs-obsidian-200-hsl);
+  --bs-secondary: var(--bs-obsidian-600);
+
+  --bs-success-hsl: var(--bs-yellow-500-hsl);
+  --bs-success-emphasis-hsl: var(--bs-yellow-700-hsl);
+  --bs-success-subtle-hsl: var(--bs-yellow-100-hsl);
+  --bs-success: var(--bs-yellow-500);
+
+  --bs-danger-hsl: var(--bs-magenta-500-hsl);
+  --bs-danger-emphasis-hsl: var(--bs-magenta-700-hsl);
+  --bs-danger-subtle-hsl: var(--bs-magenta-100-hsl);
+  --bs-danger: var(--bs-magenta-500);
+
+  --bs-warning-hsl: var(--bs-yellow-400-hsl);
+  --bs-warning-emphasis-hsl: var(--bs-yellow-600-hsl);
+  --bs-warning-subtle-hsl: var(--bs-yellow-100-hsl);
+  --bs-warning: var(--bs-yellow-400);
+
+  --bs-info-hsl: var(--bs-yellow-500-hsl);
+  --bs-info-emphasis-hsl: var(--bs-yellow-700-hsl);
+  --bs-info-subtle-hsl: var(--bs-yellow-100-hsl);
+  --bs-info: var(--bs-yellow-500);
+
+  --bs-light-hsl: var(--bs-obsidian-200-hsl);
+  --bs-light-emphasis-hsl: var(--bs-obsidian-100-hsl);
+  --bs-light-subtle-hsl: var(--bs-obsidian-300-hsl);
+  --bs-light: var(--bs-obsidian-200);
+
+  --bs-dark-hsl: var(--bs-obsidian-800-hsl);
+  --bs-dark-emphasis-hsl: var(--bs-obsidian-900-hsl);
+  --bs-dark-subtle-hsl: var(--bs-obsidian-700-hsl);
+  --bs-dark: var(--bs-obsidian-800);
+
+  /* Typography */
+  --bs-body-font-family: "Inter", system-ui, -apple-system, sans-serif;
+  --bs-heading-font-family: "Pirata One", "Germania One", serif;
+  --bs-font-condensed: "Bebas Neue", sans-serif;
+
+  /* Geometry - Square, harsh, no rounding */
+  --bs-border-radius: 0;
+  --bs-border-radius-sm: 0;
+  --bs-border-radius-lg: 0;
+  --bs-border-radius-xl: 0;
+  --bs-border-radius-2xl: 0;
+  --bs-border-radius-pill: 0;
+
+  /* Borders - None, flat color blocks */
+  --bs-border-width: 0;
+
+  /* Shadows - Nearly absent */
+  --bs-box-shadow-sm: none;
+  --bs-box-shadow: none;
+  --bs-box-shadow-lg: none;
+
+  /* Links - Visually weighty */
+  --bs-link-decoration: none;
+
+  /* ============================================================================
+     DARK MODE IS DEFAULT - All variables set here (no data-bs-theme required)
+     ============================================================================ */
+
+  /* Color scheme */
+  color-scheme: dark;
+
+  /* -------------------------------------------------------------------------
+     CORE COLOR HUE/SATURATION - Map to Obsidian for grays
+     ------------------------------------------------------------------------- */
+  --bs-color-hue: var(--bs-obsidian-hue);
+  --bs-color-saturation: var(--bs-obsidian-saturation);
+  --bs-gray-hue: var(--bs-obsidian-hue);
+  --bs-gray-saturation: var(--bs-obsidian-saturation);
+  --bs-sable-hue: var(--bs-obsidian-hue);
+  --bs-sable-saturation: var(--bs-obsidian-saturation);
+
+  /* -------------------------------------------------------------------------
+     SEMANTIC COLORS - MÖRK BORG Palette
+     ------------------------------------------------------------------------- */
+
+  /* Primary = Yellow (dominant in dark mode) */
+  --bs-primary-hsl: var(--bs-yellow-500-hsl);
+  --bs-primary: var(--bs-yellow-500);
+  --bs-primary-emphasis-hsl: var(--bs-yellow-300-hsl);
+  --bs-primary-emphasis: hsl(var(--bs-yellow-300-hsl));
+  --bs-primary-subtle-hsl: var(--bs-yellow-900-hsl);
+  --bs-primary-subtle: hsl(var(--bs-yellow-900-hsl));
+  --bs-primary-text-emphasis-hsl: var(--bs-yellow-300-hsl);
+  --bs-primary-text-emphasis: hsl(var(--bs-yellow-300-hsl));
+  --bs-primary-bg-subtle-hsl: var(--bs-yellow-900-hsl);
+  --bs-primary-bg-subtle: hsl(var(--bs-yellow-900-hsl));
+  --bs-primary-border-subtle-hsl: var(--bs-yellow-700-hsl);
+  --bs-primary-border-subtle: hsl(var(--bs-yellow-700-hsl));
+  --bs-primary-foreground: var(--bs-obsidian-900);
+
+  /* Secondary = Obsidian */
+  --bs-secondary-hsl: var(--bs-obsidian-500-hsl);
+  --bs-secondary: var(--bs-obsidian-500);
+  --bs-secondary-emphasis-hsl: var(--bs-obsidian-300-hsl);
+  --bs-secondary-emphasis: hsl(var(--bs-obsidian-300-hsl));
+  --bs-secondary-subtle-hsl: var(--bs-obsidian-700-hsl);
+  --bs-secondary-subtle: hsl(var(--bs-obsidian-700-hsl));
+  --bs-secondary-text-emphasis-hsl: var(--bs-obsidian-300-hsl);
+  --bs-secondary-text-emphasis: hsl(var(--bs-obsidian-300-hsl));
+  --bs-secondary-bg-subtle-hsl: var(--bs-obsidian-800-hsl);
+  --bs-secondary-bg-subtle: hsl(var(--bs-obsidian-800-hsl));
+  --bs-secondary-border-subtle-hsl: var(--bs-obsidian-600-hsl);
+  --bs-secondary-border-subtle: hsl(var(--bs-obsidian-600-hsl));
+  --bs-secondary-foreground: var(--bs-obsidian-100);
+
+  /* Success = Yellow */
+  --bs-success-hsl: var(--bs-yellow-500-hsl);
+  --bs-success: var(--bs-yellow-500);
+  --bs-success-emphasis-hsl: var(--bs-yellow-400-hsl);
+  --bs-success-emphasis: hsl(var(--bs-yellow-400-hsl));
+  --bs-success-subtle-hsl: var(--bs-yellow-800-hsl);
+  --bs-success-subtle: hsl(var(--bs-yellow-800-hsl));
+  --bs-success-text-emphasis-hsl: var(--bs-yellow-300-hsl);
+  --bs-success-text-emphasis: hsl(var(--bs-yellow-300-hsl));
+  --bs-success-bg-subtle-hsl: var(--bs-yellow-900-hsl);
+  --bs-success-bg-subtle: hsl(var(--bs-yellow-900-hsl));
+  --bs-success-border-subtle-hsl: var(--bs-yellow-700-hsl);
+  --bs-success-border-subtle: hsl(var(--bs-yellow-700-hsl));
+  --bs-success-foreground: var(--bs-obsidian-900);
+
+  /* Danger = Magenta */
+  --bs-danger-hsl: var(--bs-magenta-500-hsl);
+  --bs-danger: var(--bs-magenta-500);
+  --bs-danger-emphasis-hsl: var(--bs-magenta-400-hsl);
+  --bs-danger-emphasis: hsl(var(--bs-magenta-400-hsl));
+  --bs-danger-subtle-hsl: var(--bs-magenta-800-hsl);
+  --bs-danger-subtle: hsl(var(--bs-magenta-800-hsl));
+  --bs-danger-text-emphasis-hsl: var(--bs-magenta-300-hsl);
+  --bs-danger-text-emphasis: hsl(var(--bs-magenta-300-hsl));
+  --bs-danger-bg-subtle-hsl: var(--bs-magenta-900-hsl);
+  --bs-danger-bg-subtle: hsl(var(--bs-magenta-900-hsl));
+  --bs-danger-border-subtle-hsl: var(--bs-magenta-700-hsl);
+  --bs-danger-border-subtle: hsl(var(--bs-magenta-700-hsl));
+  --bs-danger-foreground: var(--bs-obsidian-900);
+
+  /* Warning = Yellow (lighter) */
+  --bs-warning-hsl: var(--bs-yellow-400-hsl);
+  --bs-warning: var(--bs-yellow-400);
+  --bs-warning-emphasis-hsl: var(--bs-yellow-300-hsl);
+  --bs-warning-emphasis: hsl(var(--bs-yellow-300-hsl));
+  --bs-warning-subtle-hsl: var(--bs-yellow-700-hsl);
+  --bs-warning-subtle: hsl(var(--bs-yellow-700-hsl));
+  --bs-warning-text-emphasis-hsl: var(--bs-yellow-300-hsl);
+  --bs-warning-text-emphasis: hsl(var(--bs-yellow-300-hsl));
+  --bs-warning-bg-subtle-hsl: var(--bs-yellow-900-hsl);
+  --bs-warning-bg-subtle: hsl(var(--bs-yellow-900-hsl));
+  --bs-warning-border-subtle-hsl: var(--bs-yellow-700-hsl);
+  --bs-warning-border-subtle: hsl(var(--bs-yellow-700-hsl));
+  --bs-warning-foreground: var(--bs-obsidian-900);
+
+  /* Info = Magenta (secondary accent) */
+  --bs-info-hsl: var(--bs-magenta-500-hsl);
+  --bs-info: var(--bs-magenta-500);
+  --bs-info-emphasis-hsl: var(--bs-magenta-300-hsl);
+  --bs-info-emphasis: hsl(var(--bs-magenta-300-hsl));
+  --bs-info-subtle-hsl: var(--bs-magenta-900-hsl);
+  --bs-info-subtle: hsl(var(--bs-magenta-900-hsl));
+  --bs-info-text-emphasis-hsl: var(--bs-magenta-300-hsl);
+  --bs-info-text-emphasis: hsl(var(--bs-magenta-300-hsl));
+  --bs-info-bg-subtle-hsl: var(--bs-magenta-900-hsl);
+  --bs-info-bg-subtle: hsl(var(--bs-magenta-900-hsl));
+  --bs-info-border-subtle-hsl: var(--bs-magenta-700-hsl);
+  --bs-info-border-subtle: hsl(var(--bs-magenta-700-hsl));
+  --bs-info-foreground: var(--bs-obsidian-900);
+
+  /* Light = Light gray */
+  --bs-light-hsl: var(--bs-obsidian-200-hsl);
+  --bs-light: var(--bs-obsidian-200);
+  --bs-light-emphasis-hsl: var(--bs-obsidian-100-hsl);
+  --bs-light-emphasis: hsl(var(--bs-obsidian-100-hsl));
+  --bs-light-subtle-hsl: var(--bs-obsidian-300-hsl);
+  --bs-light-subtle: hsl(var(--bs-obsidian-300-hsl));
+  --bs-light-text-emphasis-hsl: var(--bs-obsidian-100-hsl);
+  --bs-light-text-emphasis: hsl(var(--bs-obsidian-100-hsl));
+  --bs-light-bg-subtle-hsl: var(--bs-obsidian-800-hsl);
+  --bs-light-bg-subtle: hsl(var(--bs-obsidian-800-hsl));
+  --bs-light-border-subtle-hsl: var(--bs-obsidian-600-hsl);
+  --bs-light-border-subtle: hsl(var(--bs-obsidian-600-hsl));
+  --bs-light-foreground: var(--bs-obsidian-900);
+
+  /* Dark = Pure black */
+  --bs-dark-hsl: var(--bs-obsidian-900-hsl);
+  --bs-dark: var(--bs-obsidian-900);
+  --bs-dark-emphasis-hsl: var(--bs-obsidian-900-hsl);
+  --bs-dark-emphasis: hsl(var(--bs-obsidian-900-hsl));
+  --bs-dark-subtle-hsl: var(--bs-obsidian-800-hsl);
+  --bs-dark-subtle: hsl(var(--bs-obsidian-800-hsl));
+  --bs-dark-text-emphasis-hsl: var(--bs-obsidian-100-hsl);
+  --bs-dark-text-emphasis: hsl(var(--bs-obsidian-100-hsl));
+  --bs-dark-bg-subtle-hsl: var(--bs-obsidian-700-hsl);
+  --bs-dark-bg-subtle: hsl(var(--bs-obsidian-700-hsl));
+  --bs-dark-border-subtle-hsl: var(--bs-obsidian-600-hsl);
+  --bs-dark-border-subtle: hsl(var(--bs-obsidian-600-hsl));
+  --bs-dark-foreground: var(--bs-yellow-500);
+
+  /* -------------------------------------------------------------------------
+     BUTTON STATE COLORS - Magenta on hover
+     ------------------------------------------------------------------------- */
+  --bs-btn-hover-bg: var(--bs-magenta-500);
+  --bs-btn-hover-color: var(--bs-obsidian-900);
+  --bs-btn-hover-border-color: var(--bs-magenta-500);
+  --bs-btn-active-bg: var(--bs-yellow-500);
+  --bs-btn-active-color: var(--bs-obsidian-900);
+  --bs-btn-active-border-color: var(--bs-yellow-500);
+  --bs-btn-disabled-bg: var(--bs-obsidian-800);
+  --bs-btn-disabled-color: var(--bs-obsidian-400);
+  --bs-btn-disabled-border-color: var(--bs-obsidian-700);
+
+  /* -------------------------------------------------------------------------
+     TEXT COLORS - White on black, heavy contrast
+     ------------------------------------------------------------------------- */
+  --bs-body-color-hsl: var(--bs-obsidian-100-hsl);
+  --bs-body-color: hsl(var(--bs-body-color-hsl));
+  --bs-emphasis-color-hsl: var(--bs-obsidian-100-hsl);
+  --bs-emphasis-color: hsl(var(--bs-emphasis-color-hsl));
+  --bs-secondary-color-hsl: var(--bs-obsidian-900-hsl);
+  --bs-secondary-color: hsl(var(--bs-secondary-color-hsl));
+  --bs-tertiary-color-hsl: var(--bs-obsidian-800-hsl);
+  --bs-tertiary-color: hsl(var(--bs-tertiary-color-hsl));
+  --bs-heading-color: inherit;
+
+  /* -------------------------------------------------------------------------
+     BACKGROUND COLORS - Obsidian black everywhere
+     ------------------------------------------------------------------------- */
+  --bs-body-bg-hsl: var(--bs-obsidian-900-hsl);
+  --bs-body-bg: hsl(var(--bs-body-bg-hsl));
+  --bs-secondary-bg-hsl: var(--bs-obsidian-800-hsl);
+  --bs-secondary-bg: hsl(var(--bs-secondary-bg-hsl));
+  --bs-tertiary-bg-hsl: var(--bs-obsidian-700-hsl);
+  --bs-tertiary-bg: hsl(var(--bs-tertiary-bg-hsl));
+  --bs-gradient: linear-gradient(180deg, hsla(var(--bs-obsidian-100-hsl), 0.15), hsla(var(--bs-obsidian-100-hsl), 0));
+
+  /* -------------------------------------------------------------------------
+     BORDERS - Obsidian shades
+     ------------------------------------------------------------------------- */
+  --bs-border-color: var(--bs-obsidian-600);
+  --bs-border-color-light: var(--bs-obsidian-600);
+  --bs-border-color-dark: var(--bs-obsidian-800);
+  --bs-border-color-translucent: hsla(var(--bs-obsidian-100-hsl), 0.15);
+
+  /* -------------------------------------------------------------------------
+     BOX SHADOWS - Minimal/none
+     ------------------------------------------------------------------------- */
+  --bs-box-shadow-color: hsla(var(--bs-obsidian-900-hsl), 0.4);
+  --bs-box-shadow: 0 0.5rem 1rem var(--bs-box-shadow-color);
+  --bs-box-shadow-sm: 0 0.125rem 0.25rem var(--bs-box-shadow-color);
+  --bs-box-shadow-lg: 0 1rem 3rem var(--bs-box-shadow-color);
+  --bs-box-shadow-inset: inset 0 1px var(--bs-box-shadow-color);
+
+  /* -------------------------------------------------------------------------
+     LINKS - Yellow with magenta hover
+     ------------------------------------------------------------------------- */
+  --bs-link-color-hsl: var(--bs-yellow-500-hsl);
+  --bs-link-color: hsl(var(--bs-link-color-hsl));
+  --bs-link-hover-color-hsl: var(--bs-magenta-500-hsl);
+  --bs-link-hover-color: hsl(var(--bs-link-hover-color-hsl));
+
+  /* -------------------------------------------------------------------------
+     HIGHLIGHT & CODE
+     ------------------------------------------------------------------------- */
+  --bs-highlight-color: inherit;
+  --bs-highlight-bg: hsla(var(--bs-yellow-500-hsl), 0.2);
+  --bs-code-color: var(--bs-yellow-500);
+  --bs-code-bg: hsla(var(--bs-obsidian-700-hsl), 0.5);
+  --bs-kbd-color: var(--bs-obsidian-900);
+  --bs-kbd-bg: var(--bs-yellow-500);
+
+  /* -------------------------------------------------------------------------
+     CONTENT (Cards, Panels, Menus, etc.)
+     ------------------------------------------------------------------------- */
+  --bs-content-color-hsl: var(--bs-obsidian-900-hsl);
+  --bs-content-color: hsl(var(--bs-content-color-hsl));
+  --bs-content-bg-hsl: var(--bs-yellow-500-hsl);
+  --bs-content-bg: hsl(var(--bs-content-bg-hsl));
+  --bs-content-border-color: var(--bs-yellow-500);
+  --bs-content-box-shadow: none;
+
+  /* Floating content (dropdowns, popovers, etc.) */
+  --bs-content-floating-color-hsl: var(--bs-content-color-hsl);
+  --bs-content-floating-color: hsl(var(--bs-content-floating-color-hsl));
+  --bs-content-floating-bg-hsl: var(--bs-obsidian-800-hsl);
+  --bs-content-floating-bg: hsl(var(--bs-content-floating-bg-hsl));
+  --bs-content-floating-border-color: var(--bs-yellow-500);
+  --bs-content-floating-box-shadow: 0 1rem 2.25rem 0 rgba(0, 0, 0, 0.5), 0 0.25rem 1rem 0 rgba(0, 0, 0, 0.3);
+
+  /* -------------------------------------------------------------------------
+     ACTIONS (Buttons, Inputs, Menu Items, etc.)
+     ------------------------------------------------------------------------- */
+  --bs-action-color: hsl(var(--bs-obsidian-100-hsl));
+  --bs-action-bg: var(--bs-obsidian-800);
+  --bs-action-border-color: var(--bs-obsidian-600);
+  --bs-action-hover-color: var(--bs-obsidian-900);
+  --bs-action-hover-bg: var(--bs-magenta-500);
+  --bs-action-hover-border-color: var(--bs-magenta-500);
+  --bs-action-focus-shadow-hsl: var(--bs-yellow-500-hsl);
+  --bs-action-active-color: var(--bs-obsidian-900);
+  --bs-action-active-bg: var(--bs-yellow-500);
+  --bs-action-active-border-color: var(--bs-yellow-500);
+  --bs-action-active-shadow: none;
+  --bs-action-disabled-color: var(--bs-obsidian-400);
+  --bs-action-disabled-bg: var(--bs-obsidian-800);
+  --bs-action-disabled-border-color: var(--bs-obsidian-700);
+
+  /* -------------------------------------------------------------------------
+     FORMS
+     ------------------------------------------------------------------------- */
+  --bs-form-color: var(--bs-obsidian-100);
+  --bs-form-bg: var(--bs-obsidian-900);
+  --bs-form-secondary-bg: var(--bs-obsidian-800);
+  --bs-form-tertiary-bg: var(--bs-obsidian-700);
+  --bs-form-border-color: var(--bs-obsidian-600);
+  --bs-form-focus-border-color: var(--bs-yellow-500);
+  --bs-form-focus-shadow-hsl: var(--bs-yellow-500-hsl);
+  --bs-form-disabled-color: var(--bs-obsidian-400);
+  --bs-form-disabled-bg: var(--bs-obsidian-800);
+  --bs-form-disabled-border-color: var(--bs-obsidian-700);
+  --bs-form-valid-color: var(--bs-yellow-300);
+  --bs-form-valid-border-color: var(--bs-yellow-500);
+  --bs-form-invalid-color: var(--bs-magenta-300);
+  --bs-form-invalid-border-color: var(--bs-magenta-500);
+  --bs-form-check-bg: var(--bs-obsidian-900);
+  --bs-form-check-border-color: var(--bs-obsidian-600);
+  --bs-form-check-focus-border-color: var(--bs-yellow-500);
+  --bs-form-check-focus-shadow-hsl: var(--bs-yellow-500-hsl);
+
+  /* -------------------------------------------------------------------------
+     CONTEXTUAL BUTTONS
+     ------------------------------------------------------------------------- */
+  --bs-ctx-btn-border-color: var(--bs-obsidian-600);
+  --bs-ctx-btn-hover-border-color: var(--bs-magenta-500);
+  --bs-ctx-btn-active-border-color: var(--bs-yellow-500);
+  --bs-ctx-btn-disabled-border-color: var(--bs-obsidian-700);
+  --bs-ctx-btn-bg-clip: padding-box;
+
+  /* -------------------------------------------------------------------------
+     ACTION BARS (Range, Progress, etc.)
+     ------------------------------------------------------------------------- */
+  --bs-actionbar-bg: var(--bs-obsidian-800);
+  --bs-actionbar-border-color: var(--bs-obsidian-600);
+  --bs-progresstrack-border-width: var(--bs-border-width);
+  --bs-progresstrack-box-shadow: none;
+  --bs-progresstrack-bg-clip: padding-box;
+
+  /* ==========================================================================
+     MÖRK BORG AESTHETIC OVERRIDES - Structural/Typography Only
+     Colors are handled by CSS variables above
+     ========================================================================== */
+
+  /* BUTTONS - Typography and structure only */
+  & .btn {
+    font-family: var(--bs-font-condensed);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: none;
+    border-radius: 0;
+    padding: 0.75rem 1.5rem;
+    box-shadow: none;
+  }
+
+  & .btn:hover,
+  & .btn:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+    box-shadow: none;
+  }
+
+  /* OUTLINE BUTTONS - Convert to solid */
+  & .btn-outline-primary {
+    background-color: var(--bs-primary);
+    color: var(--bs-primary-foreground);
+    border: none;
+  }
+
+  & .btn-outline-primary:hover,
+  & .btn-outline-primary:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  & .btn-outline-secondary {
+    background-color: var(--bs-secondary);
+    color: var(--bs-secondary-foreground);
+    border: none;
+  }
+
+  & .btn-outline-secondary:hover,
+  & .btn-outline-secondary:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  & .btn-outline-danger {
+    background-color: var(--bs-danger);
+    color: var(--bs-danger-foreground);
+    border: none;
+  }
+
+  & .btn-outline-danger:hover,
+  & .btn-outline-danger:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  & .btn-outline-success {
+    background-color: var(--bs-success);
+    color: var(--bs-success-foreground);
+    border: none;
+  }
+
+  & .btn-outline-success:hover,
+  & .btn-outline-success:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  & .btn-outline-warning {
+    background-color: var(--bs-warning);
+    color: var(--bs-warning-foreground);
+    border: none;
+  }
+
+  & .btn-outline-warning:hover,
+  & .btn-outline-warning:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  & .btn-outline-info {
+    background-color: var(--bs-info);
+    color: var(--bs-info-foreground);
+    border: none;
+  }
+
+  & .btn-outline-info:hover,
+  & .btn-outline-info:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  & .btn-outline-light {
+    background-color: var(--bs-light);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  & .btn-outline-light:hover,
+  & .btn-outline-light:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  & .btn-outline-dark {
+    background-color: var(--bs-dark);
+    color: var(--bs-dark-foreground);
+    border: none;
+  }
+
+  & .btn-outline-dark:hover,
+  & .btn-outline-dark:focus {
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    border: none;
+  }
+
+  /* TYPOGRAPHY - Doom Metal & Brutal */
+  & h1, & h2, & h3, & h4, & h5, & h6,
+  & .h1, & .h2, & .h3, & .h4, & .h5, & .h6 {
+    font-family: var(--bs-heading-font-family);
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-transform: none;
+  }
+
+  & body {
+    font-family: var(--bs-body-font-family);
+    font-weight: 400;
+  }
+
+  /* BOLD TEXT - Germania One for emphasis */
+  & b, & strong,
+  & .fw-bold, & .fw-semibold {
+    font-family: "Germania One", serif;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  /* LINKS - Visually Weighty, Background Blocks */
+  & a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link):not(.breadcrumb-item) {
+    background: var(--bs-yellow-500);
+    color: var(--bs-obsidian-900);
+    padding: 0.15em 0.4em;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  & a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link):not(.breadcrumb-item):hover {
+    background: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+  }
+
+  /* CARDS - Flat, Poster-Style */
+  & .card {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    color: var(--bs-obsidian-900);
+  }
+
+  & .card-body {
+    color: var(--bs-obsidian-900);
+  }
+
+  & .card-header {
+    border-radius: 0;
+    border: none;
+    font-family: var(--bs-font-condensed);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    padding: 1rem 1.5rem;
+    color: var(--bs-obsidian-900);
+  }
+
+  & .card-footer {
+    color: var(--bs-obsidian-900);
+  }
+
+  /* SIDEBAR - Structure only */
+  & .sidebar {
+    border: none;
+  }
+
+  & .sidebar .nav-link {
+    font-weight: 700;
+    font-family: var(--bs-font-condensed);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* NAVBAR - Structure only */
+  & .navbar {
+    border: none;
+  }
+
+  & .navbar-brand,
+  & .navbar .nav-link {
+    font-weight: 800;
+    font-family: var(--bs-font-condensed);
+    text-transform: uppercase;
+  }
+
+  /* MODALS - Flat, Solid Color Blocks with Hierarchy */
+  & .modal-dialog {
+    max-width: 95vw;
+    width: 95vw;
+    margin: 1.75rem auto;
+  }
+
+  & .modal-content {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    background-color: var(--bs-obsidian-900);
+  }
+
+  & .modal-header {
+    border: none;
+    border-radius: 0;
+    background-color: var(--bs-magenta-500);
+    color: var(--bs-obsidian-900);
+    padding: 1.25rem 1.5rem;
+  }
+
+  & .modal-title {
+    color: var(--bs-obsidian-900);
+    font-family: var(--bs-font-condensed);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+  }
+
+  & .modal-body {
+    background-color: var(--bs-obsidian-900);
+    color: var(--bs-obsidian-100);
+    padding: 1.5rem;
+  }
+
+  & .modal-footer {
+    border: none;
+    border-radius: 0;
+    background-color: var(--bs-obsidian-800);
+    color: var(--bs-obsidian-100);
+    padding: 1rem 1.5rem;
+  }
+
+  & .modal-backdrop {
+    background-color: var(--bs-obsidian-900);
+    opacity: 0.9;
+  }
+
+  /* FORMS - Flat, Solid Blocks with Borders */
+  & .form-control,
+  & .form-select,
+  & textarea.form-control {
+    border-radius: 0;
+    border: 2px solid var(--bs-obsidian-600);
+    padding: 0.75rem 1rem;
+  }
+
+  & .form-control:focus,
+  & .form-select:focus,
+  & textarea.form-control:focus {
+    box-shadow: none;
+    border-color: var(--bs-yellow-500);
+    outline: none;
+  }
+
+  & .form-label {
+    font-family: var(--bs-font-condensed);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+
+  /* TABLES - Flat Color Blocks */
+  & .table {
+    border-collapse: collapse;
+  }
+
+  & .table thead th {
+    border: none;
+    font-family: var(--bs-font-condensed);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    padding: 1rem;
+  }
+
+  & .table tbody td {
+    background: transparent;
+    border: none;
+    padding: 1rem;
+  }
+
+  /* BADGES - Labels, Condensed, Heavy */
+  & .badge {
+    border-radius: 0;
+    font-family: var(--bs-font-condensed);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 0.5em 0.75em;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+  }
+
+  & .text-bg-primary,
+  & .badge.text-bg-primary {
+    background-color: var(--bs-yellow-500) !important;
+    color: var(--bs-obsidian-900) !important;
+  }
+
+  & .text-bg-secondary,
+  & .badge.text-bg-secondary {
+    background-color: var(--bs-obsidian-700) !important;
+    color: var(--bs-obsidian-100) !important;
+  }
+
+  & .text-bg-success,
+  & .badge.text-bg-success {
+    background-color: var(--bs-yellow-500) !important;
+    color: var(--bs-obsidian-900) !important;
+  }
+
+  & .text-bg-danger,
+  & .badge.text-bg-danger {
+    background-color: var(--bs-magenta-500) !important;
+    color: var(--bs-obsidian-900) !important;
+  }
+
+  & .text-bg-warning,
+  & .badge.text-bg-warning {
+    background-color: var(--bs-yellow-500) !important;
+    color: var(--bs-obsidian-900) !important;
+  }
+
+  & .text-bg-info,
+  & .badge.text-bg-info {
+    background-color: var(--bs-magenta-500) !important;
+    color: var(--bs-obsidian-900) !important;
+  }
+
+  & .text-bg-light,
+  & .badge.text-bg-light {
+    background-color: #ffffff !important;
+    color: var(--bs-obsidian-900) !important;
+  }
+
+  & .text-bg-dark,
+  & .badge.text-bg-dark {
+    background-color: var(--bs-obsidian-900) !important;
+    color: var(--bs-yellow-500) !important;
+  }
+
+  /* ALERTS - Loud, Solid Blocks */
+  & .alert {
+    border-radius: 0;
+    border: none;
+    padding: 1.5rem;
+    font-weight: 600;
+  }
+
+  & .alert-danger {
+    background-color: rgba(255, 62, 181, 0.1);
+    border: 2px solid var(--bs-danger);
+    color: var(--bs-danger);
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
+
+  & .alert-danger strong {
+    color: var(--bs-danger);
+    font-weight: 700;
+  }
+
+  & .alert-danger ul {
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.5rem;
+  }
+
+  & .alert-danger li {
+    color: var(--bs-danger);
+    margin-top: 0.25rem;
+  }
+
+  /* NAVIGATION TABS - Flat, Solid */
+  & .nav-tabs {
+    border: none;
+  }
+
+  & .nav-tabs .nav-link {
+    border-radius: 0;
+    border: none;
+    font-family: var(--bs-font-condensed);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-right: 0.5rem;
+  }
+
+  /* PROGRESS BARS - Flat, Solid */
+  & .progress,
+  & .progress-stacked {
+    --bs-progress-height: 1.25rem;
+    --bs-progress-bg: var(--bs-obsidian-900);
+    --bs-progress-border: none;
+    --bs-progress-border-radius: 0;
+    --bs-progress-box-shadow: none;
+    --bs-progress-bar-color: var(--bs-obsidian-900);
+    --bs-progress-bar-bg: var(--bs-magenta-500);
+    height: 20px;
+    border-radius: 0;
+    border: none;
+  }
+
+  & .progress-bar.bg-success {
+    background-color: var(--bs-magenta-500) !important;
+  }
+
+  /* FOOTER - Black background, white text */
+  & footer {
+    background-color: var(--bs-obsidian-900);
+    color: var(--bs-obsidian-100);
+    border-top: none;
+  }
+
+  & footer a {
+    color: var(--bs-yellow-500);
+    background: none;
+    padding: 0;
+  }
+
+  & footer a:hover {
+    color: var(--bs-magenta-500);
+    background: none;
+  }
+
+  & footer .text-body-secondary {
+    color: var(--bs-obsidian-100) !important;
+  }
+
+  /* FOCUS STYLES - Loud, Visible */
+  & *:focus-visible {
+    outline: 4px solid var(--bs-magenta-500);
+    outline-offset: 2px;
+  }
+
+  /* GRAIN TEXTURE - Optional DIY Zine Effect */
+  &.grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background:
+      radial-gradient(1px 1px at 10px 10px, rgba(255, 255, 255, 0.08) 0, rgba(255, 255, 255, 0.08) 1px, transparent 1px) 0 0/20px 20px,
+      radial-gradient(1px 1px at 5px 15px, rgba(255, 255, 255, 0.04) 0, rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0/20px 20px;
+    mix-blend-mode: overlay;
+  }
+
+  /* CARD HOVER - Utility */
+  & [role="button"].card:hover {
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+  }
+
+  /* BUTTON ELEMENTS WITHOUT .btn CLASS - Match .btn styling */
+  & button:not(.btn) {
+    font-family: var(--bs-font-condensed);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: none;
+    border-radius: 0;
+    padding: 0.75rem 1.5rem;
+    box-shadow: none;
+  }
+}
+
+/* ============================================================================
+   MÖRK BORG LIGHT MODE VARIANT
+   ============================================================================ */
+[data-bs-theme="light"][data-bs-core="morkborg"] {
+  /* Light mode color palette - inverted but maintaining MÖRK BORG aesthetic */
+
+  /* OBSIDIAN SCALES (inverted for light mode) */
+  --bs-obsidian-100-hsl: 0 0% 95%;
+  --bs-obsidian-100: hsl(var(--bs-obsidian-100-hsl));
+  --bs-obsidian-200-hsl: 0 0% 90%;
+  --bs-obsidian-200: hsl(var(--bs-obsidian-200-hsl));
+  --bs-obsidian-300-hsl: 0 0% 80%;
+  --bs-obsidian-300: hsl(var(--bs-obsidian-300-hsl));
+  --bs-obsidian-400-hsl: 0 0% 70%;
+  --bs-obsidian-400: hsl(var(--bs-obsidian-400-hsl));
+  --bs-obsidian-500-hsl: 0 0% 50%;
+  --bs-obsidian-500: hsl(var(--bs-obsidian-500-hsl));
+  --bs-obsidian-600-hsl: 0 0% 40%;
+  --bs-obsidian-600: hsl(var(--bs-obsidian-600-hsl));
+  --bs-obsidian-700-hsl: 0 0% 30%;
+  --bs-obsidian-700: hsl(var(--bs-obsidian-700-hsl));
+  --bs-obsidian-800-hsl: 0 0% 20%;
+  --bs-obsidian-800: hsl(var(--bs-obsidian-800-hsl));
+  --bs-obsidian-900-hsl: 0 0% 10%;
+  --bs-obsidian-900: hsl(var(--bs-obsidian-900-hsl));
+
+  /* YELLOW - Darker for better contrast on light background */
+  --bs-yellow-300-hsl: 54 100% 40%;
+  --bs-yellow-300: hsl(var(--bs-yellow-300-hsl));
+  --bs-yellow-400-hsl: 54 100% 45%;
+  --bs-yellow-400: hsl(var(--bs-yellow-400-hsl));
+  --bs-yellow-500-hsl: 54 100% 50%;
+  --bs-yellow-500: hsl(var(--bs-yellow-500-hsl));
+
+  /* MAGENTA - Darker for better contrast */
+  --bs-magenta-400-hsl: 320 100% 45%;
+  --bs-magenta-400: hsl(var(--bs-magenta-400-hsl));
+  --bs-magenta-500-hsl: 320 100% 50%;
+  --bs-magenta-500: hsl(var(--bs-magenta-500-hsl));
+
+  /* BODY - Light background, dark text */
+  --bs-body-color-hsl: var(--bs-obsidian-900-hsl);
+  --bs-body-color: hsl(var(--bs-body-color-hsl));
+  --bs-body-bg-hsl: 0 0% 98%;
+  --bs-body-bg: hsl(var(--bs-body-bg-hsl));
+
+  /* SEMANTIC COLORS - Adjusted for light mode */
+  --bs-primary: var(--bs-yellow-500);
+  --bs-primary-foreground: var(--bs-obsidian-900);
+  --bs-secondary: var(--bs-obsidian-300);
+  --bs-secondary-foreground: var(--bs-obsidian-900);
+  --bs-success: var(--bs-yellow-500);
+  --bs-success-foreground: var(--bs-obsidian-900);
+  --bs-danger: var(--bs-magenta-500);
+  --bs-danger-foreground: #fff;
+  --bs-warning: var(--bs-yellow-400);
+  --bs-warning-foreground: var(--bs-obsidian-900);
+  --bs-info: var(--bs-magenta-500);
+  --bs-info-foreground: #fff;
+
+  /* CONTENT - Light cards with dark text */
+  --bs-content-color-hsl: var(--bs-obsidian-900-hsl);
+  --bs-content-color: hsl(var(--bs-content-color-hsl));
+  --bs-content-bg-hsl: 54 100% 95%;
+  --bs-content-bg: hsl(var(--bs-content-bg-hsl));
+  --bs-content-border-color: var(--bs-yellow-400);
+
+  /* FORMS - Light inputs */
+  --bs-form-color: var(--bs-obsidian-900);
+  --bs-form-bg: #fff;
+  --bs-form-secondary-bg: var(--bs-obsidian-100);
+  --bs-form-tertiary-bg: var(--bs-obsidian-200);
+  --bs-form-border-color: var(--bs-obsidian-400);
+  --bs-form-focus-border-color: var(--bs-yellow-500);
+  --bs-form-disabled-color: var(--bs-obsidian-600);
+  --bs-form-disabled-bg: var(--bs-obsidian-100);
+
+  /* ACTIONS - Light buttons/inputs */
+  --bs-action-color: var(--bs-obsidian-900);
+  --bs-action-bg: var(--bs-obsidian-100);
+  --bs-action-border-color: var(--bs-obsidian-400);
+  --bs-action-hover-color: var(--bs-obsidian-900);
+  --bs-action-hover-bg: var(--bs-magenta-400);
+  --bs-action-hover-border-color: var(--bs-magenta-400);
+  --bs-action-active-color: var(--bs-obsidian-900);
+  --bs-action-active-bg: var(--bs-yellow-500);
+  --bs-action-active-border-color: var(--bs-yellow-500);
+
+  /* FOOTER - Inverted for light mode */
+  & footer {
+    background-color: var(--bs-obsidian-100);
+    color: var(--bs-obsidian-900);
+    border-top: 2px solid var(--bs-yellow-500);
+  }
+
+  & footer a {
+    color: var(--bs-magenta-500);
+  }
+
+  & footer a:hover {
+    color: var(--bs-yellow-500);
+  }
+
+  & footer .text-body-secondary {
+    color: var(--bs-obsidian-700) !important;
+  }
+
+  /* FORMS - Light mode borders */
+  & .form-control,
+  & .form-select,
+  & textarea.form-control {
+    border: 2px solid var(--bs-obsidian-400);
+  }
+
+  & .form-control:focus,
+  & .form-select:focus,
+  & textarea.form-control:focus {
+    border-color: var(--bs-yellow-500);
+  }
+}
+
+/* ============================================================================
+   UTILITY CLASSES - Outside the core selector
+   ============================================================================ */
+
+.cursor-pointer {
+  cursor: pointer;
+}

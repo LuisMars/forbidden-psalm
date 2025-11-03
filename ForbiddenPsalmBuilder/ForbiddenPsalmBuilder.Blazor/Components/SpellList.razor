@@ -1,0 +1,65 @@
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@namespace ForbiddenPsalmBuilder.Components
+
+@if (Spells.Any())
+{
+    <div>
+        <h3 class="h6 text-info mb-2"><i class="fas fa-magic"></i> Spells</h3>
+        <div class="d-flex flex-column gap-2">
+            @foreach (var spell in Spells)
+            {
+                <div class="card border-start border-info border-3">
+                    <div class="card-body p-2">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fas fa-magic text-info flex-shrink-0 mt-1"></i>
+                            <div class="flex-grow-1">
+                                <span class="fw-semibold">@spell.Name:</span>
+                                @if (ShowDetails)
+                                {
+                                    <span class="small ms-1">@spell.Effect</span>
+                                }
+                            </div>
+                            @if (ShowRemove && (OnRemoveSpell.HasDelegate || OnDeleteSpell.HasDelegate))
+                            {
+                                <ContextMenu MenuId="@($"spelllist-{spell.Name.Replace(" ", "-")}")">
+                                    @if (OnRemoveSpell.HasDelegate)
+                                    {
+                                        <li>
+                                            <button type="button" class="dropdown-item" @onclick="() => OnRemoveSpell.InvokeAsync(spell.Name)">
+                                                <i class="fas fa-box-open"></i> Move to Stash
+                                            </button>
+                                        </li>
+                                    }
+                                    @if (OnRemoveSpell.HasDelegate && OnDeleteSpell.HasDelegate)
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                    }
+                                    @if (OnDeleteSpell.HasDelegate)
+                                    {
+                                        <li>
+                                            <button type="button" class="dropdown-item" @onclick="() => OnDeleteSpell.InvokeAsync(spell.Name)">
+                                                <i class="fas fa-times"></i> Delete
+                                            </button>
+                                        </li>
+                                    }
+                                </ContextMenu>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-body-secondary fst-italic mb-0">No spells</p>
+}
+
+@code {
+    [Parameter] public List<SpellOption> Spells { get; set; } = new();
+    [Parameter] public bool ShowRemove { get; set; } = true;
+    [Parameter] public bool ShowDetails { get; set; } = true;
+    [Parameter] public EventCallback<string> OnRemoveSpell { get; set; }
+    [Parameter] public EventCallback<string> OnDeleteSpell { get; set; }
+}

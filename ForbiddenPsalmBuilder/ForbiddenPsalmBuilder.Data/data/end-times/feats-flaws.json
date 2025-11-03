@@ -1,0 +1,644 @@
+{
+  "flaws": [
+    {
+      "roll": null,
+      "rollRange": "1-4",
+      "name": "Cursed",
+      "effect": "-1 to all tests",
+      "type": "permanent",
+      "category": "general_penalty",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "test_modifier",
+          "scope": "all_tests",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "5-8",
+      "name": "Brittle Bones",
+      "effect": "When Critically hit, also gain a random Injury",
+      "type": "permanent",
+      "category": "conditional",
+      "trigger": "critical_hit_received",
+      "consequence": "gain_random_injury"
+    },
+    {
+      "rollRange": "9-12",
+      "name": "Coward",
+      "effect": "Auto-fails first Morale test each Scenario",
+      "type": "permanent",
+      "category": "morale_modifier",
+      "moraleEffect": "auto_fail_first_test"
+    },
+    {
+      "rollRange": "13-16",
+      "name": "Loner",
+      "effect": "-1 on all tests when within 2 inches of friendly model",
+      "type": "permanent",
+      "category": "conditional",
+      "trigger": "within_2_inches_friendly",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "conditional_test_modifier",
+          "condition": "within_2_inches_friendly",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "17-20",
+      "name": "Weak Hands",
+      "effect": "Can only wield One-Handed Weapons. Cannot use Shield or Torch and hold a Weapon",
+      "type": "permanent",
+      "category": "weapon_restriction",
+      "allowedWeaponTypes": [
+        "one_handed_only"
+      ],
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "weapon",
+          "allowed_types": [
+            "one_handed_only"
+          ]
+        }
+      ]
+    },
+    {
+      "rollRange": "21-24",
+      "name": "Greasy Hands",
+      "effect": "-1 to all Agility tests",
+      "type": "permanent",
+      "category": "stat_reduction",
+      "stat": "agility",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "stat_modifier",
+          "stat": "agility",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "25-28",
+      "name": "One Eyed",
+      "effect": "-1 on all ranged attacks and all spells",
+      "type": "permanent",
+      "category": "combat_penalty",
+      "attackTypes": [
+        "ranged",
+        "spells"
+      ],
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "attack_modifier",
+          "attackTypes": ["ranged", "spells"],
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "29-32",
+      "name": "Malnutrition",
+      "effect": "-1 to all Strength tests",
+      "type": "permanent",
+      "category": "stat_reduction",
+      "stat": "strength",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "stat_modifier",
+          "stat": "strength",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "33-36",
+      "name": "Scared of Heights",
+      "effect": "Cannot climb or jump",
+      "type": "permanent",
+      "category": "restriction",
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "general"
+        }
+      ]
+    },
+    {
+      "rollRange": "37-40",
+      "name": "Angry",
+      "effect": "If non-friendly model is within line of sight, must move towards them and attack if possible",
+      "type": "permanent",
+      "category": "behavioral",
+      "trigger": "enemy_in_sight",
+      "consequence": "must_move_and_attack"
+    },
+    {
+      "rollRange": "41-44",
+      "name": "Weak Bodied",
+      "effect": "-1 HP",
+      "type": "permanent",
+      "category": "stat_reduction",
+      "stat": "hp",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "stat_modifier",
+          "stat": "hp",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "45-48",
+      "name": "Vacant Mind",
+      "effect": "Never collect Treasure or Items from battlefield",
+      "type": "permanent",
+      "category": "restriction",
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "general"
+        }
+      ]
+    },
+    {
+      "rollRange": "49-52",
+      "name": "Allergic To Metal",
+      "effect": "Cannot wear metal Armor",
+      "type": "permanent",
+      "category": "armor_restriction",
+      "effects": [
+        {
+          "type": "equipment_restriction",
+          "excludedEquipment": [
+            "Heavy Armor",
+            "Medium Armor",
+            "Full Plate"
+          ]
+        }
+      ]
+    },
+    {
+      "rollRange": "53-56",
+      "name": "Squeamish",
+      "effect": "-1 damage dealt to others",
+      "type": "permanent",
+      "category": "damage_penalty",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "damage_modifier",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "57-60",
+      "name": "Slow Learner",
+      "effect": "+1 XP required to level up",
+      "type": "permanent",
+      "category": "xp_penalty",
+      "xpModifier": 1
+    },
+    {
+      "rollRange": "61-64",
+      "name": "Scared of Monsters",
+      "effect": "-1 to attack Monsters and beasts",
+      "type": "permanent",
+      "category": "combat_penalty",
+      "targetTypes": [
+        "monsters",
+        "beasts"
+      ],
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "attack_modifier",
+          "targetTypes": ["monsters", "beasts"],
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "65-68",
+      "name": "Loner",
+      "effect": "-1 on all tests when within 2 inches of friendly model",
+      "type": "permanent",
+      "category": "conditional",
+      "trigger": "within_2_inches_friendly",
+      "modifier": -1,
+      "effects": [
+        {
+          "type": "conditional_test_modifier",
+          "condition": "within_2_inches_friendly",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "69-72",
+      "name": "Realist",
+      "effect": "Cannot use Omens",
+      "type": "permanent",
+      "category": "restriction",
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "general"
+        }
+      ]
+    },
+    {
+      "rollRange": "73-76",
+      "name": "Poor Morale",
+      "effect": "Must make Morale test whenever they take damage",
+      "type": "permanent",
+      "category": "morale_modifier",
+      "trigger": "takes_damage",
+      "consequence": "morale_test_required"
+    },
+    {
+      "rollRange": "77-80",
+      "name": "Newbie",
+      "effect": "Gain no Flaw and no Feat",
+      "type": "permanent",
+      "category": "neutral"
+    },
+    {
+      "rollRange": "81-84",
+      "name": "Luddite",
+      "effect": "Can't use Weapons that Explode",
+      "type": "permanent",
+      "category": "weapon_restriction",
+      "effects": [
+        {
+          "type": "restriction",
+          "restriction_type": "weapon",
+          "allowed_types": []
+        }
+      ]
+    },
+    {
+      "rollRange": "85-88",
+      "name": "Scared of Dying",
+      "effect": "When any warband member dies, auto-fails Morale test",
+      "type": "permanent",
+      "category": "morale_modifier",
+      "trigger": "ally_death",
+      "consequence": "auto_fail_morale"
+    },
+    {
+      "rollRange": "89-92",
+      "name": "Steady On",
+      "effect": "Can only move once per activation",
+      "type": "permanent",
+      "category": "movement_restriction",
+      "maxMovesPerActivation": 1
+    },
+    {
+      "rollRange": "93-96",
+      "name": "One Foot in the Grave",
+      "effect": "If Downed, auto-fails Death Saves",
+      "type": "permanent",
+      "category": "death_save_modifier",
+      "deathSaveEffect": "auto_fail"
+    },
+    {
+      "rollRange": "97-100",
+      "name": "Dutch Courage",
+      "effect": "Must have Whisky equipped to participate in Scenario",
+      "type": "permanent",
+      "category": "equipment_requirement",
+      "requiredEquipment": [
+        "whisky"
+      ],
+      "effects": [
+        {
+          "type": "equipment_requirement",
+          "items": [
+            "whisky"
+          ]
+        }
+      ]
+    }
+  ],
+  "feats": [
+    {
+      "rollRange": "1-4",
+      "name": "Intimidating Presence",
+      "effect": "As action, force enemy to make Presence test. If fails, move them or make them drop weapon",
+      "type": "permanent",
+      "category": "special_action",
+      "actionType": "intimidation",
+      "targetTest": "presence",
+      "consequences": [
+        "move_target",
+        "disarm_target"
+      ]
+    },
+    {
+      "rollRange": "5-8",
+      "name": "Slippery When Wet",
+      "effect": "Model auto-leaves combat",
+      "type": "permanent",
+      "category": "combat_ability"
+    },
+    {
+      "rollRange": "9-12",
+      "name": "Cowardly",
+      "effect": "-1 on all Morale tests but +1 Agility",
+      "type": "permanent",
+      "category": "stat_trade",
+      "effects": [
+        {
+          "type": "morale_modifier",
+          "modifier": -1
+        },
+        {
+          "type": "stat_modifier",
+          "stat": "agility",
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "rollRange": "13-16",
+      "name": "Meathead",
+      "effect": "+2 Strength and -1 Presence",
+      "type": "permanent",
+      "category": "stat_trade",
+      "effects": [
+        {
+          "type": "stat_modifier",
+          "stat": "strength",
+          "modifier": 2
+        },
+        {
+          "type": "stat_modifier",
+          "stat": "presence",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "17-20",
+      "name": "Mind over Matter",
+      "effect": "Make Presence test to ignore D4 damage each time hit",
+      "type": "permanent",
+      "category": "damage_reduction",
+      "trigger": "when_hit",
+      "test": "presence",
+      "damageReduction": "D4"
+    },
+    {
+      "rollRange": "21-24",
+      "name": "Through Gritted Teeth",
+      "effect": "Can make Strength test to ignore being Downed until end of round",
+      "type": "permanent",
+      "category": "conditional_ability",
+      "test": "strength"
+    },
+    {
+      "rollRange": "25-28",
+      "name": "Revolting Appearance",
+      "effect": "Enemies suffer -1 to hit this model",
+      "type": "permanent",
+      "category": "defense_modifier",
+      "defensiveModifier": -1
+    },
+    {
+      "rollRange": "29-32",
+      "name": "Stubborn",
+      "effect": "+1 to all Morale tests",
+      "type": "permanent",
+      "category": "morale_modifier",
+      "moraleModifier": 1
+    },
+    {
+      "rollRange": "33-36",
+      "name": "Hard to See",
+      "effect": "Cannot be targeted by ranged attacks, cannot make ranged attacks. Spells work normally",
+      "type": "permanent",
+      "category": "ranged_restriction",
+      "exceptions": [
+        "spells_work_normally"
+      ]
+    },
+    {
+      "rollRange": "37-40",
+      "name": "Tough as Nails",
+      "effect": "+2 HP and -1 Agility",
+      "type": "permanent",
+      "category": "stat_trade",
+      "effects": [
+        {
+          "type": "stat_modifier",
+          "stat": "hp",
+          "modifier": 2
+        },
+        {
+          "type": "stat_modifier",
+          "stat": "agility",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "41-44",
+      "name": "Marksman",
+      "effect": "Increase range by 3 inches when using Ranged Weapons",
+      "type": "permanent",
+      "category": "ranged_ability",
+      "rangeBonus": 3,
+      "effects": [
+        {
+          "type": "range_modifier",
+          "weaponTypes": ["ranged"],
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "rollRange": "45-48",
+      "name": "Vaccinated",
+      "effect": "Immune to Diseased",
+      "type": "permanent",
+      "category": "immunity",
+      "immunities": [
+        "diseased"
+      ]
+    },
+    {
+      "rollRange": "49-52",
+      "name": "Rat Catcher",
+      "effect": "Gains free Bag o' Rats",
+      "type": "permanent",
+      "category": "free_equipment",
+      "freeEquipment": [
+        "bag_of_rats"
+      ],
+      "effects": [
+        {
+          "type": "free_equipment",
+          "items": [
+            "bag_of_rats"
+          ]
+        }
+      ]
+    },
+    {
+      "rollRange": "53-56",
+      "name": "Alchemist",
+      "effect": "Starts each Scenario with a Potion",
+      "type": "permanent",
+      "category": "starting_equipment",
+      "freeEquipment": [
+        "potion"
+      ],
+      "frequency": "each_scenario",
+      "effects": [
+        {
+          "type": "starting_equipment",
+          "items": [
+            "potion"
+          ]
+        }
+      ]
+    },
+    {
+      "rollRange": "57-60",
+      "name": "Animal Lover",
+      "effect": "Warband pays half cost to recruit pets",
+      "type": "permanent",
+      "category": "recruitment_modifier",
+      "targetType": "pets",
+      "costModifier": 0.5
+    },
+    {
+      "rollRange": "61-64",
+      "name": "Scavenger",
+      "effect": "Makes two Treasure Rolls when searching, takes both if has slots",
+      "type": "permanent",
+      "category": "treasure_ability",
+      "treasureRolls": 2,
+      "condition": "equipment_slots_available"
+    },
+    {
+      "rollRange": "65-68",
+      "name": "Barkskin",
+      "effect": "+1 Armor from tough skin, but -1 Agility",
+      "type": "permanent",
+      "category": "stat_trade",
+      "effects": [
+        {
+          "type": "armor_modifier",
+          "modifier": 1
+        },
+        {
+          "type": "stat_modifier",
+          "stat": "agility",
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "rollRange": "69-72",
+      "name": "Clawed Nails",
+      "effect": "Replace Fists with Claws [D6][Agility]",
+      "type": "permanent",
+      "category": "weapon_replacement",
+      "replaces": "fists",
+      "newWeapon": {
+        "name": "claws",
+        "damage": "D6",
+        "stat": "agility"
+      }
+    },
+    {
+      "rollRange": "73-76",
+      "name": "Swindler",
+      "effect": "If survives Death Saves, gets one free Treasure Roll at end of Scenario",
+      "type": "permanent",
+      "category": "conditional_treasure",
+      "trigger": "survives_death_saves",
+      "treasureRolls": 1,
+      "timing": "end_of_scenario"
+    },
+    {
+      "rollRange": "77-80",
+      "name": "Medic",
+      "effect": "As action, make Presence test to heal one Downed model in line of sight to 1 HP",
+      "type": "permanent",
+      "category": "special_action",
+      "actionType": "heal_downed",
+      "test": "presence",
+      "healingAmount": 1,
+      "range": "line_of_sight"
+    },
+    {
+      "rollRange": "81-84",
+      "name": "Improvised Fighter",
+      "effect": "As action, can make One-Handed Makeshift Weapon mid-Scenario",
+      "type": "permanent",
+      "category": "special_action",
+      "actionType": "create_weapon",
+      "weaponType": "one_handed_makeshift",
+      "timing": "mid_scenario"
+    },
+    {
+      "rollRange": "85-88",
+      "name": "Shield Bash",
+      "effect": "Deals additional 2 damage in melee when equipped with Shield",
+      "type": "permanent",
+      "category": "conditional_damage",
+      "trigger": "equipped_with_shield",
+      "attackType": "melee",
+      "damageBonus": 2,
+      "effects": [
+        {
+          "type": "conditional_damage_modifier",
+          "condition": "equipped_with_shield",
+          "attackType": "melee",
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "rollRange": "89-92",
+      "name": "Lucky Goblin Foot",
+      "effect": "Can reroll any one die per Scenario but has -1 Equipment slot",
+      "type": "permanent",
+      "category": "reroll_ability",
+      "rerollType": "any_die",
+      "frequency": "once_per_scenario",
+      "equipmentSlotModifier": -1
+    },
+    {
+      "rollRange": "93-96",
+      "name": "Charge",
+      "effect": "Can move 2x movement value but must end within inch of enemy",
+      "type": "permanent",
+      "category": "movement_ability",
+      "movementMultiplier": 2,
+      "requirement": "end_within_1_inch_enemy"
+    },
+    {
+      "rollRange": "97-100",
+      "name": "Feint/Disarm",
+      "effect": "When attacked in melee, can make Agility test to Feint and avoid damage",
+      "type": "permanent",
+      "category": "damage_reduction",
+      "trigger": "melee_attack_received",
+      "test": "agility"
+    }
+  ]
+}

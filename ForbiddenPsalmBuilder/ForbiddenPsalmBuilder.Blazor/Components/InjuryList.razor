@@ -1,0 +1,61 @@
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+
+<div class="d-flex flex-column gap-2">
+    @if (Injuries != null && Injuries.Any())
+    {
+        @foreach (var injury in Injuries)
+        {
+            @if (ShowDetails)
+            {
+                <div class="card border-start border-danger border-3">
+                    <div class="card-body p-2">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div class="flex-grow-1">
+                                <span class="fw-semibold">@injury.Name:</span>
+                                <span class="small ms-1">@injury.Effect</span>
+                            </div>
+                            @if (ShowRemove && OnRemoveInjury.HasDelegate)
+                            {
+                                <button type="button"
+                                        class="btn btn-sm btn-danger ms-2"
+                                        @onclick="() => OnRemoveInjury.InvokeAsync(injury.Name)"
+                                        title="Remove injury">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card border-start border-danger border-3">
+                    <div class="card-body p-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-semibold">@injury.Name</span>
+                            <span class="small">@injury.Effect</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <p class="text-body-secondary fst-italic mb-0">No injuries</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<InjuryOption> Injuries { get; set; } = new();
+
+    [Parameter]
+    public bool ShowDetails { get; set; } = false;
+
+    [Parameter]
+    public bool ShowRemove { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<string> OnRemoveInjury { get; set; }
+}

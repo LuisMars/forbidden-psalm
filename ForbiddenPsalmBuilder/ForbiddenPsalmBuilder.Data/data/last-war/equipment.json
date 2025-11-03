@@ -1,0 +1,208 @@
+{
+  "items": [
+    {
+      "name": "Cotton Face Pads",
+      "effect": "Prevents Gas effect for 2 rounds",
+      "cost": 7,
+      "slots": 1,
+      "roll": 1,
+      "iconClass": "fas fa-head-side-mask"
+    },
+    {
+      "name": "Lead & Opium",
+      "effect": "Cures Diseases",
+      "cost": 7,
+      "slots": 1,
+      "roll": 2,
+      "iconClass": "ra ra-potion",
+      "isConsumable": true,
+      "consumableEffect": "cure_disease"
+    },
+    {
+      "name": "Gas Mask",
+      "effect": "Prevents Gas and Smoke effects, -3 to Ranged attacks",
+      "cost": 15,
+      "slots": 1,
+      "roll": 3,
+      "iconClass": "fas fa-head-side-mask",
+      "effects": [
+        {
+          "type": "immunity",
+          "immunities": [
+            "gas",
+            "smoke"
+          ]
+        },
+        {
+          "type": "combat_penalty",
+          "attack_type": "ranged",
+          "modifier": -3
+        }
+      ]
+    },
+    {
+      "name": "Bandage",
+      "effect": "Cures Bleeding",
+      "cost": 1,
+      "slots": 1,
+      "roll": 4,
+      "iconClass": "fas fa-band-aid",
+      "isConsumable": true,
+      "consumableEffect": "cure_bleeding"
+    },
+    {
+      "name": "Lantern",
+      "effect": "Provides Light",
+      "cost": 3,
+      "slots": 1,
+      "roll": 5,
+      "iconClass": "ra ra-torch"
+    },
+    {
+      "name": "Bandolier",
+      "effect": "1 slot but provides 3 extra slots",
+      "cost": 5,
+      "slots": 1,
+      "extraSlots": 3,
+      "roll": 6,
+      "iconClass": "fas fa-backpack",
+      "effects": [
+        {
+          "type": "slot_modifier",
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "name": "Whisky",
+      "effect": "Auto-pass morale tests for remainder of Scenario, can combine with bandage for Molotov",
+      "cost": 4,
+      "slots": 1,
+      "roll": 7,
+      "iconClass": "ra ra-brandy-bottle"
+    },
+    {
+      "name": "Greatcoat",
+      "effect": "Ignore negative weather effects",
+      "cost": 2,
+      "slots": 1,
+      "roll": 8,
+      "iconClass": "fas fa-user-shield",
+      "effects": [
+        {
+          "type": "immunity",
+          "immunities": [
+            "negative_weather_effects"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ammo",
+      "effect": "See Ammo table",
+      "cost": "Variable",
+      "slots": 1,
+      "roll": 9,
+      "iconClass": "fas fa-box"
+    },
+    {
+      "name": "Anti-Gas Fan",
+      "effect": "Move Gas/Smoke clouds D6 inches with Strength test",
+      "cost": 5,
+      "slots": 1,
+      "roll": 10,
+      "iconClass": "fas fa-fan",
+      "effects": [
+        {
+          "type": "immunity",
+          "immunities": [
+            "gas",
+            "smoke"
+          ]
+        }
+      ]
+    }
+  ],
+  "ammo": [
+    {
+      "type": "Rifle Round",
+      "shots": 5,
+      "cost": 1,
+      "slots": 1,
+      "roll": 1,
+      "iconClass": "fas fa-box"
+    },
+    {
+      "type": "Shotgun Shells",
+      "shots": 4,
+      "cost": 1,
+      "slots": 1,
+      "roll": 2,
+      "iconClass": "fas fa-box"
+    },
+    {
+      "type": "Fuel Tank",
+      "shots": 3,
+      "cost": 4,
+      "slots": 1,
+      "roll": 3,
+      "iconClass": "fas fa-gas-pump"
+    },
+    {
+      "type": "Flare",
+      "shots": 1,
+      "cost": 2,
+      "slots": 1,
+      "roll": 4,
+      "iconClass": "fas fa-lightbulb"
+    },
+    {
+      "type": "Pistol Round",
+      "shots": 6,
+      "cost": 1,
+      "slots": 1,
+      "roll": 5,
+      "iconClass": "fas fa-box"
+    },
+    {
+      "type": "Sniper Round",
+      "shots": 5,
+      "cost": 4,
+      "slots": 1,
+      "roll": 6,
+      "iconClass": "fas fa-box"
+    },
+    {
+      "type": "Buzzsaw Round",
+      "shots": 3,
+      "cost": 3,
+      "slots": 1,
+      "roll": 7,
+      "iconClass": "fas fa-box"
+    },
+    {
+      "type": "Auto Rifle Round",
+      "shots": 5,
+      "cost": 3,
+      "slots": 1,
+      "roll": 8,
+      "iconClass": "fas fa-box"
+    },
+    {
+      "type": "Anti Tank Round",
+      "shots": 1,
+      "cost": 3,
+      "slots": 1,
+      "roll": 9,
+      "iconClass": "fas fa-box"
+    },
+    {
+      "type": "Reroll and take twice the amount",
+      "shots": null,
+      "cost": null,
+      "slots": null,
+      "roll": 10,
+      "iconClass": "fas fa-dice"
+    }
+  ]
+}

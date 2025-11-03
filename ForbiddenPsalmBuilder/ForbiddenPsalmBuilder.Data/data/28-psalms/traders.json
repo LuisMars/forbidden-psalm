@@ -1,0 +1,12 @@
+[
+  {
+    "id": "scoundrel-trader",
+    "name": "Scoundrel Trader",
+    "gameVariant": "28-psalms",
+    "description": "Standard trader in the 28 Psalms universe. Buys at half price (rounded down), sells at full price. Cannot sell scrolls.",
+    "buyMultiplier": 0.5,
+    "sellMultiplier": 1.0,
+    "hasLimitedInventory": false,
+    "iconClass": "ra ra-hood"
+  }
+]

@@ -1,0 +1,254 @@
+[
+  {
+    "roll": 1,
+    "name": "Skull Fracture",
+    "effect": "-1 Presence",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "presence",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 2,
+    "name": "Broken Nose",
+    "effect": "-1 to all social interactions",
+    "type": "permanent",
+    "category": "social_penalty"
+  },
+  {
+    "roll": 3,
+    "name": "Cracked Ribs",
+    "effect": "-1 Toughness",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "toughness",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 4,
+    "name": "Shell Shock",
+    "effect": "Must make morale test when any explosion occurs within 6 inches",
+    "type": "permanent",
+    "category": "conditional",
+    "effects": [
+      {
+        "type": "conditional_modifier",
+        "trigger": "explosion_within_6_inches"
+      }
+    ]
+  },
+  {
+    "roll": 5,
+    "name": "Shrapnel Wound",
+    "effect": "-1 HP",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "hp",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 6,
+    "name": "Infected Wound",
+    "effect": "Auto-fails tests against Disease",
+    "type": "permanent",
+    "category": "vulnerability"
+  },
+  {
+    "roll": 7,
+    "name": "Nerve Damage",
+    "effect": "-1 Agility",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "agility",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 8,
+    "name": "Muscle Damage",
+    "effect": "-1 Strength",
+    "type": "permanent",
+    "category": "stat_reduction",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "strength",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 9,
+    "name": "Blind in One Eye",
+    "effect": "-3 to ranged attacks",
+    "type": "permanent",
+    "category": "combat_penalty",
+    "effects": [
+      {
+        "type": "combat_modifier",
+        "attackType": "ranged",
+        "modifier": -3
+      }
+    ]
+  },
+  {
+    "roll": 10,
+    "name": "Deaf",
+    "effect": "Cannot benefit from Orders or commands",
+    "type": "permanent",
+    "category": "restriction",
+    "effects": [
+      {
+        "type": "restriction",
+        "restrictions": [
+          "no_orders",
+          "no_commands"
+        ]
+      }
+    ]
+  },
+  {
+    "roll": 11,
+    "name": "Lost Finger",
+    "effect": "-1 to weapon handling tests",
+    "type": "permanent",
+    "category": "combat_penalty",
+    "effects": [
+      {
+        "type": "combat_modifier",
+        "modifier": -1,
+        "appliesTo": "weapon_handling"
+      }
+    ]
+  },
+  {
+    "roll": 12,
+    "name": "Chronic Pain",
+    "effect": "-1 to all tests when below half HP",
+    "type": "permanent",
+    "category": "conditional",
+    "effects": [
+      {
+        "type": "conditional_modifier",
+        "trigger": "below_half_hp",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 13,
+    "name": "Phantom Limb",
+    "effect": "Occasionally acts as if lost limb still there",
+    "type": "permanent",
+    "category": "behavioral"
+  },
+  {
+    "roll": 14,
+    "name": "War Neurosis",
+    "effect": "Random emotional outbursts, roll morale when taking any damage",
+    "type": "permanent",
+    "category": "conditional",
+    "effects": [
+      {
+        "type": "conditional_modifier",
+        "trigger": "taking_damage"
+      }
+    ]
+  },
+  {
+    "roll": 15,
+    "name": "Breathing Problems",
+    "effect": "-1 to tests in Gas or Smoke",
+    "type": "permanent",
+    "category": "conditional",
+    "effects": [
+      {
+        "type": "conditional_modifier",
+        "trigger": "gas_or_smoke",
+        "modifier": -1
+      }
+    ]
+  },
+  {
+    "roll": 16,
+    "name": "Discombobulated",
+    "effect": "Swap two stats at random",
+    "type": "permanent",
+    "category": "stat_modification",
+    "effects": [
+      {
+        "type": "stat_swap",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "roll": 17,
+    "name": "Destined to Die",
+    "effect": "Crew member believes they will die, refuses to come on next Scenario",
+    "type": "temporary",
+    "category": "restriction",
+    "duration": "next scenario",
+    "effects": [
+      {
+        "type": "restriction",
+        "restrictions": [
+          "refuses_next_scenario"
+        ]
+      }
+    ]
+  },
+  {
+    "roll": 18,
+    "name": "Strength through Pain",
+    "effect": "+1 Toughness",
+    "type": "positive",
+    "category": "stat_increase",
+    "effects": [
+      {
+        "type": "stat_modifier",
+        "stat": "toughness",
+        "modifier": 1
+      }
+    ]
+  },
+  {
+    "roll": 19,
+    "name": "Learn through Failure",
+    "effect": "Roll for one extra Feat",
+    "type": "positive",
+    "category": "feat_gain",
+    "effects": [
+      {
+        "type": "feat_gain",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "roll": 20,
+    "name": "What Doesn't Kill You Only Makes You Stronger",
+    "effect": "Remove one Flaw from this crew member",
+    "type": "positive",
+    "category": "flaw_removal"
+  }
+]

@@ -1,0 +1,253 @@
+@using ForbiddenPsalmBuilder.Core.Models.Selection
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.Services
+@using ForbiddenPsalmBuilder.Core.Services.State
+@using System.IO
+@inject IGameStateService StateService
+@inject FeatFlawService FeatFlawService
+@inject InjuryService InjuryService
+@inject SpellService SpellService
+
+<div class="export-options-modal">
+    <div class="alert alert-info mb-4">
+        <h4 class="mb-1">Export @Warband?.Name</h4>
+        <p class="mb-0">Choose export format and options</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            @errorMessage
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-4">
+                @* Format Selection *@
+                <div class="mb-4">
+            <label class="form-label fw-bold">Export Format</label>
+            <div class="btn-group w-100" role="group">
+                <button type="button"
+                        class="btn @(selectedFormat == "json" ? "btn-primary" : "btn-outline-primary")"
+                        @onclick='() => { selectedFormat = "json"; GeneratePreview(); }'>
+                    <i class="fas fa-code me-2"></i>JSON
+                </button>
+                <button type="button"
+                        class="btn @(selectedFormat == "markdown" ? "btn-primary" : "btn-outline-primary")"
+                        @onclick='() => { selectedFormat = "markdown"; GeneratePreview(); }'>
+                    <i class="fab fa-markdown me-2"></i>Markdown
+                </button>
+            </div>
+            <small class="form-text text-muted mt-1">
+                @if (selectedFormat == "json")
+                {
+                    <text>Full warband data for backup/sharing (can be imported back)</text>
+                }
+                else
+                {
+                    <text>Formatted markdown for documentation/wiki</text>
+                }
+            </small>
+        </div>
+
+        @* Export Options (only for markdown) *@
+        @if (selectedFormat == "markdown")
+        {
+            <div class="mb-4">
+                <label class="form-label fw-bold">Export Detail Level</label>
+                <div class="btn-group w-100 mb-3" role="group">
+                    <button type="button"
+                            class="btn @(detailLevel == "print" ? "btn-success" : "btn-outline-success")"
+                            @onclick='() => { detailLevel = "print"; ApplyPreset(); }'>
+                        <i class="fas fa-print me-2"></i>Print-Friendly
+                    </button>
+                    <button type="button"
+                            class="btn @(detailLevel == "full" ? "btn-success" : "btn-outline-success")"
+                            @onclick='() => { detailLevel = "full"; ApplyPreset(); }'>
+                        <i class="fas fa-database me-2"></i>Full Campaign
+                    </button>
+                    <button type="button"
+                            class="btn @(detailLevel == "custom" ? "btn-success" : "btn-outline-success")"
+                            @onclick='() => detailLevel = "custom"'>
+                        <i class="fas fa-sliders-h me-2"></i>Custom
+                    </button>
+                </div>
+
+                @if (detailLevel == "custom")
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chkMembers"
+                                       @bind="options.IncludeMembers" @bind:after="GeneratePreview">
+                                <label class="form-check-label" for="chkMembers">Include Active Members</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chkDead"
+                                       @bind="options.IncludeDeadMembers" @bind:after="GeneratePreview">
+                                <label class="form-check-label" for="chkDead">Include Dead Members</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chkFired"
+                                       @bind="options.IncludeFiredMembers" @bind:after="GeneratePreview">
+                                <label class="form-check-label" for="chkFired">Include Fired Members</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chkStash"
+                                       @bind="options.IncludeStash" @bind:after="GeneratePreview">
+                                <label class="form-check-label" for="chkStash">Include Warband Stash</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chkCustom"
+                                       @bind="options.IncludeCustomItems" @bind:after="GeneratePreview">
+                                <label class="form-check-label" for="chkCustom">Include Custom Items</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chkStats"
+                                       @bind="options.IncludeDetailedStats" @bind:after="GeneratePreview">
+                                <label class="form-check-label" for="chkStats">Include Detailed Character Stats</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="chkEquip"
+                                       @bind="options.IncludeEquipment" @bind:after="GeneratePreview">
+                                <label class="form-check-label" for="chkEquip">Include Character Equipment</label>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+            </div>
+
+            @* Preview Column *@
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Preview</label>
+                    <textarea class="form-control font-monospace"
+                              rows="20"
+                              readonly
+                              style="font-size: 0.85rem; white-space: pre; overflow-x: auto;">@previewContent</textarea>
+                </div>
+            </div>
+        </div>
+
+        @* Action Buttons *@
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-secondary flex-fill" @onclick="OnCancel">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="button" class="btn btn-primary flex-fill" @onclick="HandleExport">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Warband? Warband { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<(string content, string filename, string format)> OnExport { get; set; }
+
+    private string selectedFormat = "json";
+    private string detailLevel = "print";
+    private ExportOptions options = ExportOptions.PrintFriendly();
+    private string? errorMessage;
+    private string? previewContent;
+    private List<FeatFlawOption> featOptions = new();
+    private List<FeatFlawOption> flawOptions = new();
+    private List<InjuryOption> injuryOptions = new();
+    private List<SpellOption> spellOptions = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        // Load feat/flaw/injury/spell options if we have a warband
+        if (Warband != null)
+        {
+            featOptions = await FeatFlawService.GetFeatsAsync(Warband.GameVariant);
+            flawOptions = await FeatFlawService.GetFlawsAsync(Warband.GameVariant);
+            injuryOptions = await InjuryService.GetInjuriesAsync(Warband.GameVariant);
+            spellOptions = await SpellService.GetSpellsAsync(Warband.GameVariant);
+        }
+
+        GeneratePreview();
+    }
+
+    private void ApplyPreset()
+    {
+        if (detailLevel == "print")
+        {
+            options = ExportOptions.PrintFriendly();
+        }
+        else if (detailLevel == "full")
+        {
+            options = ExportOptions.FullCampaign();
+        }
+        GeneratePreview();
+    }
+
+    private void GeneratePreview()
+    {
+        if (Warband == null)
+        {
+            previewContent = null;
+            return;
+        }
+
+        try
+        {
+            if (selectedFormat == "json")
+            {
+                var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                };
+                previewContent = System.Text.Json.JsonSerializer.Serialize(Warband, jsonOptions);
+            }
+            else // markdown
+            {
+                var formatter = new WarbandExportFormatterService();
+                previewContent = formatter.FormatAsMarkdown(Warband, options, featOptions, flawOptions, injuryOptions, spellOptions);
+            }
+        }
+        catch (Exception ex)
+        {
+            previewContent = $"Error generating preview: {ex.Message}";
+        }
+    }
+
+    private async Task HandleExport()
+    {
+        if (Warband == null || string.IsNullOrEmpty(previewContent))
+        {
+            errorMessage = "No warband selected or preview not generated";
+            return;
+        }
+
+        try
+        {
+            errorMessage = null;
+            string extension = selectedFormat == "json" ? "json" : "md";
+
+            // Generate filename
+            var sanitizedName = string.Join("_", Warband.Name.Split(Path.GetInvalidFileNameChars()));
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var filename = $"{sanitizedName}_{timestamp}.{extension}";
+
+            await OnExport.InvokeAsync((previewContent, filename, selectedFormat));
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Export failed: {ex.Message}";
+        }
+    }
+
+    private async Task OnCancel()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

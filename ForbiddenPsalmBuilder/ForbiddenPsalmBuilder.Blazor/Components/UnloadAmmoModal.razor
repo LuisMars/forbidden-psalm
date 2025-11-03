@@ -1,0 +1,147 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Character
+
+<Modal IsVisible="true" OnClose="Cancel" Title="Unload Ammo">
+    <div>
+        <div class="mb-3">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                Unload ammo from <strong>@Weapon.Name</strong>
+                (Current: @Weapon.CurrentShots shots loaded)
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="shotsToUnload" class="form-label fw-semibold">
+                Shots to Unload
+            </label>
+            <div class="input-group">
+                <button type="button"
+                        class="btn btn-secondary"
+                        @onclick="Decrement"
+                        disabled="@(shotsToUnload <= 1)">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <input type="number"
+                       class="form-control text-center"
+                       id="shotsToUnload"
+                       min="1"
+                       max="@Weapon.CurrentShots"
+                       @bind="shotsToUnload"
+                       @bind:event="onchange"
+                       style="max-width: 120px;" />
+                <button type="button"
+                        class="btn btn-secondary"
+                        @onclick="Increment"
+                        disabled="@(shotsToUnload >= Weapon.CurrentShots)">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <small class="text-body-secondary d-block mt-1">
+                Range: 1 to @Weapon.CurrentShots shots
+            </small>
+        </div>
+
+        <div class="mb-3">
+            <div class="row g-2">
+                <div class="col-6">
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm w-100"
+                            @onclick="@(() => shotsToUnload = Math.Min(Weapon.MaxShots, Weapon.CurrentShots))"
+                            disabled="@(Weapon.CurrentShots < Weapon.MaxShots)">
+                        <i class="ra ra-bullets"></i> 1 Magazine (@Weapon.MaxShots)
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm w-100"
+                            @onclick="@(() => shotsToUnload = Weapon.CurrentShots)">
+                        <i class="fas fa-box-open"></i> All (@Weapon.CurrentShots)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Result:</h6>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <i class="@Weapon.IconClass fs-3 d-block mb-2 text-primary"></i>
+                            <div class="small text-body-secondary">Weapon</div>
+                            <div class="fw-bold">@(Weapon.CurrentShots - shotsToUnload)/@Weapon.MaxShots shots</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <i class="ra ra-bullets fs-3 d-block mb-2 text-info"></i>
+                            <div class="small text-body-secondary">Ammo Item</div>
+                            <div class="fw-bold">+@shotsToUnload shots</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" class="btn btn-primary" @onclick="ConfirmUnload">
+            <i class="fas fa-box-open"></i> Unload @shotsToUnload @(shotsToUnload == 1 ? "Shot" : "Shots")
+        </button>
+    </div>
+</Modal>
+
+@code {
+    [Parameter, EditorRequired]
+    public Equipment Weapon { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<int> OnUnload { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private int shotsToUnload = 1;
+
+    protected override void OnInitialized()
+    {
+        // Default to unloading one magazine if possible
+        shotsToUnload = Math.Min(Weapon.MaxShots, Weapon.CurrentShots);
+    }
+
+    private void Increment()
+    {
+        if (shotsToUnload < Weapon.CurrentShots)
+        {
+            shotsToUnload++;
+        }
+    }
+
+    private void Decrement()
+    {
+        if (shotsToUnload > 1)
+        {
+            shotsToUnload--;
+        }
+    }
+
+    private async Task ConfirmUnload()
+    {
+        if (OnUnload.HasDelegate && shotsToUnload > 0 && shotsToUnload <= Weapon.CurrentShots)
+        {
+            await OnUnload.InvokeAsync(shotsToUnload);
+        }
+    }
+
+    private async Task Cancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+}

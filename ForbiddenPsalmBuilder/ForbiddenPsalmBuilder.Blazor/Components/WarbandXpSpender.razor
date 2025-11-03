@@ -1,0 +1,188 @@
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.Services.State
+@inject IGameStateService StateService
+
+<div class="warband-xp-spender">
+    <div class="alert alert-info mb-4">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="mb-1">Spend Warband XP</h4>
+                <p class="mb-0">
+                    <strong>XP Cost:</strong> @XpCost XP
+                    <span class="ms-3"><strong>Available:</strong> @(Warband?.Experience ?? 0) XP</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    @if (isProcessing)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Processing...</span>
+            </div>
+            <p>Processing...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            @errorMessage
+        </div>
+    }
+    else if (success)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>
+            Success! @successMessage
+        </div>
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-primary" @onclick="OnClose">
+                <i class="fas fa-check"></i> Done
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @* Option 1: Resurrect Dead Member *@
+            <div class="col-12">
+                <div class="card h-100 @(selectedOption == "resurrect" ? "border-primary" : "")" role="button" @onclick='() => selectedOption = "resurrect"'>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-heartbeat text-danger me-2"></i>
+                            Resurrect Dead Member
+                        </h5>
+                        <p class="card-text text-muted small">Bring back a fallen hero (they will gain a new Flaw)</p>
+
+                        @if (selectedOption == "resurrect")
+                        {
+                            @if (Warband?.DeadMembers.Any() == true)
+                            {
+                                <div class="mt-3">
+                                    <select class="form-select" @bind="selectedDeadMemberId">
+                                        <option value="">Select member to resurrect...</option>
+                                        @foreach (var member in Warband.DeadMembers)
+                                        {
+                                            <option value="@member.Id">@member.Name</option>
+                                        }
+                                    </select>
+                                    <button type="button"
+                                            class="btn btn-primary w-100 mt-2"
+                                            @onclick="HandleResurrect"
+                                            disabled="@string.IsNullOrEmpty(selectedDeadMemberId)">
+                                        <i class="fas fa-check"></i> Confirm Resurrection
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning mt-3 mb-0">
+                                    <small>No dead members to resurrect</small>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-secondary" @onclick="OnClose">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    .warband-xp-spender .card {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .warband-xp-spender .card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .warband-xp-spender .border-primary {
+        border-width: 2px !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+</style>
+
+@code {
+    [Parameter] public string? WarbandId { get; set; }
+    [Parameter] public Warband? Warband { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnXpSpent { get; set; }
+
+    private int XpCost = 5;
+    private string selectedOption = "";
+    private string selectedDeadMemberId = "";
+
+    private bool isProcessing = false;
+    private bool success = false;
+    private string errorMessage = "";
+    private string successMessage = "";
+
+    protected override void OnInitialized()
+    {
+        LoadData();
+    }
+
+    protected override void OnParametersSet()
+    {
+        LoadData();
+    }
+
+    private void LoadData()
+    {
+        if (string.IsNullOrEmpty(WarbandId))
+            return;
+
+        try
+        {
+            // For now, XP cost is always 5 for warband operations
+            // Could be loaded from campaign progression service if needed
+            XpCost = 5;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load data: {ex.Message}";
+        }
+    }
+
+    private async Task HandleResurrect()
+    {
+        if (string.IsNullOrEmpty(selectedDeadMemberId)) return;
+
+        isProcessing = true;
+        errorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            await StateService.ResurrectMemberAsync(WarbandId!, selectedDeadMemberId);
+
+            var deadMember = Warband?.DeadMembers.FirstOrDefault(m => m.Id == selectedDeadMemberId);
+            var memberName = deadMember?.Name ?? "Member";
+
+            success = true;
+            successMessage = $"{memberName} has been resurrected!";
+            await OnXpSpent.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+}

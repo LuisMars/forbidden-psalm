@@ -1,0 +1,20 @@
+@namespace ForbiddenPsalmBuilder.Components
+
+@if (Errors.Any())
+{
+    <aside class="alert alert-danger">
+        <strong>⚠ Errors:</strong>
+        <ul>
+            @foreach (var error in Errors)
+            {
+                <li>
+                @error
+                </li>
+            }
+        </ul>
+    </aside>
+}
+
+@code {
+    [Parameter] public List<string> Errors { get; set; } = new();
+}

@@ -1,0 +1,164 @@
+{
+  "spells": [
+    {
+      "name": "Hope's Last Breath",
+      "effect": "Heal model within 1 inch for D6 HP. Doesn't work on Downed/Dead",
+      "category": "clean"
+    },
+    {
+      "name": "Will of the Optimistic",
+      "effect": "Target adds extra D6 to next test",
+      "category": "clean"
+    },
+    {
+      "name": "Not Dead Yet",
+      "effect": "Dead model awakens with 1 HP and additional Flaw",
+      "category": "clean"
+    },
+    {
+      "name": "Second Wind",
+      "effect": "Target gains 1D6 extra HP until end of Scenario. Reader loses 2 max HP each cast",
+      "category": "clean"
+    },
+    {
+      "name": "Visions of Tomorrow",
+      "effect": "Target must flee as per Morale rules",
+      "category": "clean"
+    },
+    {
+      "name": "Shield of the Faithless",
+      "effect": "Model cannot be targeted by ranged attacks for one round",
+      "category": "clean"
+    },
+    {
+      "name": "Bones, them Damn Bones",
+      "effect": "Target becomes deranged, must make Presence test or attack nearest model",
+      "category": "clean"
+    },
+    {
+      "name": "Eternal Sleep",
+      "effect": "Target makes Presence test or falls asleep until woken by damage or friendly model",
+      "category": "clean"
+    },
+    {
+      "name": "Invisible Hands",
+      "effect": "Move object (dropped Weapon or Treasure) D12 inches",
+      "category": "clean"
+    },
+    {
+      "name": "Ungrounded",
+      "effect": "Target hovers for 1 round, ignoring terrain, moving at 2x speed",
+      "category": "clean"
+    },
+    {
+      "name": "Breath of the Undying",
+      "effect": "Heals D4 HP per round, prevents enemies from leaving combat",
+      "category": "clean"
+    },
+    {
+      "name": "Inmortalium Inventioni",
+      "effect": "Complex resurrection spell with high risk",
+      "category": "clean"
+    },
+    {
+      "name": "One-Eyed King",
+      "effect": "Target becomes invisible, cannot be targeted until they make any test",
+      "category": "clean"
+    },
+    {
+      "name": "Light of Truth",
+      "effect": "Reveals hidden enemies and illusions",
+      "category": "clean"
+    },
+    {
+      "name": "Divine Protection",
+      "effect": "Target gains temporary invulnerability",
+      "category": "clean"
+    },
+    {
+      "name": "Cleansing Fire",
+      "effect": "Purifies area of corruption and evil",
+      "category": "clean"
+    },
+    {
+      "name": "Shadow Bind",
+      "effect": "Target cannot move for D3 rounds",
+      "category": "unclean"
+    },
+    {
+      "name": "Curse of Weakness",
+      "effect": "Target suffers -2 to all Stats for remainder of Scenario",
+      "category": "unclean"
+    },
+    {
+      "name": "Summon Skeleton",
+      "effect": "Skeleton appears and fights nearest model (not reader unless cast fails)",
+      "category": "unclean"
+    },
+    {
+      "name": "Blood Boil",
+      "effect": "Target makes Toughness test or takes 1D8 damage ignoring Armor",
+      "category": "unclean"
+    },
+    {
+      "name": "Doom",
+      "effect": "Target must make Presence test or take D10 damage ignoring Armor",
+      "category": "unclean"
+    },
+    {
+      "name": "Fear",
+      "effect": "All enemies within 6 inches must make Morale test",
+      "category": "unclean"
+    },
+    {
+      "name": "Pestilence",
+      "effect": "Target becomes Diseased",
+      "category": "unclean"
+    },
+    {
+      "name": "Soul Drain",
+      "effect": "Heal reader for damage dealt to target",
+      "category": "unclean"
+    },
+    {
+      "name": "Animate Dead",
+      "effect": "Raise fallen warrior to fight for you",
+      "category": "unclean"
+    },
+    {
+      "name": "Corruption",
+      "effect": "Target gains random mutation",
+      "category": "unclean"
+    },
+    {
+      "name": "Dark Teleport",
+      "effect": "Move instantly up to 12 inches",
+      "category": "unclean"
+    },
+    {
+      "name": "Void Strike",
+      "effect": "Ignore all armor on next attack",
+      "category": "unclean"
+    },
+    {
+      "name": "Vocare Cattus",
+      "effect": "Summon the Cath Palug (not recommended)",
+      "category": "unclean"
+    },
+    {
+      "name": "Nightmare",
+      "effect": "Target sees worst fears, flees in terror",
+      "category": "unclean"
+    },
+    {
+      "name": "Soul Bind",
+      "effect": "Permanently link fates of two models",
+      "category": "unclean"
+    },
+    {
+      "name": "CHAOS",
+      "effect": "Roll random Unclean Scroll, reader must cast it",
+      "category": "unclean"
+    }
+  ]
+}
