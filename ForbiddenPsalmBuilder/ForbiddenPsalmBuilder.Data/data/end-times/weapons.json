@@ -220,6 +220,17 @@
       "slots": 1,
       "rollRange": "78-79",
       "iconClass": "ra ra-knife"
+    },
+    {
+      "name": "Ice Sword",
+      "damage": "D8",
+      "properties": [],
+      "stat": "Agility",
+      "cost": 0,
+      "slots": 1,
+      "rollRange": null,
+      "special": "Scenario-specific weapon used by Ice Guards in Scenario 11 'just ice'",
+      "iconClass": "ra ra-broadsword"
     }
   ],
   "twoHandedMelee": [

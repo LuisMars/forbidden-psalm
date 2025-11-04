@@ -52,44 +52,124 @@
       "consumableEffect": "heal_hp"
     },
     {
+      "name": "Ammo",
+      "effect": "Five shots per stack of Ammo",
+      "cost": 1,
+      "slots": 1,
+      "roll": 6,
+      "iconClass": "fas fa-box"
+    },
+    {
       "name": "Antidote",
       "effect": "Cures Poisoned",
       "cost": 7,
       "slots": 1,
-      "roll": 6,
+      "roll": 7,
       "iconClass": "ra ra-potion",
       "isConsumable": true,
       "consumableEffect": "cure_poisoned"
     },
     {
-      "name": "Bag o' Rats",
-      "effect": "Special throwable item",
-      "cost": 3,
+      "name": "Tincture",
+      "effect": "Cures Diseased",
+      "cost": 7,
       "slots": 1,
-      "roll": 7,
-      "iconClass": "fas fa-sack-dollar"
+      "roll": 8,
+      "iconClass": "ra ra-potion",
+      "isConsumable": true,
+      "consumableEffect": "cure_disease"
+    },
+    {
+      "name": "Cannonball",
+      "effect": "One shot of Cannon Ammo",
+      "cost": 2,
+      "slots": 1,
+      "roll": 9,
+      "iconClass": "ra ra-cannon-shot"
     },
     {
       "name": "Whisky",
-      "effect": "Required for Dutch Courage flaw",
+      "effect": "After drinking, auto-pass Morale tests for remainder of Scenario",
       "cost": 2,
       "slots": 1,
-      "roll": 8,
+      "roll": 10,
       "iconClass": "fas fa-wine-bottle",
-      "effects": [
-        {
-          "type": "flaw_requirement",
-          "related_flaw": "dutch_courage"
-        }
-      ]
+      "isConsumable": true,
+      "consumableEffect": "dutch_courage"
     },
     {
-      "name": "Manuscript",
-      "effect": "Ancient writings",
-      "cost": "Variable",
+      "name": "Black-Spotted Fungus",
+      "effect": "Found on Corpse Markers in 'The Mad Wizard's Tea'. Worth 2 Gold when returned to Vriprix. DR12 Toughness test to avoid infection",
+      "cost": 2,
       "slots": 1,
-      "roll": 9,
-      "iconClass": "ra ra-scroll-unfurled"
+      "roll": -1,
+      "special": "Scenario item - Scenario 1: The Mad Wizard's Tea",
+      "iconClass": "fas fa-mushroom",
+      "isConsumable": true,
+      "consumableEffect": "infected"
+    },
+    {
+      "name": "Looted Valuables",
+      "effect": "Worth 2 Gold. Each turn pass DR12 Strength test or suffer -1 Agility for remainder of turn. Retrieved from tombs in 'A Fire for the Hills'",
+      "cost": 2,
+      "slots": 1,
+      "roll": -2,
+      "special": "Scenario item - Scenario 12: A Fire for the Hills",
+      "iconClass": "fas fa-coins"
+    },
+    {
+      "name": "Blood Drop Ruby",
+      "effect": "Worth 5 Gold. Random model carries this treasure item in 'A Fire for the Hills'. Additional reward if carrier survives and exits board",
+      "cost": 5,
+      "slots": 1,
+      "roll": -3,
+      "special": "Scenario item - Scenario 12: A Fire for the Hills",
+      "iconClass": "fas fa-gem"
+    },
+    {
+      "name": "Blue Sock",
+      "effect": "Dropped by Sock Stealing Goblins when killed (1D6 table)",
+      "cost": 0,
+      "slots": 1,
+      "roll": -4,
+      "special": "Monster drop - Sock Stealing Goblin",
+      "iconClass": "fas fa-socks"
+    },
+    {
+      "name": "Red Sock",
+      "effect": "Dropped by Sock Stealing Goblins when killed (1D6 table)",
+      "cost": 0,
+      "slots": 1,
+      "roll": -5,
+      "special": "Monster drop - Sock Stealing Goblin",
+      "iconClass": "fas fa-socks"
+    },
+    {
+      "name": "Green Sock",
+      "effect": "Dropped by Sock Stealing Goblins when killed (1D6 table)",
+      "cost": 0,
+      "slots": 1,
+      "roll": -6,
+      "special": "Monster drop - Sock Stealing Goblin",
+      "iconClass": "fas fa-socks"
+    },
+    {
+      "name": "No Sock",
+      "effect": "Dropped by Sock Stealing Goblins when killed (1D6 table) - Joke item, nothing here",
+      "cost": 0,
+      "slots": 1,
+      "roll": -7,
+      "special": "Monster drop - Sock Stealing Goblin",
+      "iconClass": "fas fa-ban"
+    },
+    {
+      "name": "Pink Glove",
+      "effect": "Dropped by Sock Stealing Goblins when killed (1D6 table)",
+      "cost": 0,
+      "slots": 1,
+      "roll": -8,
+      "special": "Monster drop - Sock Stealing Goblin",
+      "iconClass": "fas fa-hand-paper"
     }
   ],
   "ammo": [
@@ -99,7 +179,7 @@
       "shots": 5,
       "cost": 1,
       "slots": 1,
-      "roll": null,
+      "roll": 6,
       "iconClass": "ra ra-arrow-cluster"
     },
     {
@@ -108,7 +188,7 @@
       "shots": 5,
       "cost": 1,
       "slots": 1,
-      "roll": null,
+      "roll": 6,
       "iconClass": "ra ra-crossbow"
     },
     {
@@ -117,7 +197,7 @@
       "shots": 5,
       "cost": 1,
       "slots": 1,
-      "roll": null,
+      "roll": 6,
       "iconClass": "ra ra-gem"
     },
     {
@@ -126,7 +206,7 @@
       "shots": 5,
       "cost": 1,
       "slots": 1,
-      "roll": null,
+      "roll": 6,
       "iconClass": "ra ra-bullets"
     },
     {
@@ -135,7 +215,7 @@
       "shots": 5,
       "cost": 1,
       "slots": 1,
-      "roll": null,
+      "roll": 6,
       "iconClass": "ra ra-bullets"
     },
     {
@@ -144,7 +224,7 @@
       "shots": 1,
       "cost": 2,
       "slots": 1,
-      "roll": null,
+      "roll": 6,
       "iconClass": "ra ra-cannon-shot"
     }
   ]
