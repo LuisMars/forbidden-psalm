@@ -44,6 +44,43 @@ public class WarbandExportFormatterService
         sb.AppendLine("---");
         sb.AppendLine();
 
+        // Warband Pet
+        if (warband.Pet != null)
+        {
+            sb.AppendLine("## Warband Pet");
+            sb.AppendLine();
+            FormatPetAsMarkdown(sb, warband.Pet);
+            sb.AppendLine();
+            sb.AppendLine("---");
+            sb.AppendLine();
+        }
+
+        // Dead Pet
+        if (warband.DeadPet != null)
+        {
+            sb.AppendLine("## Fallen Pet");
+            sb.AppendLine();
+            sb.AppendLine($"*{warband.DeadPet.Name} died in battle.*");
+            sb.AppendLine();
+            FormatPetAsMarkdown(sb, warband.DeadPet);
+            sb.AppendLine();
+            sb.AppendLine("---");
+            sb.AppendLine();
+        }
+
+        // Fired Pet
+        if (warband.FiredPet != null)
+        {
+            sb.AppendLine("## Dismissed Pet");
+            sb.AppendLine();
+            sb.AppendLine($"*{warband.FiredPet.Name} was released from the warband.*");
+            sb.AppendLine();
+            FormatPetAsMarkdown(sb, warband.FiredPet);
+            sb.AppendLine();
+            sb.AppendLine("---");
+            sb.AppendLine();
+        }
+
         // Active Members
         if (options.IncludeMembers && warband.Members.Any())
         {
@@ -136,7 +173,7 @@ public class WarbandExportFormatterService
     {
         return gameVariant switch
         {
-            "end-times" => "Mörk Borg: End Times",
+            "end-times" => "Forbidden Psalm: End Times",
             "28-psalms" => "Forbidden Psalm: 28 Psalms",
             "last-war" => "Forbidden Psalm: Last War",
             _ => gameVariant
@@ -304,6 +341,85 @@ public class WarbandExportFormatterService
                 sb.AppendLine();
                 FormatEquipmentTable(sb, inventoryItems);
             }
+        }
+    }
+
+    private void FormatPetAsMarkdown(StringBuilder sb, Equipment pet)
+    {
+        sb.AppendLine($"### {pet.Name}");
+        sb.AppendLine();
+
+        // Pet Type and Cost
+        sb.AppendLine($"**Type:** {FormatItemTypeName(pet.Type).TrimEnd('s')}");
+        if (pet.Cost > 0)
+            sb.AppendLine($"**Cost:** {pet.Cost}g");
+        sb.AppendLine();
+
+        // Stat Modifiers
+        var hasStatModifiers = pet.StatModifierStrength != 0 ||
+                               pet.StatModifierAgility != 0 ||
+                               pet.StatModifierPresence != 0 ||
+                               pet.StatModifierToughness != 0;
+
+        if (hasStatModifiers)
+        {
+            sb.AppendLine("**Stat Modifiers:**");
+            sb.AppendLine();
+
+            var modifiers = new List<string>();
+            if (pet.StatModifierStrength != 0)
+                modifiers.Add($"STR {(pet.StatModifierStrength > 0 ? "+" : "")}{pet.StatModifierStrength}");
+            if (pet.StatModifierAgility != 0)
+                modifiers.Add($"AGI {(pet.StatModifierAgility > 0 ? "+" : "")}{pet.StatModifierAgility}");
+            if (pet.StatModifierPresence != 0)
+                modifiers.Add($"PRE {(pet.StatModifierPresence > 0 ? "+" : "")}{pet.StatModifierPresence}");
+            if (pet.StatModifierToughness != 0)
+                modifiers.Add($"TGH {(pet.StatModifierToughness > 0 ? "+" : "")}{pet.StatModifierToughness}");
+
+            foreach (var modifier in modifiers)
+            {
+                sb.AppendLine($"- {modifier}");
+            }
+            sb.AppendLine();
+        }
+
+        // Damage
+        if (!string.IsNullOrEmpty(pet.Damage))
+        {
+            sb.AppendLine($"**Damage:** {pet.Damage}");
+            sb.AppendLine();
+        }
+
+        // Properties and Special Abilities
+        if (pet.Properties != null && pet.Properties.Any())
+        {
+            sb.AppendLine("**Properties:**");
+            sb.AppendLine();
+            foreach (var prop in pet.Properties)
+            {
+                sb.AppendLine($"- {prop}");
+            }
+            sb.AppendLine();
+        }
+
+        if (!string.IsNullOrEmpty(pet.Special))
+        {
+            sb.AppendLine($"**Special:** {pet.Special}");
+            sb.AppendLine();
+        }
+
+        if (!string.IsNullOrEmpty(pet.Effect))
+        {
+            sb.AppendLine($"**Effect:** {pet.Effect}");
+            sb.AppendLine();
+        }
+
+        // Pet Equipment/Armor
+        if (pet.EquippedItems != null && pet.EquippedItems.Any())
+        {
+            sb.AppendLine("**Pet Equipment:**");
+            sb.AppendLine();
+            FormatEquipmentTable(sb, pet.EquippedItems);
         }
     }
 

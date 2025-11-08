@@ -1,0 +1,144 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.Services
+@using ForbiddenPsalmBuilder.Core.Services.State
+
+<div class="mb-3">
+    <label class="form-label">@Label</label>
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <select class="form-select" @bind="selectedPetId" @bind:after="OnPetChanged" disabled="@(AvailablePets.Count == 0)">
+            <option value="">-- Select Pet --</option>
+            @foreach (var pet in AvailablePets)
+            {
+                <option value="@pet.Id">@pet.Name (@GetEffectiveCost(pet)@CurrencySymbol)</option>
+            }
+        </select>
+        @if (SelectedPet != null && !string.IsNullOrEmpty(SelectedPet.IconClass))
+        {
+            <i class="@SelectedPet.IconClass fs-4 text-primary"></i>
+        }
+    </div>
+
+    @if (SelectedPet != null)
+    {
+        <div class="card">
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(SelectedPet.Special))
+                {
+                    <p class="text-body-secondary mb-3">@SelectedPet.Special</p>
+                }
+
+                <div class="mb-2">
+                    <span class="fw-semibold d-block mb-1"><i class="fas fa-coins"></i> Cost:</span>
+                    <small class="text-body-secondary">
+                        @GetEffectiveCost(SelectedPet)@CurrencySymbol
+                        @if (HasAnimalLoverFeat)
+                        {
+                            <span class="text-success ms-2"><i class="fas fa-heart"></i> Animal Lover: -50%</span>
+                        }
+                    </small>
+                </div>
+
+                @if (SelectedPet.Properties != null && SelectedPet.Properties.Any())
+                {
+                    <div class="mb-2">
+                        <span class="fw-semibold d-block mb-1"><i class="fas fa-star"></i> Properties:</span>
+                        <ul class="small mb-0 ps-3">
+                            @foreach (var prop in SelectedPet.Properties)
+                            {
+                                <li class="text-body-secondary">@prop</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <button class="btn btn-sm btn-success" @onclick="BuyPet" disabled="@(!CanAfford)">
+                    <i class="fas fa-shopping-cart"></i>
+                    Buy Pet
+                </button>
+                @if (!CanAfford)
+                {
+                    <small class="text-danger ms-2">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Insufficient funds (need @GetEffectiveCost(SelectedPet)@CurrencySymbol, have @WarebandGold@CurrencySymbol)
+                    </small>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<Equipment> AvailablePets { get; set; } = new();
+
+    [Parameter]
+    public Warband? Warband { get; set; }
+
+    [Parameter]
+    public EventCallback<Equipment> OnPetSelected { get; set; }
+
+    [Parameter]
+    public string Label { get; set; } = "Purchase Pet";
+
+    [Parameter]
+    public string CurrencySymbol { get; set; } = "G";
+
+    [Inject]
+    public IGameStateService StateService { get; set; } = null!;
+
+    private string? selectedPetId;
+    private Equipment? SelectedPet => AvailablePets.FirstOrDefault(p => p.Id == selectedPetId);
+    private int WarebandGold => Warband?.Gold ?? 0;
+
+    private bool CanAfford => SelectedPet != null && GetEffectiveCost(SelectedPet) <= WarebandGold;
+
+    private bool HasAnimalLoverFeat
+    {
+        get
+        {
+            if (Warband == null)
+                return false;
+            return Warband.Members.Any(c => c.Feats.Any(f => f.Equals("Animal Lover", StringComparison.OrdinalIgnoreCase)));
+        }
+    }
+
+    private int GetEffectiveCost(Equipment pet)
+    {
+        if (Warband == null)
+            return pet.Cost;
+        return StateService.CalculatePetCostWithFeatModifiers(pet, Warband);
+    }
+
+    protected override void OnParametersSet()
+    {
+        selectedPetId = null;
+    }
+
+    private async Task OnPetChanged()
+    {
+        // Selection changed, wait for buy button
+    }
+
+    private async Task BuyPet()
+    {
+        if (SelectedPet == null || Warband == null)
+            return;
+
+        try
+        {
+            await StateService.AddPetToWarbandAsync(Warband.Id, SelectedPet.Id, SelectedPet);
+            selectedPetId = null; // Reset selection
+            if (OnPetSelected.HasDelegate)
+            {
+                await OnPetSelected.InvokeAsync(SelectedPet);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Error handling would be done by parent component
+            System.Diagnostics.Debug.WriteLine($"Error buying pet: {ex.Message}");
+        }
+    }
+}

@@ -7,6 +7,9 @@
       "treasure": false,
       "equipment": false,
       "weapons": false
+    },
+    "campaignRestrictions": {
+      "hiring": "Pets can be purchased during post-scenario equipment phase"
     }
   },
   "availablePets": [
@@ -96,8 +99,67 @@
         "Can be ridden by other party members",
         "Requires action to mount or dismount",
         "Mounts do not get activation when ridden",
-        "Cannot climb"
+        "Cannot climb",
+        "When mounted, rider and Mount act as one",
+        "When mounted, use Mount's Agility and Strength, rider's Presence and Toughness",
+        "Makes only one attack with either Mount or rider",
+        "Rider must dismount to search or interact with Scenario Items"
       ]
+    },
+    {
+      "name": "Fire Hawk",
+      "cost": 20,
+      "stats": {
+        "agility": 5,
+        "presence": 0,
+        "strength": -2,
+        "toughness": -4
+      },
+      "attack": {
+        "name": "Throw Fire",
+        "damage": "D4",
+        "properties": ["Ranged 2", "Burn"],
+        "stat": "Agility",
+        "special": "Does not provoke attacks back"
+      },
+      "special": [
+        "Flying: Ignores all terrain during movement"
+      ]
+    },
+    {
+      "name": "Snake",
+      "cost": 10,
+      "stats": {
+        "agility": 4,
+        "presence": -2,
+        "strength": -1,
+        "toughness": -3
+      },
+      "attack": {
+        "name": "Bite",
+        "damage": "1",
+        "stat": "Agility"
+      },
+      "special": [
+        "Venomous: On successful bite, target must succeed at a Toughness test or become Poisoned",
+        "Target is also Dazed for one round"
+      ]
+    },
+    {
+      "name": "Giant Bombardier Beetle",
+      "cost": 15,
+      "stats": {
+        "agility": 1,
+        "presence": -3,
+        "strength": -2,
+        "toughness": 2
+      },
+      "attack": {
+        "name": "Noxious Chemical Spray",
+        "damage": "D4",
+        "properties": ["Ranged 6"],
+        "stat": "Agility"
+      }
     }
   ],
   "petEquipment": {
@@ -115,17 +177,25 @@
   "wildCreatures": {
     "morkaPorta": {
       "name": "Morka-Porka (Wild Hogs)",
+      "cost": "Cannot be purchased - only tamed in combat",
       "stats": {
         "hp": 10,
-        "morale": 5,
-        "attack": "Gore D8",
-        "armor": 1
+        "morale": 5
       },
+      "attack": {
+        "name": "Gore",
+        "damage": "D8"
+      },
+      "armor": 1,
       "taming": {
         "requirement": "Feed it their flesh when within 1 inch",
         "test": "DR12 Presence test",
-        "success": "Gain Lost Limb Injury but gain Morka-Porka as mount (+3 inches movement, gain gore attack D8)",
-        "failure": "It attacks the model"
+        "success": "Gain Lost Limb Injury but gain Morka-Porka as mount",
+        "successEffects": [
+          "Movement increased by 3 inches",
+          "Gain Gore attack [D8][Strength]"
+        ],
+        "failure": "Morka-Porka attacks the model"
       }
     }
   }

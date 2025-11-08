@@ -52,14 +52,6 @@
       "consumableEffect": "heal_hp"
     },
     {
-      "name": "Ammo",
-      "effect": "Five shots per stack of Ammo",
-      "cost": 1,
-      "slots": 1,
-      "roll": 6,
-      "iconClass": "fas fa-box"
-    },
-    {
       "name": "Antidote",
       "effect": "Cures Poisoned",
       "cost": 7,

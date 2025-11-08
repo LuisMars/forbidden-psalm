@@ -65,6 +65,18 @@ public interface IGameStateService
     Task MarkRelicAsAcquiredAsync(string warbandId, string relicId);
     Task MarkRelicAsAvailableAsync(string warbandId, string relicId);
 
+    // Pet Management
+    Task<List<Equipment>> GetAvailablePetsAsync(string gameVariant);
+    Task<Equipment?> GetWarbandPetAsync(string warbandId);
+    Task<bool> CanWarbandHavePetAsync(string warbandId);
+    Task AddPetToWarbandAsync(string warbandId, string petId, Equipment pet);
+    Task RemovePetFromWarbandAsync(string warbandId);
+    Task MarkPetDeadAsync(string warbandId, Equipment pet);
+    Task FirePetAsync(string warbandId, Equipment pet);
+    Task EquipPetArmorAsync(string warbandId, Equipment armor);
+    Task UnequipPetArmorAsync(string warbandId);
+    int CalculatePetCostWithFeatModifiers(Equipment pet, Warband warband);
+
     // Feat & Flaw Management
     Task<string> RollFeatAsync(string warbandId, string characterId);
     Task<string> RollFlawAsync(string warbandId, string characterId);

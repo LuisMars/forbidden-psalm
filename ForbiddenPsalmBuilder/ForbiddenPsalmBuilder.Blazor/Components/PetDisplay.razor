@@ -1,0 +1,184 @@
+@namespace ForbiddenPsalmBuilder.Components
+@using ForbiddenPsalmBuilder.Core.Models.Character
+@using ForbiddenPsalmBuilder.Core.Models.Warband
+@using ForbiddenPsalmBuilder.Core.Services.State
+
+@if (Pet != null)
+{
+    <section class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h3 mb-0">
+                <i class="@Pet.IconClass"></i>
+                @Pet.Name
+            </h2>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-warning" @onclick="MarkPetDead" title="Pet died in battle">
+                    <i class="fas fa-skull"></i>
+                    Mark Dead
+                </button>
+                <button type="button" class="btn btn-sm btn-danger" @onclick="FirePet" title="Remove pet and receive gold">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Fire (@(Pet.Cost / 2)@CurrencySymbol)
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Pet.Special))
+                {
+                    <p class="text-body-secondary mb-2">@Pet.Special</p>
+                }
+
+                @if (Pet.Properties != null && Pet.Properties.Any())
+                {
+                    <div class="mb-2">
+                        <span class="fw-semibold d-block mb-1"><i class="fas fa-star"></i> Abilities:</span>
+                        <ul class="small mb-0 ps-3">
+                            @foreach (var prop in Pet.Properties)
+                            {
+                                <li class="text-body-secondary">@prop</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <div class="row g-2 mt-2 text-center">
+                    @if (!string.IsNullOrEmpty(Pet.Damage))
+                    {
+                        <div class="col-6 col-sm-3">
+                            <small class="text-body-secondary">Damage</small>
+                            <div class="fw-bold">@Pet.Damage</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Pet.Stat))
+                    {
+                        <div class="col-6 col-sm-3">
+                            <small class="text-body-secondary">Stat</small>
+                            <div class="fw-bold">@Pet.Stat</div>
+                        </div>
+                    }
+                    @if (Pet.ArmorValue > 0)
+                    {
+                        <div class="col-6 col-sm-3">
+                            <small class="text-body-secondary">Base Armor</small>
+                            <div class="fw-bold">@Pet.ArmorValue</div>
+                        </div>
+                    }
+                    <div class="col-6 col-sm-3">
+                        <small class="text-body-secondary">Slots</small>
+                        <div class="fw-bold">@Pet.Slots</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pet Equipment/Armor -->
+        @if (Pet.EquippedItems != null && Pet.EquippedItems.Any())
+        {
+            <div class="mb-3">
+                <h5 class="mb-2">Equipment</h5>
+                <div class="row g-2">
+                    @foreach (var equipment in Pet.EquippedItems)
+                    {
+                        <div class="col-12 col-md-6">
+                            <div class="card border-secondary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">@equipment.Name</h6>
+                                            @if (equipment.ArmorValue > 0)
+                                            {
+                                                <small class="text-body-secondary">Armor: +@equipment.ArmorValue</small>
+                                            }
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => UnequipPetArmor()">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </section>
+}
+
+@code {
+    [Parameter]
+    public Equipment? Pet { get; set; }
+
+    [Parameter]
+    public Warband? Warband { get; set; }
+
+    [Parameter]
+    public EventCallback OnPetRemoved { get; set; }
+
+    [Parameter]
+    public EventCallback OnPetEquipmentChanged { get; set; }
+
+    [Parameter]
+    public string CurrencySymbol { get; set; } = "G";
+
+    [Inject]
+    public IGameStateService StateService { get; set; } = null!;
+
+    private async Task MarkPetDead()
+    {
+        if (Warband == null || Pet == null)
+            return;
+
+        try
+        {
+            await StateService.MarkPetDeadAsync(Warband.Id, Pet);
+            if (OnPetRemoved.HasDelegate)
+            {
+                await OnPetRemoved.InvokeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error marking pet dead: {ex.Message}");
+        }
+    }
+
+    private async Task FirePet()
+    {
+        if (Warband == null || Pet == null)
+            return;
+
+        try
+        {
+            await StateService.FirePetAsync(Warband.Id, Pet);
+            if (OnPetRemoved.HasDelegate)
+            {
+                await OnPetRemoved.InvokeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error firing pet: {ex.Message}");
+        }
+    }
+
+    private async Task UnequipPetArmor()
+    {
+        if (Warband == null)
+            return;
+
+        try
+        {
+            await StateService.UnequipPetArmorAsync(Warband.Id);
+            if (OnPetEquipmentChanged.HasDelegate)
+            {
+                await OnPetEquipmentChanged.InvokeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error unequipping pet armor: {ex.Message}");
+        }
+    }
+}

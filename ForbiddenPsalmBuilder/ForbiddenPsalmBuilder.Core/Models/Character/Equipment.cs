@@ -35,6 +35,15 @@ public class Equipment
     // Custom item tracking
     public bool IsCustom { get; set; } = false; // Flag for user-created custom items
 
+    // Pet equipment (for pets that can equip armor/items)
+    public List<Equipment> EquippedItems { get; set; } = new(); // Equipment that this item (typically a pet) can equip
+
+    // Pet stat modifiers (for pets that modify warband member stats)
+    public int StatModifierStrength { get; set; } = 0; // Strength modifier when pet is in warband
+    public int StatModifierAgility { get; set; } = 0; // Agility modifier
+    public int StatModifierPresence { get; set; } = 0; // Presence modifier
+    public int StatModifierToughness { get; set; } = 0; // Toughness modifier
+
     // Computed properties
     public bool IsWeapon => Type.Equals("weapon", StringComparison.OrdinalIgnoreCase);
     public bool IsArmor => Type.Equals("armor", StringComparison.OrdinalIgnoreCase);

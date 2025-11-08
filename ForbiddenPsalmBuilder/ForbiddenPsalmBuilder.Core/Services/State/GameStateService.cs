@@ -25,6 +25,7 @@ public class GameStateService : IGameStateService
     private readonly InjuryService _injuryService;
     private readonly SpellService _spellService;
     private readonly CampaignProgressionService _campaignProgressionService;
+    private readonly PetService _petService;
     private const string StateStorageKey = "forbidden-psalm-state";
     private static readonly Lazy<WarbandNameGenerator> _nameGenerator = new(LoadNameGenerator);
 
@@ -75,6 +76,7 @@ public class GameStateService : IGameStateService
         _injuryService = new InjuryService(_resourceService);
         _spellService = new SpellService(_resourceService);
         _campaignProgressionService = new CampaignProgressionService(_resourceService);
+        _petService = new PetService(_resourceService);
     }
 
     // Game variant management
@@ -2495,6 +2497,236 @@ public class GameStateService : IGameStateService
         {
             return false;
         }
+    }
+
+    #endregion
+
+    #region Pet Management
+
+    public async Task<List<Equipment>> GetAvailablePetsAsync(string gameVariant)
+    {
+        return await _petService.GetAvailablePetsAsync(gameVariant);
+    }
+
+    public async Task<Equipment?> GetWarbandPetAsync(string warbandId)
+    {
+        var warband = await GetWarbandAsync(warbandId);
+        if (warband == null)
+            throw new ArgumentException($"Warband not found: {warbandId}");
+
+        return warband.Pet;
+    }
+
+    public async Task<bool> CanWarbandHavePetAsync(string warbandId)
+    {
+        var warband = await GetWarbandAsync(warbandId);
+        if (warband == null)
+            throw new ArgumentException($"Warband not found: {warbandId}");
+
+        // A warband can have a pet if it doesn't already have one
+        return warband.Pet == null;
+    }
+
+    public async Task AddPetToWarbandAsync(string warbandId, string petId, Equipment pet)
+    {
+        var warband = await GetWarbandAsync(warbandId);
+        if (warband == null)
+            throw new ArgumentException($"Warband not found: {warbandId}");
+
+        // Check if warband already has a pet
+        if (warband.Pet != null)
+            throw new InvalidOperationException("Warband already has a pet");
+
+        // Apply animal lover feat discount if applicable
+        var petCost = CalculatePetCostWithFeatModifiers(pet, warband);
+
+        // Check if warband has sufficient gold for actual cost (after discounts)
+        if (warband.Gold < petCost)
+            throw new InvalidOperationException($"Insufficient gold to buy pet. Required: {petCost}, Available: {warband.Gold}");
+
+        // Deduct gold
+        warband.Gold -= petCost;
+
+        // Add pet to warband (create a copy with a new ID)
+        warband.Pet = new Equipment
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = pet.Name,
+            Type = pet.Type,
+            Category = pet.Category,
+            Damage = pet.Damage,
+            Range = pet.Range,
+            Properties = pet.Properties,
+            Stat = pet.Stat,
+            Cost = petCost, // Store actual cost paid (with feat modifiers applied)
+            Slots = pet.Slots,
+            IconClass = pet.IconClass,
+            Effect = pet.Effect,
+            RollRange = pet.RollRange,
+            ArmorValue = pet.ArmorValue,
+            ArmorType = pet.ArmorType,
+            Special = pet.Special,
+            Restrictions = pet.Restrictions,
+            Effects = pet.Effects,
+            StatModifierStrength = pet.StatModifierStrength,
+            StatModifierAgility = pet.StatModifierAgility,
+            StatModifierPresence = pet.StatModifierPresence,
+            StatModifierToughness = pet.StatModifierToughness,
+            IsEquipped = false,
+            EquippedItems = new List<Equipment>()
+        };
+
+        await _warbandRepository.SaveAsync(warband);
+        _state.NotifyStateChanged();
+    }
+
+    public async Task RemovePetFromWarbandAsync(string warbandId)
+    {
+        var warband = await GetWarbandAsync(warbandId);
+        if (warband == null)
+            throw new ArgumentException($"Warband not found: {warbandId}");
+
+        if (warband.Pet == null)
+            return; // No pet to remove
+
+        // Refund half the pet cost (rounded down)
+        var refund = warband.Pet.Cost / 2;
+        warband.Gold += refund;
+
+        // Remove the pet
+        warband.Pet = null;
+
+        await _warbandRepository.SaveAsync(warband);
+        _state.NotifyStateChanged();
+    }
+
+    public async Task MarkPetDeadAsync(string warbandId, Equipment pet)
+    {
+        var warband = await GetWarbandAsync(warbandId);
+        if (warband == null)
+            throw new ArgumentException($"Warband not found: {warbandId}");
+
+        if (warband.Pet == null)
+            return; // No active pet to mark dead
+
+        // Move pet to dead pets
+        warband.DeadPet = warband.Pet;
+        warband.Pet = null;
+
+        await _warbandRepository.SaveAsync(warband);
+        _state.NotifyStateChanged();
+    }
+
+    public async Task FirePetAsync(string warbandId, Equipment pet)
+    {
+        var warband = await GetWarbandAsync(warbandId);
+        if (warband == null)
+            throw new ArgumentException($"Warband not found: {warbandId}");
+
+        if (warband.Pet == null)
+            return; // No active pet to fire
+
+        // Refund half the pet cost (rounded down)
+        var refund = warband.Pet.Cost / 2;
+        warband.Gold += refund;
+
+        // Move pet to fired pets
+        warband.FiredPet = warband.Pet;
+        warband.Pet = null;
+
+        await _warbandRepository.SaveAsync(warband);
+        _state.NotifyStateChanged();
+    }
+
+    public async Task EquipPetArmorAsync(string warbandId, Equipment armor)
+    {
+        var warband = await GetWarbandAsync(warbandId);
+        if (warband == null)
+            throw new ArgumentException($"Warband not found: {warbandId}");
+
+        if (warband.Pet == null)
+            throw new InvalidOperationException("Warband has no pet to equip armor on");
+
+        // Check if warband has sufficient gold
+        if (warband.Gold < armor.Cost)
+            throw new InvalidOperationException($"Insufficient gold to buy pet armor. Required: {armor.Cost}, Available: {warband.Gold}");
+
+        // Deduct gold
+        warband.Gold -= armor.Cost;
+
+        // Create armor copy
+        var armorCopy = new Equipment
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = armor.Name,
+            Type = armor.Type,
+            Category = armor.Category,
+            Damage = armor.Damage,
+            Range = armor.Range,
+            Properties = armor.Properties,
+            Stat = armor.Stat,
+            Cost = armor.Cost,
+            Slots = armor.Slots,
+            IconClass = armor.IconClass,
+            Effect = armor.Effect,
+            RollRange = armor.RollRange,
+            ArmorValue = armor.ArmorValue,
+            ArmorType = armor.ArmorType,
+            Special = armor.Special,
+            Restrictions = armor.Restrictions,
+            Effects = armor.Effects,
+            IsEquipped = true
+        };
+
+        warband.Pet.EquippedItems.Add(armorCopy);
+
+        await _warbandRepository.SaveAsync(warband);
+        _state.NotifyStateChanged();
+    }
+
+    public async Task UnequipPetArmorAsync(string warbandId)
+    {
+        var warband = await GetWarbandAsync(warbandId);
+        if (warband == null)
+            throw new ArgumentException($"Warband not found: {warbandId}");
+
+        if (warband.Pet == null)
+            throw new InvalidOperationException("Warband has no pet");
+
+        if (warband.Pet.EquippedItems.Count == 0)
+            return; // No equipment to unequip
+
+        // Remove equipped armor (typically there's only one piece)
+        var equippedArmor = warband.Pet.EquippedItems.FirstOrDefault(e => e.IsEquipped);
+        if (equippedArmor != null)
+        {
+            warband.Pet.EquippedItems.Remove(equippedArmor);
+            // Refund half the armor cost
+            warband.Gold += equippedArmor.Cost / 2;
+        }
+
+        await _warbandRepository.SaveAsync(warband);
+        _state.NotifyStateChanged();
+    }
+
+    public int CalculatePetCostWithFeatModifiers(Equipment pet, Warband warband)
+    {
+        if (pet == null)
+            return 0;
+
+        var baseCost = pet.Cost;
+
+        // Check if any character in the warband has the Animal Lover feat
+        var hasAnimalLover = warband.Members.Any(c =>
+            c.Feats.Any(f => f.Equals("Animal Lover", StringComparison.OrdinalIgnoreCase)));
+
+        if (hasAnimalLover)
+        {
+            // Animal Lover feat reduces pet cost by half (rounded down)
+            baseCost = baseCost / 2;
+        }
+
+        return baseCost;
     }
 
     #endregion

@@ -73,7 +73,8 @@ public class EmbeddedResourceTests
             "feats-flaws.json",
             "injuries.json",
             "magic-system.json",
-            "traders.json"
+            "traders.json",
+            "pets.json"
         };
 
         foreach (var fileName in requiredFiles)

@@ -68,6 +68,10 @@
                         <i class="fas fa-user"></i>
                         Add Member
                     </button>
+                    <button class="btn btn-danger" @onclick="() => showPetModal = true">
+                        <i class="fas fa-paw"></i>
+                        @(warband.Pet == null ? "Add Pet" : "Pet Management")
+                    </button>
                     <button class="btn btn-secondary" @onclick="PrintWarband">
                         <i class="fas fa-print"></i>
                         Print
@@ -162,6 +166,17 @@
                 </div>
             </section>
         }
+
+        <!-- Warband Pet -->
+        @if (warband.Pet != null)
+        {
+            <PetDisplay
+                Pet="@warband.Pet"
+                Warband="@warband"
+                CurrencySymbol="@GetCurrencySymbol()"
+                OnPetRemoved="@(async () => { await RefreshWarband(); })"
+                OnPetEquipmentChanged="@(async () => { await RefreshWarband(); })" />
+        }
     }
     <!-- Rename Warband Modal -->
     <Modal
@@ -254,6 +269,31 @@
                 OnImportSuccess="HandleImportSuccess" />
         </Modal>
     }
+
+    <!-- Pet Management Modal -->
+    @if (showPetModal && warband != null)
+    {
+        <Modal IsVisible="true" Title="@(warband.Pet == null ? "Add Pet to Warband" : "Pet Management")" OnClose="() => showPetModal = false" ModalDialogClass="modal-lg">
+            @if (warband.Pet == null)
+            {
+                <PetSelector
+                    AvailablePets="@availablePets"
+                    Warband="@warband"
+                    Label="Purchase a Pet"
+                    CurrencySymbol="@GetCurrencySymbol()"
+                    OnPetSelected="@(async (pet) => { showPetModal = false; await RefreshWarband(); })" />
+            }
+            else
+            {
+                <PetDisplay
+                    Pet="@warband.Pet"
+                    Warband="@warband"
+                    CurrencySymbol="@GetCurrencySymbol()"
+                    OnPetRemoved="@(async () => { showPetModal = false; await RefreshWarband(); })"
+                    OnPetEquipmentChanged="@(async () => { await RefreshWarband(); })" />
+            }
+        </Modal>
+    }
 </main>
 
 @code {
@@ -268,10 +308,12 @@
     private bool showXpSpenderModal = false;
     private bool showExportModal = false;
     private bool showImportModal = false;
+    private bool showPetModal = false;
     private List<FeatFlawOption> availableFeats = new();
     private List<FeatFlawOption> availableFlaws = new();
     private List<InjuryOption> availableInjuries = new();
     private List<SpellOption> availableSpells = new();
+    private List<Equipment> availablePets = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -309,11 +351,12 @@
                     GameVariant = warband.GameVariant
                 };
 
-                // Load feats/flaws/injuries/spells for this game variant
+                // Load feats/flaws/injuries/spells/pets for this game variant
                 availableFeats = await FeatFlawService.GetFeatsAsync(warband.GameVariant);
                 availableFlaws = await FeatFlawService.GetFlawsAsync(warband.GameVariant);
                 availableInjuries = await InjuryService.GetInjuriesAsync(warband.GameVariant);
                 availableSpells = await SpellService.GetSpellsAsync(warband.GameVariant);
+                availablePets = await StateService.GetAvailablePetsAsync(warband.GameVariant);
             }
         }
         catch (Exception ex)
@@ -558,6 +601,20 @@ ForbiddenPsalmBuilder.Components.PageHeader.BreadcrumbItem>
         if (warband == null) return false;
         // Can spend XP if there are dead members and enough XP
         return warband.DeadMembers.Any() && warband.Experience >= 5;
+    }
+
+    private bool CanAddPet()
+    {
+        if (warband == null) return false;
+        // Can add pet if warband doesn't already have one
+        return warband.Pet == null;
+    }
+
+    private async Task RefreshWarband()
+    {
+        if (string.IsNullOrEmpty(WarbandId)) return;
+        await LoadWarband();
+        StateHasChanged();
     }
 
     private void CloseExportModal()

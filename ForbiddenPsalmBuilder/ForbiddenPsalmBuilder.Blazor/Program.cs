@@ -50,6 +50,12 @@ builder.Services.AddScoped<ForbiddenPsalmBuilder.Core.Services.SpellService>(sp 
     var resourceService = sp.GetRequiredService<IEmbeddedResourceService>();
     return new ForbiddenPsalmBuilder.Core.Services.SpellService(resourceService);
 });
+builder.Services.AddScoped<ForbiddenPsalmBuilder.Core.Services.PetService>(sp =>
+{
+    var resourceService = sp.GetRequiredService<IEmbeddedResourceService>();
+    var logger = sp.GetRequiredService<ILogger<ForbiddenPsalmBuilder.Core.Services.PetService>>();
+    return new ForbiddenPsalmBuilder.Core.Services.PetService(resourceService, logger);
+});
 
 // Storage services
 builder.Services.AddScoped<IStateStorageService, LocalStorageService>();

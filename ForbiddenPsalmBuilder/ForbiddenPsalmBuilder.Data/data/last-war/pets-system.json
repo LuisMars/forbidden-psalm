@@ -1,0 +1,99 @@
+{
+  "petRules": {
+    "limit": 1,
+    "inAdditionToWarband": true,
+    "restrictions": {
+      "scrolls": false,
+      "treasure": false,
+      "equipment": false,
+      "weapons": false
+    },
+    "campaignRestrictions": {
+      "hiring": "Service Animals can be purchased during post-scenario equipment phase"
+    }
+  },
+  "availablePets": [
+    {
+      "name": "Service Dog",
+      "cost": 15,
+      "stats": {
+        "agility": 2,
+        "presence": 0,
+        "strength": 0,
+        "toughness": -2
+      },
+      "attack": {
+        "name": "Bite",
+        "damage": "D6",
+        "stat": "Strength"
+      },
+      "special": [
+        "Can search for Treasure",
+        "Can pick up and carry 1 Item"
+      ]
+    },
+    {
+      "name": "Trench Cat",
+      "cost": 10,
+      "stats": {
+        "agility": 6,
+        "presence": 3,
+        "strength": -3,
+        "toughness": -4
+      },
+      "attack": {
+        "name": "Claw",
+        "damage": "2",
+        "stat": "Agility"
+      },
+      "special": [
+        "Trench Rats won't move closer to Trench Cat",
+        "Can eat face of downed enemy for +1HP (permanent, kills downed model)"
+      ]
+    },
+    {
+      "name": "Pack Mule",
+      "cost": 15,
+      "stats": {
+        "agility": 1,
+        "presence": 0,
+        "strength": 5,
+        "toughness": 1
+      },
+      "attack": {
+        "name": "Stomp",
+        "damage": "D4",
+        "stat": "Strength"
+      },
+      "special": [
+        "Can carry 10 items",
+        "Models within 1 inch can add/remove items as action"
+      ]
+    },
+    {
+      "name": "Gas Slug",
+      "cost": 15,
+      "stats": {
+        "agility": -2,
+        "presence": 1,
+        "strength": 0,
+        "toughness": 0
+      },
+      "special": [
+        "Any model within 4 inches is immune to Gas and Smoke effects",
+        "Cannot attack"
+      ]
+    }
+  ],
+  "petEquipment": {
+    "petArmor": {
+      "cost": 15,
+      "armorValue": 1,
+      "slots": 1,
+      "description": "Military-grade service animal armor"
+    }
+  },
+  "featInteractions": {
+    "animalLover": "Warband pays half cost to recruit service animals"
+  }
+}

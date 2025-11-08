@@ -12,6 +12,9 @@ public class Warband
     public List<Character.Character> FiredMembers { get; set; } = new(); // Released members
     public List<Character.Equipment> Stash { get; set; } = new(); // Warband equipment storage
     public List<Character.Equipment> CustomItems { get; set; } = new(); // User-created custom items for this warband
+    public Character.Equipment? Pet { get; set; } // Warband pet (active)
+    public Character.Equipment? DeadPet { get; set; } // Fallen pet
+    public Character.Equipment? FiredPet { get; set; } // Released/sold pet
     public int Gold { get; set; } = 50; // Starting budget
     public int Experience { get; set; }
     public List<string> UpgradesPurchased { get; set; } = new();
